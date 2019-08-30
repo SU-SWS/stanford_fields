@@ -4,5 +4,5 @@ description: 'Field types, widgets and formatters to enhance Drupal and Contrib.
 core: 8.x
 package: Stanford
 version: 8.x-1.0-dev
- dependencies:
-   - drupal:field
+dependencies:
+ - drupal:field
