@@ -1,6 +1,8 @@
 # [Stanford Fields](https://github.com/SU-SWS/stanford_fields)
 ##### Version: 8.x-1.x
 
+[![CircleCI](https://circleci.com/gh/SU-SWS/stanford_fields.svg?style=svg)](https://circleci.com/gh/SU-SWS/stanford_fields)
+
 Maintainers: [Mike Decker](https://github.com/pookmish), [sherakama](https://github.com/sherakama)  
 
 Changelog: [Changelog.txt](CHANGELOG.txt)
