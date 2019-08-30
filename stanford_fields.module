@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * stanford_fields.module
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add validation to field add form.
+ */
+function stanford_fields_form_field_ui_field_storage_add_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#validate'][] = 'stanford_fields_field_storage_add_validate';
+}
+
+/**
+ * Field storage add validation to prevent hashed table names.
+ *
+ * @see \Drupal\Core\Entity\Sql\DefaultTableMapping::generateFieldTableName()
+ */
+function stanford_fields_field_storage_add_validate(&$form, FormStateInterface $form_state) {
+  $entity_type = $form_state->getBuildInfo()['args'][0];
+  $field_name = $form_state->getValue('field_name');
+  $field_prefix = \Drupal::config('field_ui.settings')->get('field_prefix');
+
+  // When a table name is over 48 characters, Drupal will hash the field name
+  // to create a shorter field table. This makes it nearly impossible to track
+  // down exactly what table is for what field without inspecting the field
+  // storage config entity.
+  if (strlen("{$entity_type}_revision__{$field_prefix}$field_name") > 48) {
+    $form_state->setError($form['new_storage_wrapper']['field_name'], t('Field name is too long. Please keep this field name under @count characters'));
+  }
+}

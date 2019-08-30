@@ -1,4 +1,4 @@
-# [Stanford Module Example](https://github.com/SU-SWS/stanford_module_example)
+# [Stanford Module Example](https://github.com/SU-SWS/stanford_fields_example)
 ##### Version: 8.x-2.x
 
 Maintainers: [Mike Decker](https://github.com/pookmish), [sherakama](https://github.com/sherakama)  

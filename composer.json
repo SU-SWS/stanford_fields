@@ -1,8 +1,8 @@
 {
-  "name": "su-sws/stanford_module_example",
-  "description": "Stanford Module Example",
+  "name": "su-sws/stanford_fields",
+  "description": "Stanford Fields",
   "type": "drupal-custom-module",
-  "homepage": "https://github.com/SU-SWS/stanford_module_example",
+  "homepage": "https://github.com/SU-SWS/stanford_fields",
   "authors": [],
   "license": "GPL-2.0+",
   "minimum-stability": "dev",
