@@ -1,0 +1,8 @@
+name: 'Stanford Module Example'
+type: module
+description: 'Does some stuff'
+core: 8.x
+package: Stanford
+version: 8.x-1.0-dev
+# dependencies:
+#   - layout_plugin
