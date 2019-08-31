@@ -14,7 +14,7 @@ use Drupal\Tests\UnitTestCase;
 /**
  * Class LinkFieldColumnUriTest.
  *
- * @group stanford_media
+ * @group stanford_fields
  * @coversDefaultClass \Drupal\stanford_fields\Plugin\DsField\LinkFieldColumnUriText
  */
 class LinkFieldColumnUriTest extends UnitTestCase {

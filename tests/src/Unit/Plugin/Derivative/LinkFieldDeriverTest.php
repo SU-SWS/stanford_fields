@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\stanford_media\Unit\Plugin\Derivative;
+namespace Drupal\Tests\stanford_fields\Unit\Plugin\Derivative;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
@@ -13,7 +13,7 @@ use Drupal\Tests\UnitTestCase;
 /**
  * Class LinkFieldDeriverTest.
  *
- * @package Drupal\Tests\stanford_media\Unit\Plugin\Derivative
+ * @package Drupal\Tests\stanford_fields\Unit\Plugin\Derivative
  */
 class LinkFieldDeriverTest extends UnitTestCase {
 

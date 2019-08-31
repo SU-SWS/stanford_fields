@@ -11,7 +11,7 @@ use Drupal\Tests\UnitTestCase;
 /**
  * Class LinkFieldColumnLabelTextTest.
  *
- * @group stanford_media
+ * @group stanford_fields
  * @coversDefaultClass \Drupal\stanford_fields\Plugin\DsField\LinkFieldColumnLabelText
  */
 class LinkFieldColumnLabelTextTest extends UnitTestCase {
