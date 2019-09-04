@@ -6,12 +6,15 @@ use Drupal\Component\Plugin\Derivative\DeriverBase;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\Discovery\ContainerDeriverInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a derivative for bundle fields.
  */
 class LinkFieldDeriver extends DeriverBase implements ContainerDeriverInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The base plugin ID that the derivative is for.
@@ -81,37 +84,28 @@ class LinkFieldDeriver extends DeriverBase implements ContainerDeriverInterface 
 
           // OK, define it.
           $id = "stanford_fields_" . $entity_type . "_" . $bundle_name . "_" . $field_name;
-          $this->derivatives[$id] = $base_plugin_definition;
-          $this->derivatives[$id] += [
-            'provider' => 'stanford_fields',
-            'title' => $field_info->label() . $this->getSuffix(),
-            'entity_type' => $entity_type,
-            'ui_limit' => [$bundle_name . "|*"],
-            'field_name' => $field_name,
-          ];
+
+          $this->derivatives["{$id}_label"] = $base_plugin_definition + [
+              'provider' => 'stanford_fields',
+              'title' => $field_info->label() . ': Label',
+              'entity_type' => $entity_type,
+              'ui_limit' => [$bundle_name . "|*"],
+              'field_name' => $field_name,
+              'column' => 'label',
+            ];
+
+          $this->derivatives["{$id}_uri"] = $base_plugin_definition + [
+              'provider' => 'stanford_fields',
+              'title' => $field_info->label() . ': URI',
+              'entity_type' => $entity_type,
+              'ui_limit' => [$bundle_name . "|*"],
+              'field_name' => $field_name,
+              'column' => 'uri',
+            ];
         }
       }
     }
-
     return $this->derivatives;
-  }
-
-  /**
-   * Returns a string suffix for the derivative label based on the calling
-   * plugin.
-   *
-   * @return string
-   *   The suffix string to append to the field name.
-   */
-  private function getSuffix() {
-    $keys = [
-      'stanford_fields_link_field_column_label' => ': Label',
-      'stanford_fields_link_field_column_uri' => ': URI',
-    ];
-
-    if (array_key_exists($this->basePluginId, $keys)) {
-      return $keys[$this->basePluginId];
-    }
   }
 
 }

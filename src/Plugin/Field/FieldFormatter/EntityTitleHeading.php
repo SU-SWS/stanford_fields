@@ -8,7 +8,8 @@ use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Path\PathMatcherInterface;
-use Psr\Container\ContainerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provide a string field to be used as a heading.
@@ -21,7 +22,7 @@ use Psr\Container\ContainerInterface;
  *   }
  * )
  */
-class EntityTitleHeading extends FormatterBase {
+class EntityTitleHeading extends FormatterBase implements ContainerFactoryPluginInterface {
 
   /**
    * Path matcher service.

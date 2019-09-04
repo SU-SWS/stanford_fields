@@ -46,7 +46,7 @@ class LinkFieldDeriverTest extends UnitTestCase {
     $derivatives = $plugin->getDerivativeDefinitions(['foo' => 'bar']);
 
     $expected = [
-      'stanford_fields_node_foo_field_foo' => [
+      'stanford_fields_node_foo_field_foo_label' => [
         'foo' => 'bar',
         'provider' => 'stanford_fields',
         'title' => 'Foo: Label',
@@ -55,6 +55,18 @@ class LinkFieldDeriverTest extends UnitTestCase {
           0 => 'foo|*',
         ],
         'field_name' => 'field_foo',
+        'column' => 'label',
+      ],
+      'stanford_fields_node_foo_field_foo_uri' => [
+        'foo' => 'bar',
+        'provider' => 'stanford_fields',
+        'title' => 'Foo: URI',
+        'entity_type' => 'node',
+        'ui_limit' => [
+          0 => 'foo|*',
+        ],
+        'field_name' => 'field_foo',
+        'column' => 'uri',
       ],
     ];
 
