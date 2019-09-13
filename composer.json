@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "drupal/ds": "4.x-dev"
+        "drupal/ds": "dev-4.x#c8db6ed6f5f2a543f9fe50d440a5dd94a1f13fae"
     },
     "autoload-dev": {
         "psr-4": {
