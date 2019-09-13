@@ -1,10 +1,23 @@
 {
-  "name": "su-sws/stanford_fields",
-  "description": "Stanford Fields",
-  "type": "drupal-custom-module",
-  "homepage": "https://github.com/SU-SWS/stanford_fields",
-  "authors": [],
-  "license": "GPL-2.0+",
-  "minimum-stability": "dev",
-  "require": {}
+    "name": "su-sws/stanford_fields",
+    "description": "Stanford Fields",
+    "type": "drupal-custom-module",
+    "homepage": "https://github.com/SU-SWS/stanford_fields",
+    "authors": [],
+    "license": "GPL-2.0+",
+    "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
+    "require": {
+        "drupal/ds": "dev-4.x#c8db6ed6f5f2a543f9fe50d440a5dd94a1f13fae"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Drupal\\Tests\\stanford_fields\\": "./tests/src"
+        }
+    }
 }
