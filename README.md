@@ -1,5 +1,5 @@
 # [Stanford Fields](https://github.com/SU-SWS/stanford_fields)
-##### Version: 8.x-1.x
+##### Version: 8.x
 
 [![CircleCI](https://circleci.com/gh/SU-SWS/stanford_fields.svg?style=svg)](https://circleci.com/gh/SU-SWS/stanford_fields)
 [![Maintainability](https://api.codeclimate.com/v1/badges/107e1f1900ec6578bf84/maintainability)](https://codeclimate.com/github/SU-SWS/stanford_fields/maintainability)
@@ -18,7 +18,6 @@ the Drupal core and contrib module fields.
 Accessibility
 ---
 [![WCAG Conformance 2.0 AA Badge](https://www.w3.org/WAI/wcag2AA-blue.png)](https://www.w3.org/TR/WCAG20/)
-Evaluation Date: 201X-XX-XX  
 This module conforms to level AA WCAG 2.0 standards as required by the university's accessibility policy. For more information on the policy please visit: [https://ucomm.stanford.edu/policies/accessibility-policy.html](https://ucomm.stanford.edu/policies/accessibility-policy.html).
 
 Installation
