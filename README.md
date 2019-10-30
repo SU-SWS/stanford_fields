@@ -36,16 +36,6 @@ Troubleshooting
 
 If you are experiencing issues with this module try reverting the feature first. If you are still experiencing issues try posting an issue on the GitHub issues page.
 
-Developer
----
-
-If you wish to develop on this module you will most likely need to compile some new css. Please use the sass structure provided and compile with the sass compiler packaged in this module. To install:
-
-```
-npm install
-npm run build
-```
-
 Contribution / Collaboration
 ---
 
