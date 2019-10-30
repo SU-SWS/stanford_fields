@@ -2,6 +2,7 @@
 ##### Version: 8.x-1.x
 
 [![CircleCI](https://circleci.com/gh/SU-SWS/stanford_fields.svg?style=svg)](https://circleci.com/gh/SU-SWS/stanford_fields)
+[![Maintainability](https://api.codeclimate.com/v1/badges/107e1f1900ec6578bf84/maintainability)](https://codeclimate.com/github/SU-SWS/stanford_fields/maintainability)
 
 Maintainers: [Mike Decker](https://github.com/pookmish), [sherakama](https://github.com/sherakama)  
 
