@@ -31,6 +31,7 @@ function stanford_fields_field_storage_add_validate(&$form, FormStateInterface $
   // down exactly what table is for what field without inspecting the field
   // storage config entity.
   if (strlen("{$entity_type}_revision__{$field_prefix}$field_name") > 48) {
-    $form_state->setError($form['new_storage_wrapper']['field_name'], t('Field name is too long. Please keep this field name under @count characters'));
+    $allowed_length = 48 - strlen("{$entity_type}_revision__{$field_prefix}");
+    $form_state->setError($form['new_storage_wrapper']['field_name'], t('Field name is too long. Please keep this field name under @count characters', ['@count' => $allowed_length]));
   }
 }
