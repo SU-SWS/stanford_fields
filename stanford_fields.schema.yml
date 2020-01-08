@@ -1,0 +1,16 @@
+field.formatter.settings.multimedia:
+  type: mapping
+  label: 'Multiple Media Field Formatter'
+  mapping:
+    image_formatter:
+      type: string
+      label: 'Image Formatter'
+    image_formatter_option:
+      type: string
+      label: 'Image Formatter Option'
+    video_formatter:
+      type: string
+      label: 'Video Formatter'
+    video_formatter_option:
+      type: string
+      label: 'Video Formatter Option'
