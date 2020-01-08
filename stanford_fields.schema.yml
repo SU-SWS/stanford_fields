@@ -14,3 +14,9 @@ field.formatter.settings.multimedia:
     video_formatter_option:
       type: string
       label: 'Video Formatter Option'
+    video_formatter_height:
+      type: integer
+      label: 'Max Video Height'
+    video_formatter_width:
+      type: integer
+      label: 'Max Video Width'
