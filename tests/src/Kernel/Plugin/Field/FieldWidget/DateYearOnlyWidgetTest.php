@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\stanford_fields\Kernel\Plugin\Field\FieldFormatter;
+namespace Drupal\Tests\stanford_fields\Kernel\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Field\FieldDefinitionInterface;

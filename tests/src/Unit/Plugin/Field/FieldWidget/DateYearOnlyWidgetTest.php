@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\stanford_fields\Unit\Plugin\Field\FieldFormatter;
+namespace Drupal\Tests\stanford_fields\Unit\Plugin\Field\FieldWidget;
 
 use Drupal\stanford_fields\Plugin\Field\FieldWidget\DateYearOnlyWidget;
 use Drupal\Tests\UnitTestCase;
