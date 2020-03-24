@@ -1,0 +1,19 @@
+field.widget.settings.datetime_year_only:
+  type: mapping
+  label: 'Year Only Date widget settings'
+  mapping:
+    increment:
+      type: integer
+      label: 'Time increments'
+    date_order:
+      type: string
+      label: 'Date part order'
+    time_type:
+      type: string
+      label: 'Time type'
+    start:
+      type: integer
+      label: 'Start Year'
+    end:
+      type: integer
+      label: 'End Year'
