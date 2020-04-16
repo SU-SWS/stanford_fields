@@ -1,5 +1,13 @@
 # Stanford Fields
 
+8.1.2
+--------------------------------------------------------------------------------
+_Release Date: 2020-04-16_
+
+* D8CORE-1644: Dev branch workflow (f163c12)
+* CSD-79 Created a date only widget for datetime fields (#7) (b426b29)
+* Update stanford_fields.info.yml (14cad23)
+
 8.x-1.1
 --------------------------------------------------------------------------------  
 _Release Date: 2019-11-19_
