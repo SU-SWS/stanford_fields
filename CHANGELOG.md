@@ -7,7 +7,8 @@ _Release Date: 2020-04-16_
 * 8.1.2 (54f1a03)
 * D8CORE-1644: Dev branch workflow (f163c12)
 * CSD-79 Created a date only widget for datetime fields (#7) (b426b29)
-* Update stanford_fields.info.yml (14cad23)* D8CORE-1644: Dev branch workflow (f163c12)
+* Update stanford_fields.info.yml (14cad23)
+* D8CORE-1644: Dev branch workflow (f163c12)
 * CSD-79 Created a date only widget for datetime fields (#7) (b426b29)
 * Update stanford_fields.info.yml (14cad23)
 
