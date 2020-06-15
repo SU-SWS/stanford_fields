@@ -1,0 +1,26 @@
+# Example theme_settings_behavior_manager plugin definitions.
+# Plugin property $defaults are defined in ThemeSettingsBehaviorManagerManager.
+first:
+  id: one
+  label: Test Various Fields
+  description: This is just a test
+  configuration:
+    background_color:
+      type: select
+      title: Background Color
+      options:
+        blue: Blue
+        red: Red
+        yellow: Yellow
+    wrapper_class:
+      type: textfield
+      title: Wrapper Class
+    well:
+      type: checkbox
+      title: Add a well
+    border_radius:
+      type: radios
+      title: Border Radius
+      options:
+        square: Squre
+        rounded: Rounded
