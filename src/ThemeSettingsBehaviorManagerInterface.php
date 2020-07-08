@@ -9,6 +9,4 @@ use Drupal\Component\Plugin\PluginManagerInterface;
  */
 interface ThemeSettingsBehaviorManagerInterface extends PluginManagerInterface {
 
-    // Add getters and other public methods for theme_settings_behavior_manager managers.
-
 }

@@ -38,11 +38,11 @@ class ParagraphBehavior extends DeriverBase implements ContainerDeriverInterface
    * {@inheritDoc}
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
-    foreach ($this->themeSettingsManager->getDefinitions() as $definition) {
-      $this->derivatives[$definition['id']] = $base_plugin_definition;
-      $this->derivatives[$definition['id']]['label'] = $definition['label'];
-      $this->derivatives[$definition['id']]['description'] = $definition['description'] ?? $base_plugin_definition['description'];
-      $this->derivatives[$definition['id']]['configuration'] = $definition['configuration'];
+    foreach ($this->themeSettingsManager->getDefinitions() as $id => $definition) {
+      $this->derivatives[$id] = $base_plugin_definition;
+      $this->derivatives[$id]['label'] = $definition['label'];
+      $this->derivatives[$id]['description'] = $definition['description'] ?? $base_plugin_definition['description'];
+      $this->derivatives[$id]['configuration'] = $definition['configuration'];
     }
     return $this->derivatives;
   }

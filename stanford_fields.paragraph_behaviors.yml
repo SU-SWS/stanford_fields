@@ -1,9 +1,11 @@
 # Example theme_settings_behavior_manager plugin definitions.
 # Plugin property $defaults are defined in ThemeSettingsBehaviorManagerManager.
 first:
-  id: one
   label: Test Various Fields
   description: This is just a test
+  bundles:
+    - stanford_text_area
+    - stanford_banner
   configuration:
     background_color:
       type: select

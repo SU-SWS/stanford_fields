@@ -14,6 +14,7 @@ use Drupal\Core\Plugin\Discovery\YamlDiscovery;
  * Provides the default theme_settings_behavior_manager manager.
  */
 class ThemeSettingsBehaviorManager extends DefaultPluginManager implements ThemeSettingsBehaviorManagerInterface {
+
   /**
    * The theme handler.
    *
@@ -27,9 +28,8 @@ class ThemeSettingsBehaviorManager extends DefaultPluginManager implements Theme
    * @var array
    */
   protected $defaults = [
-    // Add required and optional plugin properties.
-    'id' => '',
     'label' => '',
+    'configuration' => [],
   ];
 
   /**
@@ -62,15 +62,10 @@ class ThemeSettingsBehaviorManager extends DefaultPluginManager implements Theme
   }
 
   /**
-   * {@inheritdoc}
+   * {@inheritDoc}
    */
-  public function processDefinition(&$definition, $plugin_id) {
-    parent::processDefinition($definition, $plugin_id);
-
-    // You can add validation of the plugin definition here.
-    if (empty($definition['id'])) {
-      throw new PluginException(sprintf('Example plugin property (%s) definition "is" is required.', $plugin_id));
-    }
+  protected function providerExists($provider) {
+    return $this->moduleHandler->moduleExists($provider) || $this->themeHandler->themeExists($provider);
   }
 
 }

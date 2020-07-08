@@ -2,3 +2,8 @@ services:
   plugin.manager.paragraph_behaviors.theme_settings_manager:
     class: Drupal\stanford_fields\ThemeSettingsBehaviorManager
     arguments: ['@module_handler', '@theme_handler', '@cache.discovery']
+  stanford_fields.config_overrider:
+    class: Drupal\stanford_fields\Config\ConfigOverrides
+    arguments: ['@plugin.manager.paragraph_behaviors.theme_settings_manager']
+    tags:
+      - {name: config.factory.override, priority: 5}
