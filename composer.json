@@ -4,7 +4,7 @@
     "type": "drupal-custom-module",
     "homepage": "https://github.com/SU-SWS/stanford_fields",
     "authors": [],
-    "license": "GPL-2.0+",
+    "license": "GPL-2.0-or-later",
     "minimum-stability": "dev",
     "repositories": [
         {
