@@ -36,7 +36,7 @@ class DateYearOnlyWidgetTest extends KernelTestBase {
   /**
    * {@inheritDoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
@@ -88,14 +88,16 @@ class DateYearOnlyWidgetTest extends KernelTestBase {
     $ten_years = 60 * 60 * 24 * 365 * 10;
     $range = date('Y', time() - $ten_years) . ':' . date('Y', time() + $ten_years);
 
-    $this->assertEqual('datelist', $widget_value['#type']);
-    $this->assertEqual($range, $widget_value['#date_year_range']);
+    $this->assertEquals('datelist', $widget_value['#type']);
+    $this->assertEquals($range, $widget_value['#date_year_range']);
   }
 
   /**
    * Test the settings form and the summary.
    */
   public function testSettingsForm() {
+    $ten_years = 60 * 60 * 24 * 365 * 10;
+
     $field_def = $this->createMock(FieldDefinitionInterface::class);
     $config = [
       'field_definition' => $field_def,
@@ -104,17 +106,15 @@ class DateYearOnlyWidgetTest extends KernelTestBase {
     ];
     $definition = [];
     $widget = DateYearOnlyWidget::create(\Drupal::getContainer(), $config, '', $definition);
-    $summary = 'Years 2010 to 2030';
-    $this->assertEqual($summary, $widget->settingsSummary()[0]);
+    $summary = sprintf('Years %s to %s', date('Y', time() - $ten_years), date('Y', time() + $ten_years));
+    $this->assertEquals($summary, $widget->settingsSummary()[0]);
 
     $form = [];
     $form_state = new FormState();
     $element = $widget->settingsForm($form, $form_state);
 
-    $ten_years = 60 * 60 * 24 * 365 * 10;
-
-    $this->assertEqual(date('Y', time() - $ten_years), $element['start']['#default_value']);
-    $this->assertEqual(date('Y', time() + $ten_years), $element['end']['#default_value']);
+    $this->assertEquals(date('Y', time() - $ten_years), $element['start']['#default_value']);
+    $this->assertEquals(date('Y', time() + $ten_years), $element['end']['#default_value']);
   }
 
 }
