@@ -2,14 +2,7 @@
 
 namespace Drupal\stanford_fields\Plugin\views\display;
 
-use Drupal\Core\Url;
-use Drupal\Component\Plugin\Discovery\CachedDiscoveryInterface;
-use Drupal\Core\Block\BlockManagerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\views\Plugin\Block\ViewsBlock;
 use Drupal\views\Plugin\views\display\Block;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * The plugin that handles a block.
