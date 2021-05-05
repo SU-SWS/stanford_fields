@@ -62,23 +62,12 @@ class FieldCache implements FieldCacheInterface {
 
     // Loop through all fields to invalidate entities on date fields.
     foreach ($this->fieldManager->getFieldMap() as $entity_type => $fields) {
-      $entity_storage = $this->entityTypeManager->getStorage($entity_type);
-
       foreach ($fields as $field_name => $field_info) {
 
         // Only invalidate desired date fields.
         if (in_array($field_info['type'], $date_field_types)) {
-          $entity_ids = $this->getEntityIds($entity_type, $field_name, $field_info['bundles']);
-
-          // No entity ids were found that should be invalidated.
-          if (!$entity_ids) {
-            continue;
-          }
-
-          $entities = $entity_storage->loadMultiple($entity_ids);
-          foreach ($entities as $entity) {
-            $cache_tags = array_merge($cache_tags, $entity->getCacheTagsToInvalidate());
-          }
+          $tags = $this->getExpiredDateCacheTags($entity_type, $field_name, $field_info['bundles']);
+          $cache_tags = array_merge($cache_tags, $tags);
         }
       }
     }
@@ -102,7 +91,7 @@ class FieldCache implements FieldCacheInterface {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  protected function getEntityIds($entity_type, $field_name, array $bundles = []) {
+  protected function getExpiredDateCacheTags($entity_type, $field_name, array $bundles = []) {
     $entity_storage = $this->entityTypeManager->getStorage($entity_type);
     $bundle_key = $this->entityTypeManager->getDefinition($entity_type)
       ->getKey('bundle');
@@ -133,9 +122,16 @@ class FieldCache implements FieldCacheInterface {
     if ($bundle_key) {
       $query->condition($bundle_key, $bundles, 'IN');
     }
+    $tags = [];
 
-    return $query->execute();
+    // If no entity ids were found, no tags should be invalidated.
+    if ($entity_ids = $query->execute()) {
+      $entities = $entity_storage->loadMultiple($entity_ids);
+      foreach ($entities as $entity) {
+        $tags = array_merge($tags, $entity->getCacheTagsToInvalidate());
+      }
+    }
+    return $tags;
   }
-
 
 }
