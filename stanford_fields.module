@@ -35,3 +35,11 @@ function stanford_fields_field_storage_add_validate(&$form, FormStateInterface $
     $form_state->setError($form['new_storage_wrapper']['field_name'], t('Field name is too long. Please keep this field name under @count characters', ['@count' => $allowed_length]));
   }
 }
+
+/**
+ * Implements hook_cron().
+ */
+function stanford_fields_cron() {
+  \Drupal::service('stanford_fields.field_cache')->invalidateDateFieldsCache();
+  \Drupal::state()->set('stanford_fields.dates_cleared', time() - 5);
+}
