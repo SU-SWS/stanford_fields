@@ -1,0 +1,4 @@
+services:
+  stanford_fields.field_cache:
+    class: 'Drupal\stanford_fields\Service\FieldCache'
+    arguments: ['@entity_field.manager', '@entity_type.manager', '@state']

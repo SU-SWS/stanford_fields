@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * stanford_fields.install
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function stanford_fields_uninstall() {
+  \Drupal::state()->delete('stanford_fields.dates_cleared');
+}
