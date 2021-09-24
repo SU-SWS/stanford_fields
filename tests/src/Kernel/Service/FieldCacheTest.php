@@ -69,6 +69,16 @@ class FieldCacheTest extends KernelTestBase {
       'bundle' => 'page',
       'field_name' => 'field_date',
     ])->save();
+    FieldStorageConfig::create([
+      'entity_type' => 'node',
+      'type' => 'daterange',
+      'field_name' => 'field_daterange',
+    ])->save();
+    FieldConfig::create([
+      'entity_type' => 'node',
+      'bundle' => 'page',
+      'field_name' => 'field_daterange',
+    ])->save();
     \Drupal::getContainer()->set('cache_tags.invalidator', $cache_invalidator);
   }
 
@@ -96,6 +106,21 @@ class FieldCacheTest extends KernelTestBase {
       ->set('stanford_fields.dates_cleared', time() - 60 * 60 * 24 * 4);
     $node->set('field_date', date($this->dateFieldFormat, time() - 60 * 60 * 24 * 3))
       ->save();
+    $this->invalidatedTags = [];
+    \Drupal::service('stanford_fields.field_cache')
+      ->invalidateDateFieldsCache();
+    $this->assertTrue(in_array('node:' . $node->id(), $this->invalidatedTags));
+
+    \Drupal::state()
+      ->set('stanford_fields.dates_cleared', time() - 60 * 60 * 24 * 4);
+    $daterange = [
+      'value' => date($this->dateFieldFormat, time() - 60 * 60 * 24 * 10),
+      'end_value' => date($this->dateFieldFormat, time() - 60 * 60 * 24),
+    ];
+    $node->set('field_date', [])
+      ->set('field_daterange', $daterange)
+      ->save();
+
     $this->invalidatedTags = [];
     \Drupal::service('stanford_fields.field_cache')
       ->invalidateDateFieldsCache();
