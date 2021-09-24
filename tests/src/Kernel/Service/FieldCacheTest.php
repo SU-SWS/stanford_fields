@@ -26,6 +26,7 @@ class FieldCacheTest extends KernelTestBase {
     'node',
     'user',
     'datetime',
+    'datetime_range',
     'field',
   ];
 
@@ -91,6 +92,8 @@ class FieldCacheTest extends KernelTestBase {
       ->invalidateDateFieldsCache();
     $this->assertEmpty($this->invalidatedTags);
 
+    \Drupal::state()
+      ->set('stanford_fields.dates_cleared', time() - 60 * 60 * 24 * 4);
     $node->set('field_date', date($this->dateFieldFormat, time() - 60 * 60 * 24 * 3))
       ->save();
     $this->invalidatedTags = [];
