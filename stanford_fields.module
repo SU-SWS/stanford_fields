@@ -41,5 +41,4 @@ function stanford_fields_field_storage_add_validate(&$form, FormStateInterface $
  */
 function stanford_fields_cron() {
   \Drupal::service('stanford_fields.field_cache')->invalidateDateFieldsCache();
-  \Drupal::state()->set('stanford_fields.dates_cleared', time() - 5);
 }
