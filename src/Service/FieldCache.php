@@ -73,6 +73,7 @@ class FieldCache implements FieldCacheInterface {
     }
 
     Cache::invalidateTags(array_unique($cache_tags));
+    $this->state->set('stanford_fields.dates_cleared', time() - 5);
   }
 
   /**
@@ -111,21 +112,38 @@ class FieldCache implements FieldCacheInterface {
 
     // Query all entities for the given date field that is between the last ran
     // time and the current time.
-    $query = $entity_storage->getQuery()
+    $start_query = $entity_storage->getQuery()
       ->accessCheck(FALSE)
-      ->exists($field_name)
+      ->exists($field_name);
+    $end_query = clone $start_query;
+    $condition_group = $start_query->andConditionGroup()
       ->condition($field_name, $now->format($field_date_format), '<=')
       ->condition($field_name, $last_ran->format($field_date_format), '>=');
+    $start_query->condition($condition_group);
 
     // Some entity types don't have bundles, so don't add the condition if not
     // applicable.
     if ($bundle_key) {
-      $query->condition($bundle_key, $bundles, 'IN');
+      $start_query->condition($bundle_key, $bundles, 'IN');
+      $end_query->condition($bundle_key, $bundles, 'IN');
     }
-    $tags = [];
 
+    $field_properties = $field_definition->getPropertyNames();
+    // If the field type has an end value, modify the end query's conditions to
+    // check for those values.
+    if (in_array('end_value', $field_properties)) {
+      $condition_group = $end_query->andConditionGroup()
+        ->condition("$field_name.end_value", $now->format($field_date_format), '<=')
+        ->condition("$field_name.end_value", $last_ran->format($field_date_format), '>=');
+    }
+    $end_query->condition($condition_group);
+
+    // Merge the start query ids with the end query ids.
+    $entity_ids = array_merge($start_query->execute(), $end_query->execute());
+
+    $tags = [];
     // If no entity ids were found, no tags should be invalidated.
-    if ($entity_ids = $query->execute()) {
+    if (!empty($entity_ids)) {
       $entities = $entity_storage->loadMultiple($entity_ids);
       foreach ($entities as $entity) {
         $tags = array_merge($tags, $entity->getCacheTagsToInvalidate());
