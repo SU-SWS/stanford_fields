@@ -343,14 +343,76 @@ class LocalistUrlWidget extends LinkWidget {
       return $cache->data;
     }
     try {
-      $response = $this->client->request('GET', "/api/2/$uri", ['base_uri' => $this->getSetting('base_url')]);
+      $data = $this->fetchLocalistAggregatedData($uri);
     }
     catch (\Throwable $e) {
       return [];
     }
-    $data = json_decode((string) $response->getBody(), TRUE);
+    //$data = json_decode((string) $response->getBody(), TRUE);
     $this->cache->set("localist:$uri", $data, time() + 60 * 60 * 24);
+
     return $data;
+  }
+
+  /**
+   * Since localist pages their responses, we may have to fetch more than one page in order to get all the data.
+   *
+   * @param string $uri
+   *   API endpoint
+   *
+   * @param int $count
+   *   The number of items per page to return.
+   *
+   * @param int $page
+   *   The page of data to return.
+   *
+   * @return array
+   *   API response data.
+   */
+  protected function fetchLocalistPage(string $uri, int $count=100, int $page=1): array {
+    try {
+      $response = $this->client->request('GET', "/api/2/$uri?pp=$count&page=$page", ['base_uri' => $this->getSetting('base_url')]);
+      return json_decode((string) $response->getBody(), TRUE);
+    }
+    catch (\Throwable $e) {
+      return [];
+    }
+  }
+
+  /**
+   * Make an API call, and if more than one page is returned, collect all pages and return the result.
+   *
+   * @param string $uri
+   *   API endpoint.
+   *
+   * @return array
+   *   API response data.
+   */
+  protected function fetchLocalistAggregatedData(string $uri): array {
+    $response = $this->fetchLocalistPage($uri, 100, 1);
+    if (!array_key_exists('page', $response)) {
+      // Only one page, go ahead and return it and we're done.
+      return $response;
+    }
+    // We have more than one page of data to parse.
+    $current_page = 1;
+    $total_pages = (int) $response['page']['total'];
+    // We have our first page of data already.
+    unset($response['page']);
+    $aggregated_data = $response;
+
+    while ($current_page <= $total_pages) {
+      $current_page++;
+      $response = $this->fetchLocalistPage($uri, 100, $current_page);
+      // Get rid of the page element.
+      unset($response['page']);
+      // Merge the remaining elements into our $aggregated_data.
+      foreach (array_keys($aggregated_data) as $key) {
+        $aggregated_data[$key] = array_merge($aggregated_data[$key], $response[$key]);
+      }
+    }
+    // Return all the pages combined.
+    return $aggregated_data;
   }
 
 }
