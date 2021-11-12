@@ -157,9 +157,13 @@ class LocalistUrlWidget extends LinkWidget {
     }
 
     $element['filters']['type'] = $this->getFilters($query_parameters['type'] ?? '');
-    $element['filters']['groups'] = $this->getGroups($query_parameters['groups'] ?? '');
-    $element['filters']['departments'] = $this->getDepartments($query_parameters['departments'] ?? '');
-    $element['filters']['venues'] = $this->getPlaces($query_parameters['venues'] ?? '');
+    $element['filters']['group_id'] = $this->getGroups($query_parameters['group_id'] ?? '');
+    $element['filters']['venue_id'] = $this->getPlaces($query_parameters['venue_id'] ?? '');
+
+    // It is not yet possible to set "Featured" or "Sponsored" events in the Localist UI.
+    // I'm going to comment out these fields for now, but if the Localist UI is updated in the future,
+    // we can re-enable them easily here.
+    /*
     $element['filters']['picks'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Only Show Featured'),
@@ -170,16 +174,20 @@ class LocalistUrlWidget extends LinkWidget {
       '#title' => $this->t('Only Show Sponsored'),
       '#default_value' => $query_parameters['sponsored'] ?? FALSE,
     ];
+    */
+    // End of unused form elements
+
     $element['filters']['match'] = [
       '#type' => 'select',
       '#title' => $this->t('Content Must Match'),
       '#default_value' => $query_parameters['match'] ?? NULL,
-      '#empty_option' => $this->t('At least one place, group, keyword or tag, and one filter item'),
+      '#empty_option' => $this->t('At least one place or group, and one filter item'),
       '#options' => [
-        'any' => $this->t('Any place, group, keyword, tag, or filter item'),
-        'all' => $this->t('At least one place and group, and all keywords, tags, and filter items'),
-        'or' => $this->t('Any place or group, and at least one keyword or tag, and one filter item'),
+        'any' => $this->t('Any venue, group, or filter item'),
+        'all' => $this->t('At least one venue and group, and all filter items'),
+        'or' => $this->t('Any venue or group, and one filter item'),
       ],
+
     ];
 
     return $element;
@@ -191,11 +199,21 @@ class LocalistUrlWidget extends LinkWidget {
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
 
     foreach ($values as $delta => &$value) {
-      foreach ($value['filters'] as &$filter_values) {
+
+      $types_querystring = '';
+
+      foreach ($value['filters'] as $key => &$filter_values) {
         if (is_array($filter_values)) {
-          $filter_values = implode(',', self::flattenValues($filter_values));
+          $filter_values = self::flattenValues($filter_values);
+          foreach ($filter_values as $type) {
+            $types_querystring .= '&type[]='.$type;
+          }
+          unset($value['filters'][$key]);
         }
       }
+
+      //dpm($types_querystring);
+
       $value['filters'] = array_filter($value['filters']);
 
       if (empty($value['filters'])) {
@@ -203,8 +221,14 @@ class LocalistUrlWidget extends LinkWidget {
         continue;
       }
 
+      $value['filters']['days'] = '365';
+      $value['filters']['distinct'] = 'true';
+
       $value['uri'] = Url::fromUri(rtrim($this->getSetting('base_url'), '/') . '/api/2/events', ['query' => $value['filters']])
         ->toString();
+      if (!empty($types_querystring)) {
+        $value['uri'] .= $types_querystring;
+      }
     }
     return parent::massageFormValues($values, $form, $form_state);
   }
@@ -251,7 +275,7 @@ class LocalistUrlWidget extends LinkWidget {
         '#title' => $labels['filters'][$filter_key],
         '#multiple' => TRUE,
         '#options' => $filter_options,
-        '#default_value' => explode(',', $default_value),
+        '#default_value' => $default_value,
       ];
     }
 
@@ -267,42 +291,30 @@ class LocalistUrlWidget extends LinkWidget {
    */
   protected function getGroups($default_value = ''): array {
     $groups = $this->fetchLocalistData('groups');
+    $departments = $this->fetchLocalistData('departments');
     $element = [
       '#type' => 'select',
-      '#title' => $this->t('Groups'),
-      '#multiple' => TRUE,
+      '#title' => $this->t('Departments/Groups'),
+      '#multiple' => FALSE,
       '#options' => [],
-      '#default_value' => explode(',', $default_value),
+      '#empty_option' => 'Select one:',
+      '#default_value' => null,
     ];
     foreach ($groups['groups'] as $group) {
-      $element['#options'][$group['group']['urlname']] = $group['group']['name'];
+      $element['#options'][$group['group']['id']] = $group['group']['name'];
+      if ((string) $group['group']['id'] == $default_value) {
+        $element['#default_value'] = $group['group']['id'];
+      }
+    }
+    foreach ($departments['departments'] as $department) {
+      $element['#options'][$department['department']['id']] = $department['department']['name'];
+      if ((string) $department['department']['id'] == $default_value) {
+        $element['#default_value'] = $department['department']['id'];
+      }
     }
     return $element;
   }
 
-  /**
-   * Get the form element for departments selection.
-   *
-   * @param string $default_value
-   *   Default value for the form elements.
-   *
-   * @return array
-   *   Form element render array.
-   */
-  protected function getDepartments($default_value = ''): array {
-    $departments = $this->fetchLocalistData('departments');
-    $element = [
-      '#type' => 'select',
-      '#title' => $this->t('Departments'),
-      '#multiple' => TRUE,
-      '#options' => [],
-      '#default_value' => explode(',', $default_value),
-    ];
-    foreach ($departments['departments'] as $department) {
-      $element['#options'][$department['department']['urlname']] = $department['department']['name'];
-    }
-    return $element;
-  }
   /**
    * Get the form element for the venues selection.
    *
@@ -317,12 +329,13 @@ class LocalistUrlWidget extends LinkWidget {
     $element = [
       '#type' => 'select',
       '#title' => $this->t('Venues'),
-      '#multiple' => TRUE,
+      '#multiple' => FALSE,
       '#options' => [],
+      '#empty_option' => '(Optional) Select one:',
       '#default_value' => explode(',', $default_value),
     ];
     foreach ($places['places'] as $place) {
-      $element['#options'][$place['place']['urlname']] = $place['place']['name'];
+      $element['#options'][$place['place']['id']] = $place['place']['name'];
     }
     return $element;
   }
@@ -348,9 +361,7 @@ class LocalistUrlWidget extends LinkWidget {
     catch (\Throwable $e) {
       return [];
     }
-    //$data = json_decode((string) $response->getBody(), TRUE);
     $this->cache->set("localist:$uri", $data, time() + 60 * 60 * 24);
-
     return $data;
   }
 
