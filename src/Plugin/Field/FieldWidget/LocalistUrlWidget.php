@@ -223,7 +223,7 @@ class LocalistUrlWidget extends LinkWidget {
       }
 
       $value['filters']['days'] = '365';
-      $value['filters']['distinct'] = 'true';
+      //$value['filters']['distinct'] = 'true';
 
       $value['uri'] = Url::fromUri(rtrim($this->getSetting('base_url'), '/') . '/api/2/events', ['query' => $value['filters']])
         ->toString();
