@@ -137,7 +137,7 @@ class LocalistUrlWidgetTest extends KernelTestBase {
 
     $this->assertEquals('No Base URL Provided', $widget->settingsSummary()[0]);
 
-    /*
+
     $form = [];
     $form_state = new FormState();
     $element = $widget->settingsForm($form, $form_state);
@@ -145,6 +145,7 @@ class LocalistUrlWidgetTest extends KernelTestBase {
 
     $this->assertEquals("", $element['base_url']['#default_value']);
 
+    /*
     $values= ['base_url' => 'http://www.nowhere.com'];
     $form_state->setValues($values);
     $widget->validateUrl($element, $form_state, $form);
