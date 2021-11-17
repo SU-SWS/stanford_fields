@@ -368,7 +368,7 @@ class LocalistUrlWidget extends LinkWidget {
    *
    * @see https://developer.localist.com/doc/api
    */
-  protected function fetchLocalistData($uri): array {
+  public function fetchLocalistData($uri): array {
     if ($cache = $this->cache->get("localist:$uri")) {
       return $cache->data;
     }

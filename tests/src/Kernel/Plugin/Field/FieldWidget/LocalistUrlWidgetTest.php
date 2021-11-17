@@ -157,6 +157,10 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $element = $widget->settingsForm($form, $form_state);
     $this->assertCount(3, $element);
     $this->assertEquals("https://stanford.enterprise.localist.com", $element['base_url']['#default_value']);
+    $element['#parents'] = [];
+
+    $validate_error = $widget->validateUrl($element, $form_state, $form);
+    $this->assertCount(1, $form_state->getErrors());
 
     $values['0']['filters'] = [];
     $this->assertEmpty($widget->massageFormValues($values, $form, $form_state));
@@ -166,13 +170,9 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $this->assertCount(1, $massaged_values);
 
     // Test for exceptions in the ajax calls.
-
     $bad_data = $widget->fetchLocalistData('https://www.nowhere.com');
     $this->assertCount(0, $bad_data);
-    $bad_data = $widget->fetchLocalistPage('https://www.nowhere.com', 100, 1);
-    $this->assertCount(0, $bad_data);
-    $bad_data = $widget->fetchLocalistAggregatedData('https://www.nowhere.com');
-    $this->assertCount(0, $bad_data);
+
 
   }
 
