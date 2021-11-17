@@ -165,26 +165,14 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $massaged_values = $widget->massageFormValues($values, $form, $form_state);
     $this->assertCount(1, $massaged_values);
 
+    // Test for exceptions in the ajax calls.
 
-
-
-
-
-    /*
-    $values= ['base_url' => 'http://www.nowhere.com'];
-    $form_state->setValues($values);
-    $widget->validateUrl($element, $form_state, $form);
-    $this->assertTrue($form_state::hasAnyErrors());
-
-    $form_state->clearErrors();
-    var_export($form_state->getErrors());
-    $values = ['base_url' => 'https://stanford.enterprise.localist.com'];
-    $form_state->setValues($values);
-    //var_export(($form_state->getValues()));
-    $widget->validateUrl($element, $form_state, $form);
-    //
-    $this->assertFalse($form_state::hasAnyErrors());
-    */
+    $bad_data = $widget->fetchLocalistData('https://www.nowhere.com');
+    $this->assertCount(0, $bad_data);
+    $bad_data = $widget->fetchLocalistPage('https://www.nowhere.com', 100, 1);
+    $this->assertCount(0, $bad_data);
+    $bad_data = $widget->fetchLocalistAggregatedData('https://www.nowhere.com');
+    $this->assertCount(0, $bad_data);
 
   }
 
@@ -212,6 +200,7 @@ class LocalistUrlWidgetTest extends KernelTestBase {
             ),
             'event_types' =>
             array (
+              37952570025304 => "37952570025304",
             ),
           ),
           'group_id' => '37955145294460',
