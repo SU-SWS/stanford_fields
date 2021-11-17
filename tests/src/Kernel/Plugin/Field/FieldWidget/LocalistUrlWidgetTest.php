@@ -141,9 +141,11 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $form = [];
     $form_state = new FormState();
     $element = $widget->settingsForm($form, $form_state);
-    $element['#parents'] = [];
-
+    $this->assertCount(3, $element);
     $this->assertEquals("", $element['base_url']['#default_value']);
+
+    $values['values']['filters'] = [];
+    $this->assertEmpty($widget->massageFormValues($values, $form, $form_state));
 
     /*
     $values= ['base_url' => 'http://www.nowhere.com'];
