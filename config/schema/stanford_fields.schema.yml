@@ -17,3 +17,16 @@ field.widget.settings.datetime_year_only:
     end:
       type: integer
       label: 'End Year'
+field.widget.settings.localist_url:
+  type: mapping
+  label: 'Localist URL widget settings'
+  mapping:
+    base_url:
+      type: string
+      label: 'Base URL'
+    placeholder_url:
+      type: string
+      label: 'Placeholder URL'
+    placeholder_title:
+      type: string
+      label: 'Placeholder title'
