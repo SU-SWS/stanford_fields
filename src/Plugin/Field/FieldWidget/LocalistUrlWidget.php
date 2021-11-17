@@ -103,7 +103,7 @@ class LocalistUrlWidget extends LinkWidget {
    *   Complete form.
    */
   public function validateUrl(array &$element, FormStateInterface $form_state, array &$complete_form) {
-    $input = NestedArray::getValue($form_state->getValues(), $element['#parents'], $input_exists);
+    $input = NestedArray::getValue($form_state->getValues(), $element['#parents']);
     if ($form_state::hasAnyErrors()) {
       return;
     }
