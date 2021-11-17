@@ -4,11 +4,13 @@ namespace Drupal\Tests\stanford_fields\Kernel\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Form\FormState;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
+use Drupal\stanford_fields\Plugin\Field\FieldWidget\LocalistUrlWidget;
 
 /**
  * Class LocalistUrlWidgetTest.
@@ -116,6 +118,47 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $this->assertIsArray($widget_value[0]['filters']['venue_id']);
     $this->assertFalse($widget_value[0]['filters']['venue_id']['#multiple']);
     $this->assertContains('Cardinal Hall', $widget_value[0]['filters']['venue_id']['#options']);
+
+  }
+
+  /**
+   * Test the settings form and the summary.
+   */
+  public function testSettingsForm() {
+
+    $field_def = $this->createMock(FieldDefinitionInterface::class);
+    $config = [
+      'field_definition' => $field_def,
+      'settings' => [],
+      'third_party_settings' => [],
+    ];
+    $definition = [];
+    $widget = LocalistUrlWidget::create(\Drupal::getContainer(), $config, '', $definition);
+
+    $this->assertEquals('No Base URL Provided', $widget->settingsSummary()[0]);
+
+    /*
+    $form = [];
+    $form_state = new FormState();
+    $element = $widget->settingsForm($form, $form_state);
+    $element['#parents'] = [];
+
+    $this->assertEquals("", $element['base_url']['#default_value']);
+
+    $values= ['base_url' => 'http://www.nowhere.com'];
+    $form_state->setValues($values);
+    $widget->validateUrl($element, $form_state, $form);
+    $this->assertTrue($form_state::hasAnyErrors());
+
+    $form_state->clearErrors();
+    var_export($form_state->getErrors());
+    $values = ['base_url' => 'https://stanford.enterprise.localist.com'];
+    $form_state->setValues($values);
+    //var_export(($form_state->getValues()));
+    $widget->validateUrl($element, $form_state, $form);
+    //
+    $this->assertFalse($form_state::hasAnyErrors());
+    */
 
   }
 
