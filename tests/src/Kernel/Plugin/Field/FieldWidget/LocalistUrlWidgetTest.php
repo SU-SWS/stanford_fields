@@ -135,17 +135,40 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $definition = [];
     $widget = LocalistUrlWidget::create(\Drupal::getContainer(), $config, '', $definition);
 
-    $this->assertEquals('No Base URL Provided', $widget->settingsSummary()[0]);
+    $summary = $widget->settingsSummary();
+    $this->assertCount(1, $summary);
+    $this->assertEquals('No Base URL Provided', (string) $summary[0]);
 
+    $config = [
+      'field_definition' => $field_def,
+      'settings' => [
+        'base_url' => 'https://stanford.enterprise.localist.com',
+      ],
+      'third_party_settings' => [],
+    ];
+
+    $widget = LocalistUrlWidget::create(\Drupal::getContainer(), $config, '', $definition);
+    $summary = $widget->settingsSummary();
+    $this->assertCount(1, $summary);
+    $this->assertEquals('Base URL: https://stanford.enterprise.localist.com', (string) $summary[0]);
 
     $form = [];
     $form_state = new FormState();
     $element = $widget->settingsForm($form, $form_state);
     $this->assertCount(3, $element);
-    $this->assertEquals("", $element['base_url']['#default_value']);
+    $this->assertEquals("https://stanford.enterprise.localist.com", $element['base_url']['#default_value']);
 
-    $values['values']['filters'] = [];
+    $values['0']['filters'] = [];
     $this->assertEmpty($widget->massageFormValues($values, $form, $form_state));
+
+    $values = $this->getValidValue();
+    $massaged_values = $widget->massageFormValues($values, $form, $form_state);
+    $this->assertCount(1, $massaged_values);
+
+
+
+
+
 
     /*
     $values= ['base_url' => 'http://www.nowhere.com'];
@@ -163,6 +186,42 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $this->assertFalse($form_state::hasAnyErrors());
     */
 
+  }
+
+  /**
+   * Returns valid form submission values.
+   */
+  protected function getValidValue() {
+    return array (
+      0 =>
+      array (
+        'uri' => 'https://stanford.enterprise.localist.com/api/2/events?group_id=37955145294460&days=365',
+        'title' => '',
+        'attributes' =>
+        array (
+        ),
+        'filters' =>
+        array (
+          'type' =>
+          array (
+            'event_audience' =>
+            array (
+            ),
+            'event_subject' =>
+            array (
+            ),
+            'event_types' =>
+            array (
+            ),
+          ),
+          'group_id' => '37955145294460',
+          'venue_id' => '',
+          'match' => '',
+        ),
+        '_weight' => '0',
+        '_original_delta' => 0,
+      ),
+    );
   }
 
 }
