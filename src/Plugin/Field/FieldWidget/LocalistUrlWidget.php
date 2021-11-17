@@ -163,23 +163,24 @@ class LocalistUrlWidget extends LinkWidget {
     $element['filters']['group_id'] = $this->getGroups($query_parameters['group_id'] ?? '');
     $element['filters']['venue_id'] = $this->getPlaces($query_parameters['venue_id'] ?? '');
 
-    // It is not yet possible to set "Featured" or "Sponsored" events in the Localist UI.
-    // I'm going to comment out these fields for now, but if the Localist UI is updated in the future,
-    // we can re-enable them easily here.
+    // It is not yet possible to set "Featured" or "Sponsored"
+    // events in the Localist UI.
+    // I'm going to comment out these fields for now, but
+    // if the Localist UI is updated in the future, we can
+    // re-enable them easily here.
     /*
     $element['filters']['picks'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Only Show Featured'),
-      '#default_value' => $query_parameters['picks'] ?? FALSE,
+    '#type' => 'checkbox',
+    '#title' => $this->t('Only Show Featured'),
+    '#default_value' => $query_parameters['picks'] ?? FALSE,
     ];
     $element['filters']['sponsored'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Only Show Sponsored'),
-      '#default_value' => $query_parameters['sponsored'] ?? FALSE,
+    '#type' => 'checkbox',
+    '#title' => $this->t('Only Show Sponsored'),
+    '#default_value' => $query_parameters['sponsored'] ?? FALSE,
     ];
-    */
-    // End of unused form elements
-
+     */
+    // End of unused form elements.
     $element['filters']['match'] = [
       '#type' => 'select',
       '#title' => $this->t('Content Must Match'),
@@ -209,7 +210,7 @@ class LocalistUrlWidget extends LinkWidget {
         if (is_array($filter_values)) {
           $filter_values = self::flattenValues($filter_values);
           foreach ($filter_values as $type) {
-            $types_querystring .= '&type[]='.$type;
+            $types_querystring .= '&type[]=' . $type;
           }
           unset($value['filters'][$key]);
         }
@@ -223,7 +224,20 @@ class LocalistUrlWidget extends LinkWidget {
       }
 
       $value['filters']['days'] = '365';
-      //$value['filters']['distinct'] = 'true';
+
+      // We may in the future have a configuration value
+      // to include the "distinct"key to our API call.
+      // This tries to find such a value,
+      // and applies the key if it finds it.
+      try {
+        $config = \Drupal::config('config_pages.type.stanford_events_importer');
+        if ($config->get('third_party_settings.localist_select_distinct')) {
+          $value['filters']['distinct'] = 'true';
+        }
+      }
+      catch (\Throwable $e) {
+        // Continue processing.
+      }
 
       $value['uri'] = Url::fromUri(rtrim($this->getSetting('base_url'), '/') . '/api/2/events', ['query' => $value['filters']])
         ->toString();
@@ -284,6 +298,8 @@ class LocalistUrlWidget extends LinkWidget {
   }
 
   /**
+   * Gets groups and departments.
+   *
    * @param string $default_value
    *   Default value for the form elements.
    *
@@ -299,7 +315,7 @@ class LocalistUrlWidget extends LinkWidget {
       '#multiple' => FALSE,
       '#options' => [],
       '#empty_option' => 'Select one:',
-      '#default_value' => null,
+      '#default_value' => NULL,
     ];
     foreach ($groups['groups'] as $group) {
       $element['#options'][$group['group']['id']] = $group['group']['name'];
@@ -345,7 +361,7 @@ class LocalistUrlWidget extends LinkWidget {
    * Call the localist API and return the data in array format.
    *
    * @param string $uri
-   *   API endpoint
+   *   API endpoint.
    *
    * @return array
    *   API response data.
@@ -367,21 +383,19 @@ class LocalistUrlWidget extends LinkWidget {
   }
 
   /**
-   * Since localist pages their responses, we may have to fetch more than one page in order to get all the data.
+   * Localist pages their responses, so fetch all pages to get all the data.
    *
    * @param string $uri
-   *   API endpoint
-   *
+   *   API endpoint.
    * @param int $count
    *   The number of items per page to return.
-   *
    * @param int $page
    *   The page of data to return.
    *
    * @return array
    *   API response data.
    */
-  protected function fetchLocalistPage(string $uri, int $count=100, int $page=1): array {
+  protected function fetchLocalistPage(string $uri, int $count = 100, int $page = 1): array {
     try {
       $response = $this->client->request('GET', "/api/2/$uri?pp=$count&page=$page", ['base_uri' => $this->getSetting('base_url')]);
       return json_decode((string) $response->getBody(), TRUE);
@@ -392,7 +406,7 @@ class LocalistUrlWidget extends LinkWidget {
   }
 
   /**
-   * Make an API call, and if more than one page is returned, collect all remaining pages and return the result.
+   * Make API call, if multiple pages, coalate all remaining pages.
    *
    * @param string $uri
    *   API endpoint.
