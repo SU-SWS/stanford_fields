@@ -237,13 +237,8 @@ class LocalistUrlWidget extends LinkWidget {
       // to include the "distinct"key to our API call.
       // This tries to find such a value,
       // and applies the key if it finds it.
-      try {
-        if ($this->getSetting('select_distinct')) {
-          $value['filters']['distinct'] = 'true';
-        }
-      }
-      catch (\Throwable $e) {
-        // Continue processing.
+      if ($this->getSetting('select_distinct')) {
+        $value['filters']['distinct'] = TRUE;
       }
 
       $value['uri'] = Url::fromUri(rtrim($this->getSetting('base_url'), '/') . '/api/2/events', ['query' => $value['filters']])
