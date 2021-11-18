@@ -217,10 +217,6 @@ class LocalistUrlWidget extends LinkWidget {
       foreach ($value['filters'] as $key => &$filter_values) {
         if (is_array($filter_values)) {
           $filter_values = self::flattenValues($filter_values);
-          foreach ($filter_values as $type) {
-            $types_querystring .= '&type[]=' . $type;
-          }
-          unset($value['filters'][$key]);
         }
       }
 
@@ -232,6 +228,7 @@ class LocalistUrlWidget extends LinkWidget {
       }
 
       $value['filters']['days'] = '365';
+      $value['filters']['pp'] = '100';
 
       // We may in the future have a configuration value
       // to include the "distinct"key to our API call.
@@ -243,9 +240,7 @@ class LocalistUrlWidget extends LinkWidget {
 
       $value['uri'] = Url::fromUri(rtrim($this->getSetting('base_url'), '/') . '/api/2/events', ['query' => $value['filters']])
         ->toString();
-      if (!empty($types_querystring)) {
-        $value['uri'] .= $types_querystring;
-      }
+
     }
     return parent::massageFormValues($values, $form, $form_state);
   }
