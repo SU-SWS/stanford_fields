@@ -31,5 +31,5 @@ field.widget.settings.localist_url:
       type: string
       label: 'Placeholder title'
     select_distinct:
-      type: integer
+      type: boolean
       label: 'Select Distinct'

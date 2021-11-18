@@ -86,7 +86,7 @@ class LocalistUrlWidget extends LinkWidget {
     $elements['select_distinct'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Select Distinct'),
-      '#return_value' => TRUE,
+      '#default_value' => $this->getSetting('select_distinct'),
     ];
     $elements['base_url'] = [
       '#type' => 'url',
