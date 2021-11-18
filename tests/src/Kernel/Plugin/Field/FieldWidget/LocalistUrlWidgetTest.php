@@ -155,8 +155,9 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $form = [];
     $form_state = new FormState();
     $element = $widget->settingsForm($form, $form_state);
-    $this->assertCount(3, $element);
+    $this->assertCount(4, $element);
     $this->assertEquals("https://stanford.enterprise.localist.com", $element['base_url']['#default_value']);
+    $this->assertArrayHasKey('select_distinct', $element);
     $element['#parents'] = [];
 
     $validate_error = $widget->validateUrl($element, $form_state, $form);

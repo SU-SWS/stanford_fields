@@ -59,7 +59,10 @@ class LocalistUrlWidget extends LinkWidget {
    * {@inheritDoc}
    */
   public static function defaultSettings() {
-    $settings = ['base_url' => ''];
+    $settings = [
+      'base_url' => '',
+      'select_distinct' => FALSE,
+    ];
     return $settings + parent::defaultSettings();
   }
 
@@ -79,6 +82,12 @@ class LocalistUrlWidget extends LinkWidget {
     $elements = parent::settingsForm($form, $form_state);
     $elements['placeholder_url']['#access'] = FALSE;
     $elements['placeholder_title']['#access'] = FALSE;
+    $elements['select_distinct'] = FALSE;
+    $elements['select_distinct'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Select Distinct'),
+      '#return_value' => TRUE,
+    ];
     $elements['base_url'] = [
       '#type' => 'url',
       '#title' => $this->t('Base localist domain'),
@@ -191,7 +200,6 @@ class LocalistUrlWidget extends LinkWidget {
         'all' => $this->t('At least one venue and group, and all filter items'),
         'or' => $this->t('Any venue or group, and one filter item'),
       ],
-
     ];
 
     return $element;
@@ -230,8 +238,7 @@ class LocalistUrlWidget extends LinkWidget {
       // This tries to find such a value,
       // and applies the key if it finds it.
       try {
-        $config = \Drupal::config('config_pages.type.stanford_events_importer');
-        if ($config->get('third_party_settings.localist_select_distinct')) {
+        if ($this->getSetting('select_distinct')) {
           $value['filters']['distinct'] = 'true';
         }
       }

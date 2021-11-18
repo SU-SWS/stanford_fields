@@ -30,3 +30,6 @@ field.widget.settings.localist_url:
     placeholder_title:
       type: string
       label: 'Placeholder title'
+    select_distinct:
+      type: integer
+      label: 'Select Distinct'
