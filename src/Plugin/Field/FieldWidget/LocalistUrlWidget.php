@@ -212,9 +212,7 @@ class LocalistUrlWidget extends LinkWidget {
 
     foreach ($values as $delta => &$value) {
 
-      $types_querystring = '';
-
-      foreach ($value['filters'] as $key => &$filter_values) {
+      foreach ($value['filters'] as &$filter_values) {
         if (is_array($filter_values)) {
           $filter_values = self::flattenValues($filter_values);
         }
