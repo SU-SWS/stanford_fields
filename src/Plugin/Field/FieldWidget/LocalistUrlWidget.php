@@ -165,12 +165,12 @@ class LocalistUrlWidget extends LinkWidget {
       parse_str(parse_url(urldecode($item->uri), PHP_URL_QUERY), $query_parameters);
     }
 
+    $element['filters']['group_id'] = $this->getGroups($query_parameters['group_id'] ?? '');
+    $element['filters']['venue_id'] = $this->getPlaces($query_parameters['venue_id'] ?? '');
     $element['filters']['type'] = $this->getFilters($query_parameters['type'] ?? '');
     $element['filters']['type']['event_audience']['#chosen'] = TRUE;
     $element['filters']['type']['event_subject']['#chosen'] = TRUE;
     $element['filters']['type']['event_types']['#chosen'] = TRUE;
-    $element['filters']['group_id'] = $this->getGroups($query_parameters['group_id'] ?? '');
-    $element['filters']['venue_id'] = $this->getPlaces($query_parameters['venue_id'] ?? '');
 
     // It is not yet possible to set "Featured" or "Sponsored"
     // events in the Localist UI.
