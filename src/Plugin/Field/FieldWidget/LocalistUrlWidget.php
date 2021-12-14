@@ -82,7 +82,6 @@ class LocalistUrlWidget extends LinkWidget {
     $elements = parent::settingsForm($form, $form_state);
     $elements['placeholder_url']['#access'] = FALSE;
     $elements['placeholder_title']['#access'] = FALSE;
-    $elements['select_distinct'] = FALSE;
     $elements['select_distinct'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Select Distinct'),
@@ -165,12 +164,9 @@ class LocalistUrlWidget extends LinkWidget {
       parse_str(parse_url(urldecode($item->uri), PHP_URL_QUERY), $query_parameters);
     }
 
-    $element['filters']['group_id'] = $this->getGroups($query_parameters['group_id'] ?? '');
-    $element['filters']['venue_id'] = $this->getPlaces($query_parameters['venue_id'] ?? '');
-    $element['filters']['type'] = $this->getFilters($query_parameters['type'] ?? '');
-    $element['filters']['type']['event_audience']['#chosen'] = TRUE;
-    $element['filters']['type']['event_subject']['#chosen'] = TRUE;
-    $element['filters']['type']['event_types']['#chosen'] = TRUE;
+    $element['filters']['group_id'] = $this->getGroups($query_parameters['group_id'] ?? NULL);
+    $element['filters']['venue_id'] = $this->getPlaces($query_parameters['venue_id'] ?? NULL);
+    $element['filters']['type'] = $this->getFilters($query_parameters['type'] ?? []);
 
     // It is not yet possible to set "Featured" or "Sponsored"
     // events in the Localist UI.
@@ -263,13 +259,13 @@ class LocalistUrlWidget extends LinkWidget {
   /**
    * Get the form element with the filters from localist.
    *
-   * @param string $default_value
+   * @param array $default_value
    *   Default value for the form elements.
    *
    * @return array
    *   Form element render array.
    */
-  protected function getFilters($default_value = ''): array {
+  protected function getFilters(array $default_value = []): array {
     $filters = $this->fetchLocalistData('events/filters');
     $labels = $this->fetchLocalistData('events/labels');
     $element = [];
@@ -279,29 +275,29 @@ class LocalistUrlWidget extends LinkWidget {
       foreach ($options as $option) {
         $filter_options[$option['id']] = $option['name'];
       }
-
+      sort($filter_options);
       $element[$filter_key] = [
         '#type' => 'select',
         '#title' => $labels['filters'][$filter_key],
         '#multiple' => TRUE,
         '#options' => $filter_options,
-        '#default_value' => $default_value,
+        '#default_value' => array_intersect($default_value, array_keys($filter_options)),
+        '#chosen' => TRUE,
       ];
     }
-
     return $element;
   }
 
   /**
    * Gets groups and departments.
    *
-   * @param string $default_value
+   * @param string|null $default_value
    *   Default value for the form elements.
    *
    * @return array
    *   Form element render array.
    */
-  protected function getGroups($default_value = ''): array {
+  protected function getGroups($default_value = NULL): array {
     $groups = $this->fetchLocalistData('groups');
     $departments = $this->fetchLocalistData('departments');
     $element = [
@@ -310,20 +306,15 @@ class LocalistUrlWidget extends LinkWidget {
       '#multiple' => FALSE,
       '#options' => [],
       '#empty_option' => 'Select one:',
-      '#default_value' => NULL,
+      '#default_value' => $default_value,
     ];
     foreach ($groups['groups'] as $group) {
       $element['#options'][$group['group']['id']] = $group['group']['name'];
-      if ((string) $group['group']['id'] == $default_value) {
-        $element['#default_value'] = $group['group']['id'];
-      }
     }
     foreach ($departments['departments'] as $department) {
       $element['#options'][$department['department']['id']] = $department['department']['name'];
-      if ((string) $department['department']['id'] == $default_value) {
-        $element['#default_value'] = $department['department']['id'];
-      }
     }
+    sort($element['#options']);
     return $element;
   }
 
@@ -336,7 +327,7 @@ class LocalistUrlWidget extends LinkWidget {
    * @return array
    *   Form element render array.
    */
-  protected function getPlaces($default_value = ''): array {
+  protected function getPlaces($default_value = null): array {
     $places = $this->fetchLocalistData('places');
     $element = [
       '#type' => 'select',
@@ -344,7 +335,7 @@ class LocalistUrlWidget extends LinkWidget {
       '#multiple' => FALSE,
       '#options' => [],
       '#empty_option' => '(Optional) Select one:',
-      '#default_value' => explode(',', $default_value),
+      '#default_value' => $default_value,
     ];
     foreach ($places['places'] as $place) {
       $element['#options'][$place['place']['id']] = $place['place']['name'];
