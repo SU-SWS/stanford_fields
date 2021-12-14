@@ -275,7 +275,7 @@ class LocalistUrlWidget extends LinkWidget {
       foreach ($options as $option) {
         $filter_options[$option['id']] = $option['name'];
       }
-      sort($filter_options);
+      asort($filter_options);
       $element[$filter_key] = [
         '#type' => 'select',
         '#title' => $labels['filters'][$filter_key],
@@ -314,7 +314,7 @@ class LocalistUrlWidget extends LinkWidget {
     foreach ($departments['departments'] as $department) {
       $element['#options'][$department['department']['id']] = $department['department']['name'];
     }
-    sort($element['#options']);
+    asort($element['#options']);
     return $element;
   }
 
