@@ -334,7 +334,7 @@ class LocalistUrlWidget extends LinkWidget {
       '#title' => $this->t('Venues'),
       '#multiple' => FALSE,
       '#options' => [],
-      '#empty_option' => '(Optional) Select one:',
+      '#empty_option' => 'Select one:',
       '#default_value' => $default_value,
     ];
     foreach ($places['places'] as $place) {
