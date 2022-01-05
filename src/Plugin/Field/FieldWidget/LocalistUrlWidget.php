@@ -327,7 +327,7 @@ class LocalistUrlWidget extends LinkWidget {
    * @return array
    *   Form element render array.
    */
-  protected function getPlaces($default_value = null): array {
+  protected function getPlaces($default_value = NULL): array {
     $places = $this->fetchLocalistData('places');
     $element = [
       '#type' => 'select',
