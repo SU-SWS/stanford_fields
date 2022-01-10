@@ -190,11 +190,11 @@ class LocalistUrlWidget extends LinkWidget {
       '#type' => 'select',
       '#title' => $this->t('Content Must Match'),
       '#default_value' => $query_parameters['match'] ?? NULL,
-      '#empty_option' => $this->t('At least one place or group, and one filter item'),
+      '#empty_option' => $this->t('At least one selected group or venue, and one selected filter item'),
       '#options' => [
-        'any' => $this->t('Any venue, group, or filter item'),
-        'all' => $this->t('At least one venue and group, and all filter items'),
-        'or' => $this->t('Any venue or group, and one filter item'),
+        'any' => $this->t('Any selected group, venue, or filter item'),
+        'all' => $this->t('At least one selected group or venue, and all selected filter items'),
+        'or' => $this->t('Any selected group or venue, and one selected filter item'),
       ],
     ];
 
