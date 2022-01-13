@@ -75,7 +75,7 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $entity_form_display->setComponent('su_localist_url', [
       'type' => 'localist_url',
       'settings' => [
-        'base_url' => 'https://stanford.enterprise.localist.com',
+        'base_url' => 'https://events.stanford.edu',
       ],
     ])->removeComponent('created')->save();
 
@@ -97,7 +97,7 @@ class LocalistUrlWidgetTest extends KernelTestBase {
 
     $node->set('su_localist_url', [
       [
-        'uri' => 'https://stanford.enterprise.localist.com/api/2/events?group_id=37955145294460&days=365',
+        'uri' => 'https://events.stanford.edu/api/2/events?group_id=37955145294460&days=365',
         'title' => '',
         'options' => '',
       ],
@@ -115,7 +115,7 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $widget_value = $form['su_localist_url']['widget'];
 
     $this->assertIsArray($widget_value[0]);
-    $this->assertEquals('https://stanford.enterprise.localist.com/api/2/events?group_id=37955145294460&days=365', $widget_value[0]['uri']['#default_value']);
+    $this->assertEquals('https://events.stanford.edu/api/2/events?group_id=37955145294460&days=365', $widget_value[0]['uri']['#default_value']);
     $this->assertEquals('details', $widget_value[0]['filters']['#type']);
     $this->assertIsArray($widget_value[0]['filters']['type']['event_audience']);
     $this->assertIsArray($widget_value[0]['filters']['type']['event_audience']['#options']);
@@ -152,7 +152,7 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $config = [
       'field_definition' => $field_def,
       'settings' => [
-        'base_url' => 'https://stanford.enterprise.localist.com',
+        'base_url' => 'https://events.stanford.edu',
       ],
       'third_party_settings' => [],
     ];
@@ -160,13 +160,13 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $widget = LocalistUrlWidget::create(\Drupal::getContainer(), $config, '', $definition);
     $summary = $widget->settingsSummary();
     $this->assertCount(1, $summary);
-    $this->assertEquals('Base URL: https://stanford.enterprise.localist.com', (string) $summary[0]);
+    $this->assertEquals('Base URL: https://events.stanford.edu', (string) $summary[0]);
 
     $form = [];
     $form_state = new FormState();
     $element = $widget->settingsForm($form, $form_state);
     $this->assertCount(4, $element);
-    $this->assertEquals("https://stanford.enterprise.localist.com", $element['base_url']['#default_value']);
+    $this->assertEquals("https://events.stanford.edu", $element['base_url']['#default_value']);
     $this->assertArrayHasKey('select_distinct', $element);
     $element['#parents'] = [];
 
@@ -187,7 +187,7 @@ class LocalistUrlWidgetTest extends KernelTestBase {
   protected function getValidValue() {
     return [
       [
-        'uri' => 'https://stanford.enterprise.localist.com/api/2/events?group_id=37955145294460&days=365',
+        'uri' => 'https://events.stanford.edu/api/2/events?group_id=37955145294460&days=365',
         'title' => '',
         'attributes' => [],
         'filters' => [
