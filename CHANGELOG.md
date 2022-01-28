@@ -1,6 +1,15 @@
 # Stanford Fields
 
 
+8.x-1.9
+--------------------------------------------------------------------------------
+_Release Date: 2022-01-27_
+
+- Updated language for filter selection options. (#25)
+- Sorted select options and use better default values (#24)
+- D8CORE-5116: changed order of fields in localist field widget (#23)
+
+
 8.x-1.8
 --------------------------------------------------------------------------------
 _Release Date: 2021-11-19_

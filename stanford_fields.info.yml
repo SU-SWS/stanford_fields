@@ -3,6 +3,6 @@ type: module
 description: 'Field types, widgets and formatters to enhance Drupal and Contrib.'
 core_version_requirement: ^8 || ^9
 package: Stanford
-version: 8.x-1.9-dev
+version: 8.x-1.9
 dependencies:
  - drupal:field
