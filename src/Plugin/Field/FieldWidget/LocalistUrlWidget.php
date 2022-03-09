@@ -3,6 +3,7 @@
 namespace Drupal\stanford_fields\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -347,7 +348,7 @@ class LocalistUrlWidget extends LinkWidget {
     $base_url = $this->getSetting('base_url');
 
     // Check for some cached data before we fetch it all again.
-    if ($cache = $this->cache->get("localist:$base_url")) {
+    if ($cache = $this->cache->get("localist_api:$base_url")) {
       $this->apiData = $cache->data;
       return $this->apiData;
     }
@@ -381,7 +382,7 @@ class LocalistUrlWidget extends LinkWidget {
 
       $this->apiData[$key] = $this->fetchPagedApiData($key, $response['page']['total']);
     }
-    $this->cache->set("localist:$base_url", $this->apiData);
+    $this->cache->set("localist_api:$base_url", $this->apiData, Cache::PERMANENT, ['localist_api']);
     return $this->apiData;
   }
 
