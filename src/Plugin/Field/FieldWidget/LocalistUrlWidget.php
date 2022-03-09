@@ -12,6 +12,7 @@ use Drupal\Core\Url;
 use Drupal\link\Plugin\Field\FieldWidget\LinkWidget;
 use GuzzleHttp\ClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use GuzzleHttp\Promise\Utils;
 
 /**
  * Plugin implementation of the 'localist_url' widget.
@@ -39,6 +40,11 @@ class LocalistUrlWidget extends LinkWidget {
    * @var \Drupal\Core\Cache\CacheBackendInterface
    */
   protected $cache;
+
+  /**
+   * @var array
+   */
+  protected $apiData = [];
 
   /**
    * {@inheritDoc}
@@ -168,24 +174,6 @@ class LocalistUrlWidget extends LinkWidget {
     $element['filters']['venue_id'] = $this->getPlaces($query_parameters['venue_id'] ?? NULL);
     $element['filters']['type'] = $this->getFilters($query_parameters['type'] ?? []);
 
-    // It is not yet possible to set "Featured" or "Sponsored"
-    // events in the Localist UI.
-    // I'm going to comment out these fields for now, but
-    // if the Localist UI is updated in the future, we can
-    // re-enable them easily here.
-    /*
-    $element['filters']['picks'] = [
-    '#type' => 'checkbox',
-    '#title' => $this->t('Only Show Featured'),
-    '#default_value' => $query_parameters['picks'] ?? FALSE,
-    ];
-    $element['filters']['sponsored'] = [
-    '#type' => 'checkbox',
-    '#title' => $this->t('Only Show Sponsored'),
-    '#default_value' => $query_parameters['sponsored'] ?? FALSE,
-    ];
-     */
-    // End of unused form elements.
     $element['filters']['match'] = [
       '#type' => 'select',
       '#title' => $this->t('Content Must Match'),
@@ -266,10 +254,10 @@ class LocalistUrlWidget extends LinkWidget {
    *   Form element render array.
    */
   protected function getFilters(array $default_value = []): array {
-    $filters = $this->fetchLocalistData('events/filters');
-    $labels = $this->fetchLocalistData('events/labels');
+    $this->getApiData();
+
     $element = [];
-    foreach ($filters as $filter_key => $options) {
+    foreach ($this->apiData['events/filters'] as $filter_key => $options) {
       $filter_options = [];
 
       foreach ($options as $option) {
@@ -278,7 +266,7 @@ class LocalistUrlWidget extends LinkWidget {
       asort($filter_options);
       $element[$filter_key] = [
         '#type' => 'select',
-        '#title' => $labels['filters'][$filter_key],
+        '#title' => $this->apiData['events/labels']['filters'][$filter_key],
         '#multiple' => TRUE,
         '#options' => $filter_options,
         '#default_value' => array_intersect($default_value, array_keys($filter_options)),
@@ -297,9 +285,8 @@ class LocalistUrlWidget extends LinkWidget {
    * @return array
    *   Form element render array.
    */
-  protected function getGroups($default_value = NULL): array {
-    $groups = $this->fetchLocalistData('groups');
-    $departments = $this->fetchLocalistData('departments');
+  protected function getGroups(?string $default_value = NULL): array {
+    $this->getApiData();
     $element = [
       '#type' => 'select',
       '#title' => $this->t('Departments/Groups'),
@@ -308,10 +295,10 @@ class LocalistUrlWidget extends LinkWidget {
       '#empty_option' => 'Select one:',
       '#default_value' => $default_value,
     ];
-    foreach ($groups['groups'] as $group) {
+    foreach ($this->apiData['groups'] as $group) {
       $element['#options'][$group['group']['id']] = $group['group']['name'];
     }
-    foreach ($departments['departments'] as $department) {
+    foreach ($this->apiData['departments'] as $department) {
       $element['#options'][$department['department']['id']] = $department['department']['name'];
     }
     asort($element['#options']);
@@ -321,14 +308,14 @@ class LocalistUrlWidget extends LinkWidget {
   /**
    * Get the form element for the venues selection.
    *
-   * @param string $default_value
-   *   Default value for the form elements.
+   * @param string|null $default_value
+   *   Default value for the form element.
    *
    * @return array
    *   Form element render array.
    */
-  protected function getPlaces($default_value = NULL): array {
-    $places = $this->fetchLocalistData('places');
+  protected function getPlaces(?string $default_value = NULL): array {
+    $this->getApiData();
     $element = [
       '#type' => 'select',
       '#title' => $this->t('Venues'),
@@ -337,94 +324,108 @@ class LocalistUrlWidget extends LinkWidget {
       '#empty_option' => 'Select one:',
       '#default_value' => $default_value,
     ];
-    foreach ($places['places'] as $place) {
+    foreach ($this->apiData['places'] as $place) {
       $element['#options'][$place['place']['id']] = $place['place']['name'];
     }
     return $element;
   }
 
   /**
-   * Call the localist API and return the data in array format.
-   *
-   * @param string $uri
-   *   API endpoint.
+   * Get the data from the
    *
    * @return array
-   *   API response data.
-   *
-   * @see https://developer.localist.com/doc/api
    */
-  public function fetchLocalistData($uri): array {
-    if ($cache = $this->cache->get("localist:$uri")) {
-      return $cache->data;
+  protected function getApiData() {
+    if ($this->apiData) {
+      return $this->apiData;
     }
-    try {
-      $data = $this->fetchLocalistAggregatedData($uri);
+
+    $base_url = $this->getSetting('base_url');
+    if ($cache = $this->cache->get("localist:$base_url")) {
+      $this->apiData = $cache->data;
+      return $this->apiData;
     }
-    catch (\Throwable $e) {
-      return [];
+
+    return $this->fetchApiData();
+  }
+
+  /**
+   * Call the Localist API with various endpoints to gather all the data needed.
+   *
+   * @return array
+   *   Keyed array of api data.
+   */
+  protected function fetchApiData() {
+    $base_url = $this->getSetting('base_url');
+    $options = ['base_uri' => $base_url, 'query' => ['pp' => 1]];
+    $promises = [
+      'groups' => $this->client->requestAsync('GET', '/api/2/groups', $options),
+      'departments' => $this->client->requestAsync('GET', '/api/2/departments', $options),
+      'places' => $this->client->requestAsync('GET', '/api/2/places', $options),
+      'events/filters' => $this->client->requestAsync('GET', '/api/2/events/filters', $options),
+      'events/labels' => $this->client->requestAsync('GET', '/api/2/events/labels', $options),
+    ];
+    $results = self::unwrapAsyncRequests($promises);
+
+    foreach ($results as $key => $response) {
+      if (empty($response['page']['total'])) {
+        $this->apiData[$key] = $response;
+        continue;
+      }
+
+      $this->apiData[$key] = $this->fetchPagedApiData($key, $response['page']['total']);
     }
-    $this->cache->set("localist:$uri", $data, time() + 60 * 60 * 24);
+    $this->cache->set("localist:$base_url", $this->apiData);
+    return $this->apiData;
+  }
+
+  /**
+   * Given the endpoint and count, async fetch from the API all pages.
+   *
+   * @param string $endpoint
+   *   Localist API Endpoint
+   * @param int $total_count
+   *   Total number of items to chunk up.
+   *
+   * @return array
+   *   Indexed array of api data.
+   */
+  protected function fetchPagedApiData($endpoint, $total_count){
+    $base_url = $this->getSetting('base_url');
+    $options = ['base_uri' => $base_url, 'query' => ['pp' => 100]];
+
+    $number_of_pages = ceil($total_count / 100);
+    for ($i = 1; $i <= $number_of_pages; $i++) {
+      $options['query']['page'] = $i;
+      $paged_data[$i] = $this->client->requestAsync('GET', '/api/2/' . $endpoint, $options);
+    }
+    $paged_data = self::unwrapAsyncRequests($paged_data);
+
+    $data = [];
+    foreach($paged_data as $page){
+      unset($page['page']);
+      $key = key($page);
+      $data = array_merge($data, $page[$key]);
+    }
     return $data;
   }
 
   /**
-   * Localist pages their responses, so fetch all pages to get all the data.
+   * Unwrap async promises and decode their body data.
    *
-   * @param string $uri
-   *   API endpoint.
-   * @param int $count
-   *   The number of items per page to return.
-   * @param int $page
-   *   The page of data to return.
+   * @param \GuzzleHttp\Promise\Promise[] $promises
+   *   Associative array of Guzzle promises.
    *
    * @return array
-   *   API response data.
+   *   Associative array of json decoded data.
    */
-  protected function fetchLocalistPage(string $uri, int $count = 100, int $page = 1): array {
-    try {
-      $response = $this->client->request('GET', "/api/2/$uri?pp=$count&page=$page", ['base_uri' => $this->getSetting('base_url')]);
-      return json_decode((string) $response->getBody(), TRUE);
+  protected static function unwrapAsyncRequests(array $promises){
+    $promises = Utils::unwrap($promises);
+    /** @var \GuzzleHttp\Psr7\Response $response */
+    foreach ($promises as $key => &$response) {
+      $response = json_decode((string) $response->getBody(), TRUE);
     }
-    catch (\Throwable $e) {
-      return [];
-    }
-  }
-
-  /**
-   * Make API call, if multiple pages, coalate all remaining pages.
-   *
-   * @param string $uri
-   *   API endpoint.
-   *
-   * @return array
-   *   API response data.
-   */
-  protected function fetchLocalistAggregatedData(string $uri): array {
-    $response = $this->fetchLocalistPage($uri, 100, 1);
-    if (!array_key_exists('page', $response)) {
-      // Only one page, go ahead and return it and we're done.
-      return $response;
-    }
-    // We have more than one page of data to parse.
-    $current_page = 1;
-    $total_pages = (int) $response['page']['total'];
-    // We have our first page of data already.
-    unset($response['page']);
-    $aggregated_data = $response;
-
-    while ($current_page <= $total_pages) {
-      $current_page++;
-      $response = $this->fetchLocalistPage($uri, 100, $current_page);
-      // Get rid of the page element.
-      unset($response['page']);
-      // Merge the remaining elements into our $aggregated_data.
-      foreach (array_keys($aggregated_data) as $key) {
-        $aggregated_data[$key] = array_merge($aggregated_data[$key], $response[$key]);
-      }
-    }
-    // Return all the pages combined.
-    return $aggregated_data;
+    return $promises;
   }
 
 }
