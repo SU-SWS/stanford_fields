@@ -42,6 +42,8 @@ class LocalistUrlWidget extends LinkWidget {
   protected $cache;
 
   /**
+   * API data from Localist.
+   *
    * @var array
    */
   protected $apiData = [];
@@ -387,7 +389,7 @@ class LocalistUrlWidget extends LinkWidget {
    * Given the endpoint and count, async fetch from the API all pages.
    *
    * @param string $endpoint
-   *   Localist API Endpoint
+   *   Localist API Endpoint.
    * @param int $total_count
    *   Total number of items to chunk up.
    *
@@ -426,7 +428,7 @@ class LocalistUrlWidget extends LinkWidget {
   protected static function unwrapAsyncRequests(array $promises): array {
     $promises = Utils::unwrap($promises);
     /** @var \GuzzleHttp\Psr7\Response $response */
-    foreach ($promises as $key => &$response) {
+    foreach ($promises as &$response) {
       $response = json_decode((string) $response->getBody(), TRUE);
     }
 
