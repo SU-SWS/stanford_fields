@@ -331,16 +331,20 @@ class LocalistUrlWidget extends LinkWidget {
   }
 
   /**
-   * Get the data from the
+   * Get the data from the localist API.
    *
    * @return array
+   *   API Data.
    */
-  protected function getApiData() {
+  protected function getApiData(): array {
+    // Data was already fetched.
     if ($this->apiData) {
       return $this->apiData;
     }
 
     $base_url = $this->getSetting('base_url');
+
+    // Check for some cached data before we fetch it all again.
     if ($cache = $this->cache->get("localist:$base_url")) {
       $this->apiData = $cache->data;
       return $this->apiData;
@@ -355,7 +359,7 @@ class LocalistUrlWidget extends LinkWidget {
    * @return array
    *   Keyed array of api data.
    */
-  protected function fetchApiData() {
+  protected function fetchApiData(): array {
     $base_url = $this->getSetting('base_url');
     $options = ['base_uri' => $base_url, 'query' => ['pp' => 1]];
     $promises = [
@@ -390,7 +394,7 @@ class LocalistUrlWidget extends LinkWidget {
    * @return array
    *   Indexed array of api data.
    */
-  protected function fetchPagedApiData($endpoint, $total_count){
+  protected function fetchPagedApiData($endpoint, $total_count): array {
     $base_url = $this->getSetting('base_url');
     $options = ['base_uri' => $base_url, 'query' => ['pp' => 100]];
 
@@ -402,7 +406,7 @@ class LocalistUrlWidget extends LinkWidget {
     $paged_data = self::unwrapAsyncRequests($paged_data);
 
     $data = [];
-    foreach($paged_data as $page){
+    foreach ($paged_data as $page) {
       unset($page['page']);
       $key = key($page);
       $data = array_merge($data, $page[$key]);
@@ -413,18 +417,19 @@ class LocalistUrlWidget extends LinkWidget {
   /**
    * Unwrap async promises and decode their body data.
    *
-   * @param \GuzzleHttp\Promise\Promise[] $promises
+   * @param \GuzzleHttp\Promise\PromiseInterface[] $promises
    *   Associative array of Guzzle promises.
    *
    * @return array
    *   Associative array of json decoded data.
    */
-  protected static function unwrapAsyncRequests(array $promises){
+  protected static function unwrapAsyncRequests(array $promises): array {
     $promises = Utils::unwrap($promises);
     /** @var \GuzzleHttp\Psr7\Response $response */
     foreach ($promises as $key => &$response) {
       $response = json_decode((string) $response->getBody(), TRUE);
     }
+
     return $promises;
   }
 
