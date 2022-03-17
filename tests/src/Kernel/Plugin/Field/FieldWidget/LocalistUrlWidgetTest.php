@@ -11,6 +11,10 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\stanford_fields\Plugin\Field\FieldWidget\LocalistUrlWidget;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class LocalistUrlWidgetTest.
@@ -60,15 +64,6 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     ]);
     $field->save();
 
-  }
-
-  /**
-   * Test the entity form is displayed correctly.
-   */
-  public function testWidgetForm() {
-    $node = Node::create([
-      'type' => 'page',
-    ]);
     /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $entity_form_display */
     $entity_form_display = EntityFormDisplay::create([
       'targetEntityType' => 'node',
@@ -82,9 +77,23 @@ class LocalistUrlWidgetTest extends KernelTestBase {
       'settings' => [
         'base_url' => 'https://stanford.enterprise.localist.com',
       ],
-    ])
-      ->removeComponent('created')
-      ->save();
+    ])->removeComponent('created')->save();
+
+    $guzzle_client = $this->createMock(ClientInterface::class);
+    $guzzle_client->method('requestAsync')
+      ->will($this->returnCallback([$this, 'requestAsyncCallback']));
+
+    \Drupal::getContainer()->set('http_client', $guzzle_client);
+  }
+
+  /**
+   * Test the entity form is displayed correctly.
+   */
+  public function testWidgetForm() {
+    $node = Node::create([
+      'type' => 'page',
+    ]);
+
 
     $node->set('su_localist_url', [
       [
@@ -96,7 +105,11 @@ class LocalistUrlWidgetTest extends KernelTestBase {
 
     $form = [];
     $form_state = new FormState();
+    $entity_form_display = EntityFormDisplay::load('node.page.default');
+    $entity_form_display->buildForm($node, $form, $form_state);
 
+    // Build the form twice to set up cache and check the cache.
+    $entity_form_display = EntityFormDisplay::load('node.page.default');
     $entity_form_display->buildForm($node, $form, $form_state);
 
     $widget_value = $form['su_localist_url']['widget'];
@@ -108,16 +121,13 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $this->assertIsArray($widget_value[0]['filters']['type']['event_audience']['#options']);
     $this->assertContains('Students', $widget_value[0]['filters']['type']['event_audience']['#options']);
     $this->assertContains('Everyone', $widget_value[0]['filters']['type']['event_audience']['#options']);
-    $this->assertIsArray($widget_value[0]['filters']['type']['event_subject']['#options']);
-    $this->assertContains('Arts/Media', $widget_value[0]['filters']['type']['event_subject']['#options']);
-    $this->assertIsArray($widget_value[0]['filters']['type']['event_types']['#options']);
-    $this->assertContains('Class/Seminar', $widget_value[0]['filters']['type']['event_types']['#options']);
-    $this->assertIsArray($widget_value[0]['filters']['group_id']);
-    $this->assertContains('Stanford Web Services', $widget_value[0]['filters']['group_id']['#options']);
+    $this->assertNotEmpty($widget_value[0]['filters']['type']['event_subject']['#options']);
+    $this->assertNotEmpty($widget_value[0]['filters']['type']['event_types']['#options']);
+    $this->assertNotEmpty($widget_value[0]['filters']['group_id']);
     $this->assertFalse($widget_value[0]['filters']['group_id']['#multiple']);
     $this->assertIsArray($widget_value[0]['filters']['venue_id']);
     $this->assertFalse($widget_value[0]['filters']['venue_id']['#multiple']);
-    $this->assertContains('Cardinal Hall', $widget_value[0]['filters']['venue_id']['#options']);
+
 
   }
 
@@ -160,7 +170,7 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $this->assertArrayHasKey('select_distinct', $element);
     $element['#parents'] = [];
 
-    $validate_error = $widget->validateUrl($element, $form_state, $form);
+    $widget->validateUrl($element, $form_state, $form);
     $this->assertCount(1, $form_state->getErrors());
 
     $values['0']['filters'] = [];
@@ -169,49 +179,88 @@ class LocalistUrlWidgetTest extends KernelTestBase {
     $values = $this->getValidValue();
     $massaged_values = $widget->massageFormValues($values, $form, $form_state);
     $this->assertCount(1, $massaged_values);
-
-    // Test for exceptions in the ajax calls.
-    $bad_data = $widget->fetchLocalistData('https://www.nowhere.com');
-    $this->assertCount(0, $bad_data);
-
-
   }
 
   /**
    * Returns valid form submission values.
    */
   protected function getValidValue() {
-    return array (
-      0 =>
-      array (
+    return [
+      [
         'uri' => 'https://stanford.enterprise.localist.com/api/2/events?group_id=37955145294460&days=365',
         'title' => '',
-        'attributes' =>
-        array (
-        ),
-        'filters' =>
-        array (
-          'type' =>
-          array (
-            'event_audience' =>
-            array (
-            ),
-            'event_subject' =>
-            array (
-            ),
-            'event_types' =>
-            array (
-              37952570025304 => "37952570025304",
-            ),
-          ),
+        'attributes' => [],
+        'filters' => [
+          'type' => [
+            'event_audience' => [],
+            'event_subject' => [],
+            'event_types' => [37952570025304 => "37952570025304"],
+          ],
           'group_id' => '37955145294460',
           'venue_id' => '',
           'match' => '',
-        ),
+        ],
         '_weight' => '0',
         '_original_delta' => 0,
-      ),
-    );
+      ],
+    ];
+  }
+
+  public function requestAsyncCallback($method, $uri, $options) {
+
+    $data = [];
+    switch ($uri) {
+      case '/api/2/groups':
+        $data = [
+          'groups' => [['group' => ['id' => 123456, 'name' => 'Foo']]],
+          'page' => ['total' => 1],
+        ];
+        break;
+      case '/api/2/departments':
+        $data = [
+          'departments' => [
+            [
+              'department' => [
+                'id' => 654321,
+                'name' => 'Bar',
+              ],
+            ],
+          ],
+          'page' => ['total' => 1],
+        ];
+        break;
+      case '/api/2/places':
+        $data = [
+          'places' => [['place' => ['id' => 555555, 'name' => 'Baz']]],
+          'page' => ['total' => 1],
+        ];
+        break;
+      case'/api/2/events/filters':
+        $data = [
+          'event_audience' => [
+            ['id' => 999, 'name' => 'Everyone'],
+            ['id' => 111, 'name' => 'Students'],
+          ],
+          'event_subject' => [
+            ['id' => 159, 'name' => 'Everyone'],
+          ],
+          'event_types' => [
+            ['id' => 753, 'name' => 'Everyone'],
+          ],
+        ];
+        break;
+      case'/api/2/events/labels':
+        $data = ['filters' => ['event_audience' => 'Audience', 'event_types' => 'Types','event_subject' => 'Subject']];
+        break;
+    }
+
+    $response = $this->createMock(ResponseInterface::class);
+    $response->method('getBody')->willReturn(json_encode($data));
+
+    $promise = $this->createMock(PromiseInterface::class);
+    $promise->method('wait')->willReturn($response);
+
+    return $promise;
   }
 
 }
