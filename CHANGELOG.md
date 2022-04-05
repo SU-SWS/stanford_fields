@@ -1,6 +1,14 @@
 # Stanford Fields
 
 
+8.x-1.11
+--------------------------------------------------------------------------------
+_Release Date: 2022-04-05_
+
+- Graceful fallback if the localist base url is not set
+- Updated localist URL references (#26)
+
+
 8.x-1.10
 --------------------------------------------------------------------------------
 _Release Date: 2022-03-17_

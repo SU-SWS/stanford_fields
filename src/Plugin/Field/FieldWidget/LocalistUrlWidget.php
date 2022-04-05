@@ -156,7 +156,10 @@ class LocalistUrlWidget extends LinkWidget {
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
-
+    // Fallback to inherited link widget if the base_url is not set.
+    if (!$this->getSetting('base_url')) {
+      return $element;
+    }
     $element['uri']['#access'] = FALSE;
     $element['title']['#access'] = FALSE;
     $element['attributes']['#access'] = FALSE;
@@ -196,6 +199,9 @@ class LocalistUrlWidget extends LinkWidget {
    * {@inheritDoc}
    */
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
+    if (!$this->getSetting('base_url')) {
+      return parent::massageFormValues($values, $form, $form_state);
+    }
 
     foreach ($values as $delta => &$value) {
 
