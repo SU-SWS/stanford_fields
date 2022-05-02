@@ -25,4 +25,14 @@ use Drupal\views\Plugin\views\display\Block;
  */
 class ViewFieldBlock extends Block {
 
+  /**
+   * {@inheritDoc}
+   */
+  public function optionsSummary(&$categories, &$options) {
+    parent::optionsSummary($categories, $options);
+    $categories['block']['title'] = $this->t('Field Block Settings');
+    $options['block_description']['title'] = $this->t('Field Block Name');
+    $options['block_category']['title'] = $this->t('Field Block Category');
+  }
+
 }
