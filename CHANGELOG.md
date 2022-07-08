@@ -1,6 +1,14 @@
 # Stanford Fields
 
 
+8.1.13
+--------------------------------------------------------------------------------
+_Release Date: 2022-07-08_
+
+- Eliminated deprecated functions and methods
+- fixed composer namespace to lowercase
+
+
 8.x-1.12
 --------------------------------------------------------------------------------
 _Release Date: 2022-05-02_
