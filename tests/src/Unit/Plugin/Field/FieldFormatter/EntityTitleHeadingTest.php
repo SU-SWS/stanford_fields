@@ -62,7 +62,7 @@ class EntityTitleHeadingTest extends FieldFormatterTestBase {
 
   public function testPluginSettings() {
 
-    $this->assertArrayEquals([
+    $this->assertEquals([
       'tag' => 'h2',
       'linked' => FALSE,
     ], EntityTitleHeading::defaultSettings());
@@ -70,7 +70,7 @@ class EntityTitleHeadingTest extends FieldFormatterTestBase {
     $form = [];
     $form_state = new FormState();
     $element = $this->plugin->settingsForm($form, $form_state);
-    $this->assertArrayEquals([
+    $this->assertEquals([
       'h1' => 'H1',
       'h2' => 'H2',
       'h3' => 'H3',

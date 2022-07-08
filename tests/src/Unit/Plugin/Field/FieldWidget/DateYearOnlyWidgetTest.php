@@ -23,7 +23,7 @@ class DateYearOnlyWidgetTest extends UnitTestCase {
       'start' => date('Y', time() - $ten_years),
       'end' => date('Y', time() + $ten_years),
     ];
-    $this->assertArrayEquals($expected, $default_settings);
+    $this->assertEquals($expected, $default_settings);
   }
 
 }
