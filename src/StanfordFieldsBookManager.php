@@ -188,6 +188,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * {@inheritdoc}
    */
   public function updateOutline(NodeInterface $node) {
+//    dpm($node);
+    // TODO Fix node book weights.
     return $this->bookManager->updateOutline($node);
   }
 
@@ -216,9 +218,66 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * {@inheritdoc}
    */
   public function addFormElements(array $form, FormStateInterface $form_state, NodeInterface $node, AccountInterface $account, $collapsed = TRUE) {
-    return $this->bookManager->addFormElements($form, $form_state, $node, $account, $collapsed);
+    if ($form_state->hasValue('book')) {
+      $form_state->setValue(['book','weight'], 4);
+      $node->book = $form_state->getValue('book');
+    }
+    $node->book['weight'] = 4;
+
+    $form = $this->bookManager->addFormElements($form, $form_state, $node, $account, $collapsed);
+
+    $form['book']['pid']['#ajax'] = [
+      'callback' => [self::class, 'parentChosen'],
+      'wrapper' => 'book-item-reorder',
+    ];
+    $parent_id = $form['book']['pid']['#default_value'];
+    $parent_link = $this->loadBookLink($parent_id);
+    $parent_subtree = $this->bookSubtreeData($parent_link);
+
+    $form['book']['weight'] = [
+      '#type' => 'table',
+      '#header' => [
+        'name' => t('Name'),
+        'weight' => t('Weight'),
+      ],
+      '#id' => 'book-item-reorder',
+      '#tabledrag' => [
+        [
+          'action' => 'order',
+          'relationship' => 'sibling',
+          'group' => 'book-item-weight',
+        ],
+      ],
+    ];
+
+    $sibling_links = reset($parent_subtree)['below'];
+
+    foreach ($sibling_links as $key => $sibling_link) {
+      $form['book']['weight'][md5($key)] = [
+        '#attributes' => [
+          'class' => [
+            $sibling_link['link']['nid'] == $form['book']['nid']['#value'] ? 'draggable' : '',
+          ],
+        ],
+        '#weight' => $sibling_link['link']['weight'],
+        'name' => ['#markup' => $sibling_link['link']['title']],
+        'weight' => [
+          '#type' => 'weight',
+          '#title' => t('Weight'),
+          '#default_value' => $sibling_link['link']['weight'],
+          '#delta' => MENU_LINK_WEIGHT_MAX_DELTA,
+          '#title_display' => 'invisible',
+          '#attributes' => ['class' => ['book-item-weight']],
+        ],
+      ];
+    }
+
+    return $form;
   }
 
+  public static function parentChosen(array &$form, FormStateInterface $form_state) {
+    return $form['book']['weight'];
+  }
 
   /**
    * {@inheritdoc}
