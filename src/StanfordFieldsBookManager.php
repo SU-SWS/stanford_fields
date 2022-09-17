@@ -188,7 +188,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * {@inheritdoc}
    */
   public function updateOutline(NodeInterface $node) {
-//    dpm($node);
+    //    dpm($node);
     // TODO Fix node book weights.
     return $this->bookManager->updateOutline($node);
   }
@@ -218,8 +218,9 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * {@inheritdoc}
    */
   public function addFormElements(array $form, FormStateInterface $form_state, NodeInterface $node, AccountInterface $account, $collapsed = TRUE) {
+    // TODO fix this below to save the weight correctly.
     if ($form_state->hasValue('book')) {
-      $form_state->setValue(['book','weight'], 4);
+      $form_state->setValue(['book', 'weight'], 4);
       $node->book = $form_state->getValue('book');
     }
     $node->book['weight'] = 4;
@@ -228,11 +229,13 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
     $form['book']['pid']['#ajax'] = [
       'callback' => [self::class, 'parentChosen'],
-      'wrapper' => 'book-item-reorder',
+      'wrapper' => 'book-item-reorder-wrapper',
     ];
-    $parent_id = $form['book']['pid']['#default_value'];
-    $parent_link = $this->loadBookLink($parent_id);
-    $parent_subtree = $this->bookSubtreeData($parent_link);
+    $parent_id = $form['book']['pid']['#default_value'] ?? FALSE;
+    if ($form_state->hasValue('book')) {
+      $parent_id = $form_state->getValue(['book', 'pid']);
+    }
+    // TODO figure out how to display items if the book was just chosen in new content.
 
     $form['book']['weight'] = [
       '#type' => 'table',
@@ -240,6 +243,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
         'name' => t('Name'),
         'weight' => t('Weight'),
       ],
+      '#prefix' => '<div id="book-item-reorder-wrapper">',
+      '#suffix' => '</div>',
       '#id' => 'book-item-reorder',
       '#tabledrag' => [
         [
@@ -250,13 +255,38 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       ],
     ];
 
-    $sibling_links = reset($parent_subtree)['below'];
+    if (!$parent_id) {
+      return $form;
+    }
+    $form['book']['weight']['#access'] = TRUE;
+
+    $parent_link = $this->loadBookLink($parent_id);
+    $parent_subtree = $this->bookSubtreeData($parent_link);
+
+    $parent_key = key($parent_subtree);
+    $sibling_links = $parent_subtree[$parent_key]['below'];
+
+    $current_page_link_exists = FALSE;
+    foreach ($sibling_links as $link) {
+      if ($link['link']['nid'] == $form['book']['nid']['#value']) {
+        $current_page_link_exists = TRUE;
+      }
+    }
+    if (!$current_page_link_exists) {
+      $sibling_links['new'] = [
+        'link' => [
+          'weight' => 0,
+          'title' => '[This Page]',
+          'nid' => $form['book']['nid']['#value'],
+        ],
+      ];
+    }
 
     foreach ($sibling_links as $key => $sibling_link) {
       $form['book']['weight'][md5($key)] = [
         '#attributes' => [
           'class' => [
-            $sibling_link['link']['nid'] == $form['book']['nid']['#value'] ? 'draggable' : '',
+            'draggable',
           ],
         ],
         '#weight' => $sibling_link['link']['weight'],
