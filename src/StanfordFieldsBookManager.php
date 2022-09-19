@@ -3,6 +3,7 @@
 namespace Drupal\stanford_fields;
 
 use Drupal\book\BookManagerInterface;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
@@ -188,8 +189,20 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * {@inheritdoc}
    */
   public function updateOutline(NodeInterface $node) {
-    //    dpm($node);
-    // TODO Fix node book weights.
+    if (is_array($node->book['weight'])) {
+      $key = array_key_exists('new', $node->book['weight']) ? 'new' : $node->id();
+
+      foreach ($node->book['weight'] as $nid => $weight) {
+        if ($nid == $key) {
+          continue;
+        }
+        $book_link = $this->loadBookLink($nid);
+        $book_link['weight'] = $weight['weight'];
+        $this->saveBookLink($book_link, FALSE);
+      }
+
+      $node->book['weight'] = $node->book['weight'][$key]['weight'];
+    }
     return $this->bookManager->updateOutline($node);
   }
 
@@ -218,24 +231,40 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * {@inheritdoc}
    */
   public function addFormElements(array $form, FormStateInterface $form_state, NodeInterface $node, AccountInterface $account, $collapsed = TRUE) {
-    // TODO fix this below to save the weight correctly.
     if ($form_state->hasValue('book')) {
-      $form_state->setValue(['book', 'weight'], 4);
-      $node->book = $form_state->getValue('book');
+      $form_state->setValue(['book', 'weight'], 50);
     }
-    $node->book['weight'] = 4;
 
     $form = $this->bookManager->addFormElements($form, $form_state, $node, $account, $collapsed);
+
+    unset($form['book']['bid']['#options'][0]);
+    $form['book']['bid']['#empty_option'] = $this->t('- Choose -');
+    $form['book']['#required'] = $form['book']['bid']['#required'] = TRUE;
+    $form['book']['#open'] = TRUE;
+    $form['book']['#prefix'] = '<div id="book-widget-wrapper">';
+    $form['book']['#suffix'] = '</div>';
+    $form['book']['bid']['#ajax']['callback'] = [self::class, 'bookSelected'];
+    $form['book']['bid']['#ajax']['wrapper'] = 'book-widget-wrapper';
 
     $form['book']['pid']['#ajax'] = [
       'callback' => [self::class, 'parentChosen'],
       'wrapper' => 'book-item-reorder-wrapper',
     ];
-    $parent_id = $form['book']['pid']['#default_value'] ?? FALSE;
+
+    $parent_id = $form['book']['pid']['#default_value'] ?? -1;
     if ($form_state->hasValue('book')) {
       $parent_id = $form_state->getValue(['book', 'pid']);
     }
-    // TODO figure out how to display items if the book was just chosen in new content.
+
+    if ($parent_id == -1) {
+      $user_input = $form_state->getUserInput();
+      $parent_id = NestedArray::getValue($user_input, ['book', 'bid']);
+    }
+
+    if (!$parent_id || $parent_id == -1) {
+      $form['book']['weight']['#access'] = FALSE;
+      return $form;
+    }
 
     $form['book']['weight'] = [
       '#type' => 'table',
@@ -255,11 +284,6 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       ],
     ];
 
-    if (!$parent_id) {
-      return $form;
-    }
-    $form['book']['weight']['#access'] = TRUE;
-
     $parent_link = $this->loadBookLink($parent_id);
     $parent_subtree = $this->bookSubtreeData($parent_link);
 
@@ -267,23 +291,25 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     $sibling_links = $parent_subtree[$parent_key]['below'];
 
     $current_page_link_exists = FALSE;
-    foreach ($sibling_links as $link) {
+    foreach ($sibling_links as &$link) {
       if ($link['link']['nid'] == $form['book']['nid']['#value']) {
+        $link['link']['title'] .= $this->t('(This Content)');
         $current_page_link_exists = TRUE;
       }
     }
+
     if (!$current_page_link_exists) {
       $sibling_links['new'] = [
         'link' => [
-          'weight' => 0,
-          'title' => '[This Page]',
+          'weight' => 50,
+          'title' => '(This Content)',
           'nid' => $form['book']['nid']['#value'],
         ],
       ];
     }
 
-    foreach ($sibling_links as $key => $sibling_link) {
-      $form['book']['weight'][md5($key)] = [
+    foreach ($sibling_links as $sibling_link) {
+      $form['book']['weight'][$sibling_link['link']['nid']] = [
         '#attributes' => [
           'class' => [
             'draggable',
@@ -305,7 +331,31 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     return $form;
   }
 
-  public static function parentChosen(array &$form, FormStateInterface $form_state) {
+  /**
+   * Ajax callback when a book is selected.
+   *
+   * @param array $form
+   *   Complete Form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Ajaxed form state.
+   *
+   * @return array
+   */
+  public static function bookSelected(array &$form, FormStateInterface $form_state): array {
+    return $form['book'];
+  }
+
+  /**
+   * Ajax callback when a parent page is selected for the book.
+   *
+   * @param array $form
+   *   Complete Form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Ajaxed form state.
+   *
+   * @return array
+   */
+  public static function parentChosen(array &$form, FormStateInterface $form_state): array {
     return $form['book']['weight'];
   }
 
