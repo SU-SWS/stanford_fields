@@ -223,6 +223,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       // Finally set the weight of the current node to it's submitted value.
       $node->book['weight'] = $node->book['weight'][$key]['weight'];
     }
+    $node->book['weight'] = $node->book['weight'] ?: 0;
     return $this->bookManager->updateOutline($node);
   }
 
@@ -259,12 +260,16 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       // links. Extract the weight of the current node on this form so that the
       // original service can still use it normally.
       $weight_value = $form_state->getValue(['book', 'weight']);
-      $key = array_key_exists('new', $weight_value) ? 'new' : $node->id();
-      $this_node_weight = NestedArray::getValue($weight_value, [
-        $key,
-        'weight',
-      ]);
-      $form_state->setValue(['book', 'weight'], $this_node_weight);
+      if($weight_value) {
+        $key = array_key_exists('new', $weight_value) ? 'new' : $node->id();
+        $this_node_weight = NestedArray::getValue($weight_value, [
+          $key,
+          'weight',
+        ]);
+        $form_state->setValue(['book', 'weight'], $this_node_weight);
+      } else {
+        $form_state->setValue(['book', 'weight'], 0);
+      }
     }
 
     // Call the original service to add the form parts.
@@ -350,6 +355,10 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    */
   protected function getSiblingBookItems(int $parent_id, int|string $current_nid): array {
     $parent_link = $this->loadBookLink($parent_id);
+    if(!$parent_link){
+      return [];
+    }
+
     $parent_subtree = $this->bookSubtreeData($parent_link);
 
     $parent_key = key($parent_subtree);
