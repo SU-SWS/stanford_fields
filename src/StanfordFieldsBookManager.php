@@ -201,29 +201,32 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * {@inheritdoc}
    */
   public function updateOutline(NodeInterface $node) {
-    // Before saving the node, look at the book weight data. The weight has to
-    // be an integer, but we also have to adjust the weights of the sibling book
-    // items so that they all stay in proper order.
-    if (is_array($node->book['weight'])) {
-      // New nodes use the key 'new'. At this point trying to use $node->isNew()
-      // doesn't work because the database transactions have been scheduled and
-      // the node has an id value.
-      $key = array_key_exists('new', $node->book['weight']) ? 'new' : $node->id();
+    if (isset($node->book['weight'])) {
+      
+      // Before saving the node, look at the book weight data . The weight has
+      // to be an integer, but we also have to adjust the weights of the sibling
+      // book items so that they all stay in proper order.
+      if (is_array($node->book['weight'])) {
+        // New nodes use the key 'new'. At this point trying to use
+        // $node->isNew() doesn't work because the database transactions have
+        // been scheduled and the node has an id value.
+        $key = array_key_exists('new', $node->book['weight']) ? 'new' : $node->id();
 
-      // Loop through the sibling book links and adjust their weights.
-      foreach ($node->book['weight'] as $nid => $weight) {
-        if ($nid == $key) {
-          continue;
+        // Loop through the sibling book links and adjust their weights.
+        foreach ($node->book['weight'] as $nid => $weight) {
+          if ($nid == $key) {
+            continue;
+          }
+          $book_link = $this->loadBookLink($nid);
+          $book_link['weight'] = $weight['weight'];
+          $this->saveBookLink($book_link, FALSE);
         }
-        $book_link = $this->loadBookLink($nid);
-        $book_link['weight'] = $weight['weight'];
-        $this->saveBookLink($book_link, FALSE);
-      }
 
-      // Finally set the weight of the current node to it's submitted value.
-      $node->book['weight'] = $node->book['weight'][$key]['weight'];
+        // Finally set the weight of the current node to it's submitted value.
+        $node->book['weight'] = $node->book['weight'][$key]['weight'];
+      }
+      $node->book['weight'] = $node->book['weight'] ?: 0;
     }
-    $node->book['weight'] = $node->book['weight'] ?: 0;
     return $this->bookManager->updateOutline($node);
   }
 
@@ -260,14 +263,15 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       // links. Extract the weight of the current node on this form so that the
       // original service can still use it normally.
       $weight_value = $form_state->getValue(['book', 'weight']);
-      if($weight_value) {
+      if ($weight_value) {
         $key = array_key_exists('new', $weight_value) ? 'new' : $node->id();
         $this_node_weight = NestedArray::getValue($weight_value, [
           $key,
           'weight',
         ]);
         $form_state->setValue(['book', 'weight'], $this_node_weight);
-      } else {
+      }
+      else {
         $form_state->setValue(['book', 'weight'], 0);
       }
     }
@@ -355,7 +359,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    */
   protected function getSiblingBookItems(int $parent_id, int|string $current_nid): array {
     $parent_link = $this->loadBookLink($parent_id);
-    if(!$parent_link){
+    if (!$parent_link) {
       return [];
     }
 
