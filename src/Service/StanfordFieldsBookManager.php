@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\stanford_fields;
+namespace Drupal\stanford_fields\Service;
 
 use Drupal\book\BookManagerInterface;
 use Drupal\Component\Utility\NestedArray;
@@ -289,7 +289,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       // links. Extract the weight of the current node on this form so that the
       // original service can still use it normally.
       $weight_value = $form_state->getValue(['book', 'weight']);
-      if ($weight_value) {
+      if (is_array($weight_value)) {
         $key = array_key_exists('new', $weight_value) ? 'new' : $node->id();
         $this_node_weight = NestedArray::getValue($weight_value, [
           $key,
@@ -298,15 +298,12 @@ class StanfordFieldsBookManager implements BookManagerInterface {
         $form_state->setValue(['book', 'weight'], $this_node_weight);
       }
       else {
-        $form_state->setValue(['book', 'weight'], 0);
+        $form_state->setValue(['book', 'weight'], (int) $weight_value);
       }
     }
 
     // Call the original service to add the form parts.
     $form = $this->bookManager->addFormElements($form, $form_state, $node, $account, $collapsed);
-
-    in_array($node->getType(), \Drupal::config('book.settings')
-      ->get('allowed_types'));
 
     // Force the book details to be open, because after the ajax returns, the
     // field set closes.
@@ -345,7 +342,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       '#access' => FALSE,
     ];
 
-    $parent_id = $this->getParentIdFromFom($form, $form_state);
+    $parent_id = $this->getParentIdFromForm($form, $form_state);
 
     if (!$parent_id) {
       return $form;
@@ -365,7 +362,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
           '#type' => 'weight',
           '#title' => t('Weight'),
           '#default_value' => $link_data['weight'],
-          '#delta' => MENU_LINK_WEIGHT_MAX_DELTA,
+          '#delta' => 50,
           '#title_display' => 'invisible',
           '#attributes' => ['class' => ['book-item-weight']],
         ],
@@ -395,7 +392,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     $parent_subtree = $this->bookSubtreeData($parent_link);
 
     $parent_key = key($parent_subtree);
-    $sibling_links = $parent_subtree[$parent_key]['below'];
+    $sibling_links = $parent_subtree[$parent_key]['below'] ?? [];
 
     $items = [];
     foreach ($sibling_links as $sibling) {
@@ -428,12 +425,12 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * @return int|bool
    *   Parent ID or false if none was found.
    */
-  protected function getParentIdFromFom(array $form, FormStateInterface $form_state): bool|int {
+  protected function getParentIdFromForm(array $form, FormStateInterface $form_state): bool|int {
     // The book module uses -1 as it's indication that nothing was chosen.
     $parent_id = $form['book']['pid']['#default_value'] ?? -1;
 
     // If the form was submitted via ajax, grab the book id from the user input.
-    $user_input = $form_state->getUserInput();
+    $user_input = $form_state->getUserInput() ?: [];
     $parent_id = $parent_id != -1 ? $parent_id : NestedArray::getValue($user_input, [
       'book',
       'bid',

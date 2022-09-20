@@ -17,7 +17,7 @@ class StanfordFieldsServiceProvider extends ServiceProviderBase {
   public function register(ContainerBuilder $container) {
     // Decorate the book manager service if it's available.
     if ($container->has('book.manager')) {
-      $container->register('stanford_fields.book_manager', 'Drupal\stanford_fields\StanfordFieldsBookManager')
+      $container->register('stanford_fields.book_manager', 'Drupal\stanford_fields\Service\StanfordFieldsBookManager')
         ->setDecoratedService('book.manager')
         ->addArgument(new Reference('stanford_fields.book_manager.inner'))
         ->addArgument(new Reference('state'))
