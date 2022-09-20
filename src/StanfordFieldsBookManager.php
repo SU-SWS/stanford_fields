@@ -5,6 +5,7 @@ namespace Drupal\stanford_fields;
 use Drupal\book\BookManagerInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\SortArray;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
@@ -25,8 +26,10 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *   Original book manager service.
    * @param \Drupal\Core\State\StateInterface $state
    *   State service.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   Config factory service.
    */
-  public function __construct(protected BookManagerInterface $bookManager, protected StateInterface $state) {
+  public function __construct(protected BookManagerInterface $bookManager, protected StateInterface $state, protected ConfigFactoryInterface $configFactory) {
   }
 
   /**
@@ -202,7 +205,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    */
   public function updateOutline(NodeInterface $node) {
     if (isset($node->book['weight'])) {
-      
+
       // Before saving the node, look at the book weight data . The weight has
       // to be an integer, but we also have to adjust the weights of the sibling
       // book items so that they all stay in proper order.
@@ -252,9 +255,32 @@ class StanfordFieldsBookManager implements BookManagerInterface {
   }
 
   /**
+   * Is the given node allowed in books based on config settings.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   Node entity.
+   *
+   * @return bool
+   *   If the given node can be added to books.
+   */
+  protected function nodeAllowedInBook(NodeInterface $node): bool {
+    $allowed_types = $this->configFactory->get('book.settings')
+      ->get('allowed_types');
+    return in_array($node->getType(), $allowed_types);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function addFormElements(array $form, FormStateInterface $form_state, NodeInterface $node, AccountInterface $account, $collapsed = TRUE) {
+    // The book module will add the book settings to all node types for admins,
+    // which makes it annoying. This checks the node against the settings
+    // instead of only the 'administer book outlines' permission.
+    // @see book_form_node_form_alter()
+    if (!$this->nodeAllowedInBook($node)) {
+      return $form;
+    }
+
     // Prepare the form state before passing to the original service to add form
     // elements.
     if ($form_state->hasValue(['book', 'weight'])) {
@@ -278,6 +304,9 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
     // Call the original service to add the form parts.
     $form = $this->bookManager->addFormElements($form, $form_state, $node, $account, $collapsed);
+
+    in_array($node->getType(), \Drupal::config('book.settings')
+      ->get('allowed_types'));
 
     // Force the book details to be open, because after the ajax returns, the
     // field set closes.
