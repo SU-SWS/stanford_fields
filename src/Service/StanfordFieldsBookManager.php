@@ -146,8 +146,10 @@ class StanfordFieldsBookManager implements BookManagerInterface {
         }
 
         // Finally set the weight of the current node to it's submitted value.
-        $node->book['weight'] = $node->book['weight'][$key]['weight'];
+        $node->book['weight'] = $node->book['weight'][$key]['weight'] ?? 0;
       }
+      // Make sure there's always a number value in the weight. Empty strings
+      // throw errors.
       $node->book['weight'] = $node->book['weight'] ?: 0;
     }
     return $this->bookManager->updateOutline($node);
@@ -320,18 +322,20 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     $sibling_links = $parent_subtree[$parent_key]['below'] ?? [];
 
     $items = [];
+    $adding_new_link = TRUE;
     foreach ($sibling_links as $sibling) {
       if ($sibling['link']['nid'] == $current_nid) {
+        $adding_new_link = FALSE;
         $sibling['link']['title'] .= ' (' . $this->t('This Content') . ')';
       }
       $items[$sibling['link']['nid']] = $sibling['link'];
     }
 
-    if ($current_nid == 'new') {
+    if ($adding_new_link || $current_nid == 'new') {
       $items['new'] = [
         'weight' => 50,
         'title' => $this->t('(This Content)'),
-        'nid' => 'new',
+        'nid' => $current_nid,
       ];
     }
 
