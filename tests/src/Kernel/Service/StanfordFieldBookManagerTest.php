@@ -82,7 +82,8 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     ]);
     $altered_form = $manager->addFormElements($form, $form_state, $node, $account);
     $this->assertTrue($altered_form['book']['weight']['#access']);
-    $this->assertEmpty(Element::children($altered_form['book']['weight']));
+    $this->assertNotEmpty(Element::children($altered_form['book']['weight']));
+    $this->assertArrayHasKey('new', $altered_form['book']['weight']);
 
     $sibling = Node::create(['type' => 'page', 'title' => 'Book Foo']);
     $sibling->book = [
