@@ -68,8 +68,8 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $node->setPublished();
     $node->save();
 
-//    $altered_form = $manager->addFormElements($form, $form_state, $node, $account);
-//    $this->assertFalse($altered_form['book']['weight']['#access']);
+    $altered_form = $manager->addFormElements($form, $form_state, $node, $account);
+    $this->assertFalse($altered_form['book']['weight']['#access']);
 
     $form_state->setValue('book', [
       'nid' => $node->id(),
@@ -80,9 +80,9 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
       'weight' => [$node->id() => ['weight' => 10]],
       'parent_depth_limit' => 9,
     ]);
-//    $altered_form = $manager->addFormElements($form, $form_state, $node, $account);
-//    $this->assertTrue($altered_form['book']['weight']['#access']);
-//    $this->assertEmpty(Element::children($altered_form['book']['weight']));
+    $altered_form = $manager->addFormElements($form, $form_state, $node, $account);
+    $this->assertTrue($altered_form['book']['weight']['#access']);
+    $this->assertEmpty(Element::children($altered_form['book']['weight']));
 
     $sibling = Node::create(['type' => 'page', 'title' => 'Book Foo']);
     $sibling->book = [
@@ -100,7 +100,94 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $altered_form = $manager->addFormElements($form, $form_state, $node, $account);
     $this->assertArrayHasKey($sibling->id(), $altered_form['book']['weight']);
     $this->assertNotEmpty(Element::children($altered_form['book']['weight']));
+  }
 
+  /**
+   * Book tree links should be properly prefixed.
+   */
+  public function testBookTree() {
+    $node = Node::create(['type' => 'page', 'title' => 'Book Foo']);
+    $node->book = [
+      'nid' => NULL,
+      'bid' => $this->book->id(),
+      'original_bid' => 0,
+      'pid' => $this->book->id(),
+      'weight' => 50,
+      'parent_depth_limit' => '9',
+      'has_children' => 0,
+    ];
+    $node->setPublished();
+    $node->save();
+
+    /** @var \Drupal\book\BookManagerInterface $manager */
+    $manager = \Drupal::service('book.manager');
+
+    $tree_data = $manager->bookTreeAllData($this->book->id());
+    $book_link = reset($tree_data);
+    $first_link = reset($book_link['below']);
+    $this->assertStringstartsWith('1. ', $first_link['link']['title']);
+
+    \Drupal::state()->set('book.prefix.1', 'alpha_uppercase');
+    $tree_data = $manager->bookTreeAllData($this->book->id());
+    $book_link = reset($tree_data);
+    $first_link = reset($book_link['below']);
+    $this->assertStringstartsWith('A. ', $first_link['link']['title']);
+
+    \Drupal::state()->set('book.prefix.1', 'alpha_lowercase');
+    $tree_data = $manager->bookTreeAllData($this->book->id());
+    $book_link = reset($tree_data);
+    $first_link = reset($book_link['below']);
+    $this->assertStringstartsWith('a. ', $first_link['link']['title']);
+
+    \Drupal::state()->set('book.prefix.1', 'roman_numerals_uppercase');
+    $tree_data = $manager->bookTreeAllData($this->book->id());
+    $book_link = reset($tree_data);
+    $first_link = reset($book_link['below']);
+    $this->assertStringstartsWith('I. ', $first_link['link']['title']);
+
+    \Drupal::state()->set('book.prefix.1', 'roman_numersal_lowercase');
+    $tree_data = $manager->bookTreeAllData($this->book->id());
+    $book_link = reset($tree_data);
+    $first_link = reset($book_link['below']);
+    $this->assertStringstartsWith('i. ', $first_link['link']['title']);
+  }
+
+  public function testUpdateOutline() {
+    $sibling = Node::create(['type' => 'page', 'title' => 'Book Foo']);
+    $sibling->book = [
+      'nid' => NULL,
+      'bid' => $this->book->id(),
+      'original_bid' => 0,
+      'pid' => $this->book->id(),
+      'weight' => 50,
+      'parent_depth_limit' => '9',
+      'has_children' => 0,
+    ];
+    $sibling->setPublished();
+    $sibling->save();
+
+    $node = Node::create(['type' => 'page', 'title' => 'Book Foo']);
+    $node->book = [
+      'nid' => NULL,
+      'bid' => $this->book->id(),
+      'original_bid' => 0,
+      'pid' => $this->book->id(),
+      'weight' => 23,
+      'parent_depth_limit' => '9',
+      'has_children' => 0,
+    ];
+    $node->setPublished();
+    $node->save();
+    $node = Node::load($node->id());
+    $this->assertEquals(23, $node->book['weight']);
+
+    $node->book['weight'] = [
+      $sibling->id() => ['weight' => 12],
+      $node->id() => ['weight' => 24],
+    ];
+    $node->save();
+    $node = Node::load($node->id());
+    $this->assertEquals(24, $node->book['weight']);
   }
 
 }

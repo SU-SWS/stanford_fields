@@ -139,6 +139,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function getActiveTrailIds($bid, $link) {
     return $this->bookManager->getActiveTrailIds($bid, $link);
@@ -146,6 +148,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function loadBookLink($nid, $translate = TRUE) {
     return $this->bookManager->loadBookLink($nid, $translate);
@@ -153,6 +157,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function loadBookLinks($nids, $translate = TRUE) {
     return $this->bookManager->loadBookLinks($nids, $translate);
@@ -160,6 +166,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function getTableOfContents($bid, $depth_limit, array $exclude = []) {
     return $this->bookManager->getTableOfContents($bid, $depth_limit, $exclude);
@@ -167,6 +175,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function getParentDepthLimit(array $book_link) {
     return $this->bookManager->getParentDepthLimit($book_link);
@@ -174,6 +184,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function bookTreeCollectNodeLinks(&$tree, &$node_links) {
     return $this->bookManager->bookTreeCollectNodeLinks($tree, $node_links);
@@ -181,6 +193,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function bookLinkTranslate(&$link) {
     return $this->bookManager->bookLinkTranslate($link);
@@ -188,6 +202,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function bookTreeGetFlat(array $book_link) {
     return $this->bookManager->bookTreeGetFlat($book_link);
@@ -195,6 +211,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function getAllBooks() {
     return $this->bookManager->getAllBooks();
@@ -235,6 +253,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function saveBookLink(array $link, $new) {
     return $this->bookManager->saveBookLink($link, $new);
@@ -242,6 +262,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function getLinkDefaults($nid) {
     return $this->bookManager->getLinkDefaults($nid);
@@ -249,6 +271,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function getBookParents(array $item, array $parent = []) {
     return $this->bookManager->getBookParents($item, $parent);
@@ -476,6 +500,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function deleteFromBook($nid) {
     return $this->bookManager->deleteFromBook($nid);
@@ -483,6 +509,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function bookTreeOutput(array $tree) {
     return $this->bookManager->bookTreeOutput($tree);
@@ -490,6 +518,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function bookTreeCheckAccess(&$tree, $node_links = []) {
     return $this->bookManager->bookTreeCheckAccess($tree, $node_links);
@@ -497,6 +527,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function bookSubtreeData($link) {
     return $this->bookManager->bookSubtreeData($link);
@@ -504,6 +536,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public function checkNodeIsRemovable(NodeInterface $node) {
     return $this->bookManager->checkNodeIsRemovable($node);
