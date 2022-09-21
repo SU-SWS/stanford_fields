@@ -102,56 +102,6 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $this->assertNotEmpty(Element::children($altered_form['book']['weight']));
   }
 
-  /**
-   * Book tree links should be properly prefixed.
-   */
-  public function testBookTree() {
-    $node = Node::create(['type' => 'page', 'title' => 'Book Foo']);
-    $node->book = [
-      'nid' => NULL,
-      'bid' => $this->book->id(),
-      'original_bid' => 0,
-      'pid' => $this->book->id(),
-      'weight' => 50,
-      'parent_depth_limit' => '9',
-      'has_children' => 0,
-    ];
-    $node->setPublished();
-    $node->save();
-
-    /** @var \Drupal\book\BookManagerInterface $manager */
-    $manager = \Drupal::service('book.manager');
-
-    $tree_data = $manager->bookTreeAllData($this->book->id());
-    $book_link = reset($tree_data);
-    $first_link = reset($book_link['below']);
-    $this->assertStringstartsWith('1. ', $first_link['link']['title']);
-
-    \Drupal::state()->set('book.prefix.1', 'alpha_uppercase');
-    $tree_data = $manager->bookTreeAllData($this->book->id());
-    $book_link = reset($tree_data);
-    $first_link = reset($book_link['below']);
-    $this->assertStringstartsWith('A. ', $first_link['link']['title']);
-
-    \Drupal::state()->set('book.prefix.1', 'alpha_lowercase');
-    $tree_data = $manager->bookTreeAllData($this->book->id());
-    $book_link = reset($tree_data);
-    $first_link = reset($book_link['below']);
-    $this->assertStringstartsWith('a. ', $first_link['link']['title']);
-
-    \Drupal::state()->set('book.prefix.1', 'roman_numerals_uppercase');
-    $tree_data = $manager->bookTreeAllData($this->book->id());
-    $book_link = reset($tree_data);
-    $first_link = reset($book_link['below']);
-    $this->assertStringstartsWith('I. ', $first_link['link']['title']);
-
-    \Drupal::state()->set('book.prefix.1', 'roman_numersal_lowercase');
-    $tree_data = $manager->bookTreeAllData($this->book->id());
-    $book_link = reset($tree_data);
-    $first_link = reset($book_link['below']);
-    $this->assertStringstartsWith('i. ', $first_link['link']['title']);
-  }
-
   public function testUpdateOutline() {
     $sibling = Node::create(['type' => 'page', 'title' => 'Book Foo']);
     $sibling->book = [
