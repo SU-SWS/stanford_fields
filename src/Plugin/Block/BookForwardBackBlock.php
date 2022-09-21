@@ -51,7 +51,7 @@ class BookForwardBackBlock extends BlockBase implements ContainerFactoryPluginIn
   /**
    * {@inheritDoc}
    *
-   * @see book_node_view().
+   * @see book_node_view()
    */
   public function build() {
     $node = $this->getContextValue('node');

@@ -346,7 +346,6 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       'wrapper' => 'book-item-reorder-wrapper',
     ];
 
-
     $form['book']['weight'] = [
       '#type' => 'table',
       '#header' => [
@@ -421,7 +420,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     $items = [];
     foreach ($sibling_links as $sibling) {
       if ($sibling['link']['nid'] == $current_nid) {
-        $sibling['link']['title'] .= $this->t(' (This Content)');
+        $sibling['link']['title'] .= ' (' . $this->t('This Content') . ')';
       }
       $items[$sibling['link']['nid']] = $sibling['link'];
     }
@@ -446,10 +445,10 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Current state of the form.
    *
-   * @return int|bool
-   *   Parent ID or false if none was found.
+   * @return int|null
+   *   Parent ID or null if none was found.
    */
-  protected function getParentIdFromForm(array $form, FormStateInterface $form_state): bool|int {
+  protected function getParentIdFromForm(array $form, FormStateInterface $form_state): ?int {
     // The book module uses -1 as it's indication that nothing was chosen.
     $parent_id = $form['book']['pid']['#default_value'] ?? -1;
 
@@ -460,12 +459,13 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       'bid',
     ]);
 
-    // As an extra check, if the parent item still hasn't been found, try to fetch the parent id from the form state.
+    // As an extra check, if the parent item still hasn't been found, try to
+    // fetch the parent id from the form state.
     if ($parent_id == -1 && $form_state->hasValue(['book', 'pid'])) {
       $parent_id = $form_state->getValue(['book', 'pid']);
     }
 
-    return $parent_id >= 1 ? $parent_id : FALSE;
+    return $parent_id >= 1 ? $parent_id : NULL;
   }
 
   /**
