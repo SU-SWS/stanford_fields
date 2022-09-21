@@ -130,13 +130,22 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       // to be an integer, but we also have to adjust the weights of the sibling
       // book items so that they all stay in proper order.
       if (is_array($node->book['weight'])) {
+
+        // Remove the parent ID from the keys in the weights data.
+        $weights = $node->book['weight'];
+        foreach ($weights as $key => $weight) {
+          [, $nid] = explode(':', $key);
+          $weights[$nid] = $weight;
+          unset($weights[$key]);
+        }
+
         // New nodes use the key 'new'. At this point trying to use
         // $node->isNew() doesn't work because the database transactions have
         // been scheduled and the node has an id value.
-        $key = array_key_exists('new', $node->book['weight']) ? 'new' : $node->id();
+        $key = array_key_exists('new', $weights) ? 'new' : $node->id();
 
         // Loop through the sibling book links and adjust their weights.
-        foreach ($node->book['weight'] as $nid => $weight) {
+        foreach ($weights as $nid => $weight) {
           if ($nid == $key) {
             continue;
           }
@@ -146,7 +155,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
         }
 
         // Finally set the weight of the current node to it's submitted value.
-        $node->book['weight'] = $node->book['weight'][$key]['weight'] ?? 0;
+        $node->book['weight'] = $weights[$key]['weight'] ?? 0;
       }
       // Make sure there's always a number value in the weight. Empty strings
       // throw errors.
@@ -277,7 +286,11 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     $form['book']['weight']['#access'] = TRUE;
 
     foreach ($this->getSiblingBookItems($parent_id, $form['book']['nid']['#value']) as $nid => $link_data) {
-      $form['book']['weight'][$nid] = [
+
+      // To avoid the weight value to linger after the ajax finishes, use
+      // different keys for each parent. That way when you change to a different
+      // parent, the weight will all reset to proper order.
+      $form['book']['weight']["$parent_id:$nid"] = [
         '#attributes' => [
           'class' => [
             'draggable',
@@ -323,17 +336,20 @@ class StanfordFieldsBookManager implements BookManagerInterface {
 
     $items = [];
     $adding_new_link = TRUE;
+    $highest_weight = -50;
+
     foreach ($sibling_links as $sibling) {
       if ($sibling['link']['nid'] == $current_nid) {
         $adding_new_link = FALSE;
         $sibling['link']['title'] .= ' (' . $this->t('This Content') . ')';
       }
       $items[$sibling['link']['nid']] = $sibling['link'];
+      $highest_weight = max($sibling['link']['weight'], $highest_weight);
     }
 
     if ($adding_new_link || $current_nid == 'new') {
       $items['new'] = [
-        'weight' => 50,
+        'weight' => $highest_weight + 1,
         'title' => $this->t('(This Content)'),
         'nid' => $current_nid,
       ];
@@ -371,7 +387,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       $parent_id = $form_state->getValue(['book', 'pid']);
     }
 
-    return $parent_id >= 1 ? $parent_id : NULL;
+    return $parent_id >= 1 ? (int) $parent_id : NULL;
   }
 
   /**
