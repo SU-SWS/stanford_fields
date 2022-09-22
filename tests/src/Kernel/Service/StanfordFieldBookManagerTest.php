@@ -83,7 +83,8 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $altered_form = $manager->addFormElements($form, $form_state, $node, $account);
     $this->assertTrue($altered_form['book']['weight']['#access']);
     $this->assertNotEmpty(Element::children($altered_form['book']['weight']));
-    $this->assertArrayHasKey('new', $altered_form['book']['weight']);
+
+    $this->assertArrayHasKey($this->book->id() . ':new', $altered_form['book']['weight']);
 
     $sibling = Node::create(['type' => 'page', 'title' => 'Book Foo']);
     $sibling->book = [
@@ -99,7 +100,7 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $sibling->save();
 
     $altered_form = $manager->addFormElements($form, $form_state, $node, $account);
-    $this->assertArrayHasKey($sibling->id(), $altered_form['book']['weight']);
+    $this->assertArrayHasKey($this->book->id() . ':' . $sibling->id(), $altered_form['book']['weight']);
     $this->assertNotEmpty(Element::children($altered_form['book']['weight']));
   }
 
@@ -133,8 +134,8 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $this->assertEquals(23, $node->book['weight']);
 
     $node->book['weight'] = [
-      $sibling->id() => ['weight' => 12],
-      $node->id() => ['weight' => 24],
+      'foo:' . $sibling->id() => ['weight' => 12],
+      'foo:' . $node->id() => ['weight' => 24],
     ];
     $node->save();
     $node = Node::load($node->id());
