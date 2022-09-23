@@ -27,8 +27,10 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *   Original book manager service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   Config factory service.
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
+   *   Event dispatcher service.
    */
-  public function __construct(protected BookManagerInterface $bookManager, protected ConfigFactoryInterface $configFactory,protected EventDispatcherInterface $eventDispatcher) {
+  public function __construct(protected BookManagerInterface $bookManager, protected ConfigFactoryInterface $configFactory, protected EventDispatcherInterface $eventDispatcher) {
   }
 
   /**
