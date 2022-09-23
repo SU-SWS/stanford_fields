@@ -8,9 +8,10 @@ use Drupal\Component\Utility\SortArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\NodeInterface;
+use Drupal\stanford_fields\Event\BookOutlineUpdatedEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Book manager service decorator.
@@ -24,12 +25,10 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @param \Drupal\book\BookManagerInterface $bookManager
    *   Original book manager service.
-   * @param \Drupal\Core\State\StateInterface $state
-   *   State service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   Config factory service.
    */
-  public function __construct(protected BookManagerInterface $bookManager, protected StateInterface $state, protected ConfigFactoryInterface $configFactory) {
+  public function __construct(protected BookManagerInterface $bookManager, protected ConfigFactoryInterface $configFactory,protected EventDispatcherInterface $eventDispatcher) {
   }
 
   /**
@@ -131,7 +130,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       // book items so that they all stay in proper order.
       if (is_array($node->book['weight'])) {
 
-        // Remove the parent ID from the keys in the weights data.
+        // Remove the parent ID from the keys in the weight data.
         $weights = $node->book['weight'];
         foreach ($weights as $key => $weight) {
           [, $nid] = explode(':', $key);
@@ -161,7 +160,9 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       // throw errors.
       $node->book['weight'] = $node->book['weight'] ?: 0;
     }
-    return $this->bookManager->updateOutline($node);
+    $return = $this->bookManager->updateOutline($node);
+    $this->eventDispatcher->dispatch(new BookOutlineUpdatedEvent($node), BookOutlineUpdatedEvent::OUTLINE_UPDATED);
+    return $return;
   }
 
   /**

@@ -20,8 +20,8 @@ class StanfordFieldsServiceProvider extends ServiceProviderBase {
       $container->register('stanford_fields.book_manager', 'Drupal\stanford_fields\Service\StanfordFieldsBookManager')
         ->setDecoratedService('book.manager')
         ->addArgument(new Reference('stanford_fields.book_manager.inner'))
-        ->addArgument(new Reference('state'))
         ->addArgument(new Reference('config.factory'))
+        ->addArgument(new Reference('event_dispatcher'))
         ->setPublic(FALSE);
     }
   }
