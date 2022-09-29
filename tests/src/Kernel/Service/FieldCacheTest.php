@@ -6,29 +6,15 @@ use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
-use Drupal\node\Entity\NodeType;
+use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 
 /**
  * Class FieldCacheTest
  *
  * @package Drupal\Tests\stanford_fields\Kernel\Service
  */
-class FieldCacheTest extends KernelTestBase {
-
-  /**
-   * {@inheritDoc}
-   */
-  protected static $modules = [
-    'system',
-    'stanford_fields',
-    'node',
-    'user',
-    'datetime',
-    'datetime_range',
-    'field',
-  ];
+class FieldCacheTest extends StanfordFieldKernelTestBase {
 
   /**
    * Array of cache tags scheduled for invalidation.
@@ -49,15 +35,7 @@ class FieldCacheTest extends KernelTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
-    $this->installEntitySchema('user');
-    $this->installEntitySchema('node');
-    $this->installSchema('node', ['node_access']);
 
-    $cache_invalidator = $this->createMock(CacheTagsInvalidatorInterface::class);
-    $cache_invalidator->method('invalidateTags')
-      ->will($this->returnCallback([$this, 'invalidateTagsCallback']));
-
-    NodeType::create(['type' => 'page', 'name' => 'Page'])->save();
     // Create a comment field attached to a host 'entity_test' entity.
     FieldStorageConfig::create([
       'entity_type' => 'node',
@@ -79,6 +57,10 @@ class FieldCacheTest extends KernelTestBase {
       'bundle' => 'page',
       'field_name' => 'field_daterange',
     ])->save();
+
+    $cache_invalidator = $this->createMock(CacheTagsInvalidatorInterface::class);
+    $cache_invalidator->method('invalidateTags')
+      ->will($this->returnCallback([$this, 'invalidateTagsCallback']));
     \Drupal::getContainer()->set('cache_tags.invalidator', $cache_invalidator);
   }
 
