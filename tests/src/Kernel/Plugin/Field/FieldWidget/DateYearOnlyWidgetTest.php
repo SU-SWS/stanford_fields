@@ -7,10 +7,9 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
-use Drupal\node\Entity\NodeType;
 use Drupal\stanford_fields\Plugin\Field\FieldWidget\DateYearOnlyWidget;
+use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 
 /**
  * Class DateYearOnlyWidgetTest
@@ -18,33 +17,13 @@ use Drupal\stanford_fields\Plugin\Field\FieldWidget\DateYearOnlyWidget;
  * @group
  * @coversDefaultClass \Drupal\stanford_fields\Plugin\Field\FieldWidget\DateYearOnlyWidget
  */
-class DateYearOnlyWidgetTest extends KernelTestBase {
-
-  /**
-   * {@inheritDoc}
-   */
-  protected static $modules = [
-    'system',
-    'path_alias',
-    'node',
-    'user',
-    'datetime',
-    'stanford_fields',
-    'field',
-  ];
+class DateYearOnlyWidgetTest extends StanfordFieldKernelTestBase {
 
   /**
    * {@inheritDoc}
    */
   protected function setUp(): void {
     parent::setUp();
-    $this->installEntitySchema('user');
-    $this->installEntitySchema('node');
-    $this->installEntitySchema('field_config');
-    $this->installEntitySchema('date_format');
-
-    NodeType::create(['type' => 'page'])->save();
-
     $field_storage = FieldStorageConfig::create([
       'field_name' => 'field_date',
       'entity_type' => 'node',

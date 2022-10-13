@@ -7,13 +7,11 @@ use Drupal\Core\Form\FormState;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
-use Drupal\node\Entity\NodeType;
 use Drupal\stanford_fields\Plugin\Field\FieldWidget\LocalistUrlWidget;
+use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -22,32 +20,14 @@ use Psr\Http\Message\ResponseInterface;
  * @group
  * @coversDefaultClass \Drupal\stanford_fields\Plugin\Field\FieldWidget\LocalistUrlWidget
  */
-class LocalistUrlWidgetTest extends KernelTestBase {
+class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
 
-  /**
-   * {@inheritDoc}
-   */
-  protected static $modules = [
-    'system',
-    'path_alias',
-    'node',
-    'user',
-    'link',
-    'stanford_fields',
-    'field',
-  ];
 
   /**
    * {@inheritDoc}
    */
   protected function setUp(): void {
     parent::setUp();
-    $this->installEntitySchema('user');
-    $this->installEntitySchema('node');
-    $this->installEntitySchema('field_config');
-    $this->installConfig(['system', 'field', 'link']);
-
-    NodeType::create(['type' => 'page'])->save();
 
     $field_storage = FieldStorageConfig::create([
       'field_name' => 'su_localist_url',
@@ -70,7 +50,6 @@ class LocalistUrlWidgetTest extends KernelTestBase {
       'bundle' => 'page',
       'mode' => 'default',
       'status' => TRUE,
-
     ]);
     $entity_form_display->setComponent('su_localist_url', [
       'type' => 'localist_url',
