@@ -5,12 +5,14 @@ on:
     types: [created]
 jobs:
   phpunit:
-    name: PHPUnit Coverage Tests
+    name: Back to dev
     runs-on: ubuntu-latest
     container:
       image: pookmish/drupal8ci:latest
     steps:
       - uses: actions/checkout@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Back to Dev
         run: |
           composer global require su-sws/stanford-caravan:dev-8.x-2.x
