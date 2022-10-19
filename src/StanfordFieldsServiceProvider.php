@@ -22,6 +22,7 @@ class StanfordFieldsServiceProvider extends ServiceProviderBase {
         ->addArgument(new Reference('stanford_fields.book_manager.inner'))
         ->addArgument(new Reference('config.factory'))
         ->addArgument(new Reference('event_dispatcher'))
+        ->addArgument(new Reference('entity_type.manager'))
         ->setPublic(FALSE);
     }
   }

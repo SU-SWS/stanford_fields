@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\stanford_fields\Kernel;
 
-use Drupal\Core\Session\AccountInterface;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\NodeType;
 use Drupal\user\Entity\Role;
@@ -38,8 +37,10 @@ class StanfordFieldKernelTestBase extends KernelTestBase {
     $this->installSchema('node', ['node_access']);
 
     NodeType::create(['type' => 'page'])->save();
-    Role::create(['id' => AccountInterface::ANONYMOUS_ROLE])->save();
+    Role::create(['id' => RoleInterface::ANONYMOUS_ID])->save();
+    Role::create(['id' => RoleInterface::AUTHENTICATED_ID])->save();
     user_role_grant_permissions(RoleInterface::ANONYMOUS_ID, ['access content']);
+    user_role_grant_permissions(RoleInterface::AUTHENTICATED_ID, ['access content']);
   }
 
 }

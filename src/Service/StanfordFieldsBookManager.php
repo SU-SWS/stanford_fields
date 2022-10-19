@@ -5,7 +5,10 @@ namespace Drupal\stanford_fields\Service;
 use Drupal\book\BookManagerInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\SortArray;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -29,8 +32,10 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *   Config factory service.
    * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
    *   Event dispatcher service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   Entity type manager service.
    */
-  public function __construct(protected BookManagerInterface $bookManager, protected ConfigFactoryInterface $configFactory, protected EventDispatcherInterface $eventDispatcher) {
+  public function __construct(protected BookManagerInterface $bookManager, protected ConfigFactoryInterface $configFactory, protected EventDispatcherInterface $eventDispatcher, protected EntityTypeManagerInterface $entityTypeManager) {
   }
 
   /**
@@ -466,6 +471,25 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    */
   public function checkNodeIsRemovable(NodeInterface $node) {
     return $this->bookManager->checkNodeIsRemovable($node);
+  }
+
+  /**
+   * Check for access on the "Outline" book route.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   Current account.
+   * @param int $node
+   *   Node entity id.
+   *
+   * @return \Drupal\Core\Access\AccessResultReasonInterface
+   *   Resulting access.
+   */
+  public function checkBookOutlineAccess(AccountInterface $account, int $node): AccessResultInterface {
+    $node = $this->entityTypeManager->getStorage('node')->load($node);
+    if ($node && $this->nodeAllowedInBook($node)) {
+      return AccessResult::allowedIfHasPermission($account, 'administer book outlines');
+    }
+    return AccessResult::forbidden();
   }
 
 }
