@@ -18,6 +18,10 @@ class StanfordFieldsRouteSubscriber extends RouteSubscriberBase {
     if ($route = $collection->get('book.admin_edit')) {
       $route->setDefault('_form', '\Drupal\stanford_fields\Form\StanfordFieldBookAdminEditForm');
     }
+
+    if ($route = $collection->get('entity.node.book_outline_form')) {
+      $route->setRequirement('_custom_access', 'book.manager:checkBookOutlineAccess');
+    }
   }
 
 }
