@@ -5,9 +5,12 @@ namespace Drupal\Tests\stanford_fields\Kernel\Service;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
+use Drupal\user\Entity\User;
+use Drupal\user\RoleInterface;
 
 /**
  * Decorated book manager service tests.
@@ -140,6 +143,39 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $node->save();
     $node = Node::load($node->id());
     $this->assertEquals(24, $node->book['weight']);
+  }
+
+  public function testOutlineAccess() {
+    // Create user 1 first.
+    User::create(['name' => $this->randomMachineName()])->save();
+
+    $account = User::create(['name' => $this->randomMachineName()]);
+
+    $account->save();
+    $account = User::load($account->id());
+    $this->container->get('current_user')->setAccount($account);
+
+    $access = Url::fromRoute('entity.node.book_outline_form', ['node' => 999])
+      ->access($account);
+    $this->assertFalse($access);
+
+    $access = Url::fromRoute('entity.node.book_outline_form', ['node' => $this->book->id()])
+      ->access($account);
+    $this->assertFalse($access);
+
+    user_role_grant_permissions(RoleInterface::AUTHENTICATED_ID, ['administer book outlines']);
+    $access = Url::fromRoute('entity.node.book_outline_form', ['node' => $this->book->id()])
+      ->access($account);
+    $this->assertTrue($access);
+
+    \Drupal::configFactory()->getEditable('book.settings')
+      ->set('allowed_types', ['foobar_page'])
+      ->set('child_type', 'foobar_page')
+      ->save();
+
+    $access = Url::fromRoute('entity.node.book_outline_form', ['node' => $this->book->id()])
+      ->access($account);
+    $this->assertFalse($access);
   }
 
 }
