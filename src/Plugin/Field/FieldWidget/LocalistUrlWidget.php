@@ -266,7 +266,7 @@ class LocalistUrlWidget extends LinkWidget {
     $this->getApiData();
 
     $element = [];
-    foreach ($this->apiData['events/filters'] as $filter_key => $options) {
+    foreach ($this->apiData['events/filters'] ?? [] as $filter_key => $options) {
       $filter_options = [];
 
       foreach ($options as $option) {
@@ -304,10 +304,10 @@ class LocalistUrlWidget extends LinkWidget {
       '#empty_option' => 'Select one:',
       '#default_value' => $default_value,
     ];
-    foreach ($this->apiData['groups'] as $group) {
+    foreach ($this->apiData['groups'] ?? [] as $group) {
       $element['#options'][$group['group']['id']] = $group['group']['name'];
     }
-    foreach ($this->apiData['departments'] as $department) {
+    foreach ($this->apiData['departments'] ?? [] as $department) {
       $element['#options'][$department['department']['id']] = $department['department']['name'];
     }
     asort($element['#options']);
@@ -333,7 +333,7 @@ class LocalistUrlWidget extends LinkWidget {
       '#empty_option' => 'Select one:',
       '#default_value' => $default_value,
     ];
-    foreach ($this->apiData['places'] as $place) {
+    foreach ($this->apiData['places'] ?? [] as $place) {
       $element['#options'][$place['place']['id']] = $place['place']['name'];
     }
     return $element;
@@ -355,8 +355,13 @@ class LocalistUrlWidget extends LinkWidget {
 
     // Check for some cached data before we fetch it all again.
     if ($cache = $this->cache->get("localist_api:$base_url")) {
-      $this->apiData = $cache->data;
-      return $this->apiData;
+      $this->apiData = $cache->data['data'];
+
+      // If the cache is not expired, return it. Otherwise, we'll attempt to
+      // fetch from the API. Fallback is the old cached data.
+      if ($cache->data['expires'] > time()) {
+        return $this->apiData;
+      }
     }
 
     return $this->fetchApiData();
@@ -370,15 +375,26 @@ class LocalistUrlWidget extends LinkWidget {
    */
   protected function fetchApiData(): array {
     $base_url = $this->getSetting('base_url');
-    $options = ['base_uri' => $base_url, 'query' => ['pp' => 1]];
-    $promises = [
-      'groups' => $this->client->requestAsync('GET', '/api/2/groups', $options),
-      'departments' => $this->client->requestAsync('GET', '/api/2/departments', $options),
-      'places' => $this->client->requestAsync('GET', '/api/2/places', $options),
-      'events/filters' => $this->client->requestAsync('GET', '/api/2/events/filters', $options),
-      'events/labels' => $this->client->requestAsync('GET', '/api/2/events/labels', $options),
+    $options = [
+      'timeout' => 5,
+      'base_uri' => $base_url,
+      'query' => ['pp' => 1],
     ];
-    $results = self::unwrapAsyncRequests($promises);
+
+    try {
+      $promises = [
+        'groups' => $this->client->requestAsync('GET', '/api/2/groups', $options),
+        'departments' => $this->client->requestAsync('GET', '/api/2/departments', $options),
+        'places' => $this->client->requestAsync('GET', '/api/2/places', $options),
+        'events/filters' => $this->client->requestAsync('GET', '/api/2/events/filters', $options),
+        'events/labels' => $this->client->requestAsync('GET', '/api/2/events/labels', $options),
+      ];
+      $results = self::unwrapAsyncRequests($promises);
+    }
+    catch (\Exception $e) {
+      $this->messenger()->addError('Unable to fetch data to populate the field options. Please try again later.');
+      return $this->apiData;
+    }
 
     foreach ($results as $key => $response) {
       if (empty($response['page']['total'])) {
@@ -388,7 +404,11 @@ class LocalistUrlWidget extends LinkWidget {
 
       $this->apiData[$key] = $this->fetchPagedApiData($key, $response['page']['total']);
     }
-    $this->cache->set("localist_api:$base_url", $this->apiData, Cache::PERMANENT, ['localist_api']);
+    $this->cache->set("localist_api:$base_url", [
+      'data' => $this->apiData,
+      'expires' => time() + 60 * 60,
+    ], Cache::PERMANENT, ['localist_api']);
+
     return $this->apiData;
   }
 
@@ -405,14 +425,24 @@ class LocalistUrlWidget extends LinkWidget {
    */
   protected function fetchPagedApiData($endpoint, $total_count): array {
     $base_url = $this->getSetting('base_url');
-    $options = ['base_uri' => $base_url, 'query' => ['pp' => 100]];
+    $options = [
+      'timeout' => 5,
+      'base_uri' => $base_url,
+      'query' => ['pp' => 100],
+    ];
 
     $number_of_pages = ceil($total_count / 100);
-    for ($i = 1; $i <= $number_of_pages; $i++) {
-      $options['query']['page'] = $i;
-      $paged_data[$i] = $this->client->requestAsync('GET', '/api/2/' . $endpoint, $options);
+    try {
+      for ($i = 1; $i <= $number_of_pages; $i++) {
+        $options['query']['page'] = $i;
+        $paged_data[$i] = $this->client->requestAsync('GET', '/api/2/' . $endpoint, $options);
+      }
+      $paged_data = self::unwrapAsyncRequests($paged_data);
     }
-    $paged_data = self::unwrapAsyncRequests($paged_data);
+    catch (\Exception $e) {
+      $this->messenger()->addError('Unable to fetch data to populate the field options. Please try again later.');
+      return [];
+    }
 
     $data = [];
     foreach ($paged_data as $page) {
