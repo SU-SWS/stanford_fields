@@ -11,7 +11,9 @@ use Drupal\node\Entity\Node;
 use Drupal\stanford_fields\Plugin\Field\FieldWidget\LocalistUrlWidget;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Promise\PromiseInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -22,6 +24,12 @@ use Psr\Http\Message\ResponseInterface;
  */
 class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
 
+  /**
+   * Tell the guzzle mock service to throw an error.
+   *
+   * @var bool
+   */
+  protected $throwGuzzleError = FALSE;
 
   /**
    * {@inheritDoc}
@@ -108,6 +116,29 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
     $this->assertFalse($widget_value[0]['filters']['venue_id']['#multiple']);
 
 
+    $this->throwGuzzleError = true;
+
+    \Drupal::cache()->delete('localist_api:https://events.stanford.edu');
+    $form = [];
+    $form_state = new FormState();
+    $entity_form_display = EntityFormDisplay::load('node.page.default');
+    $entity_form_display->buildForm($node, $form, $form_state);
+    $widget_value = $form['su_localist_url']['widget'];
+
+    $this->assertIsArray($widget_value[0]['filters']['venue_id']);
+    $this->assertEmpty($widget_value[0]['filters']['venue_id']['#options']);
+
+    \Drupal::cache()->set('localist_api:https://events.stanford.edu', [
+      'data' => ['places' => [['place' => ['id' => 12345, 'name' => 'foobar']]]],
+      'expires' => time() - 500,
+    ]);
+    $form = [];
+    $form_state = new FormState();
+    $entity_form_display = EntityFormDisplay::load('node.page.default');
+    $entity_form_display->buildForm($node, $form, $form_state);
+    $widget_value = $form['su_localist_url']['widget'];
+
+    $this->assertArrayHasKey(12345, $widget_value[0]['filters']['venue_id']['#options']);
   }
 
   /**
@@ -186,6 +217,9 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
   }
 
   public function requestAsyncCallback($method, $uri, $options) {
+    if ($this->throwGuzzleError) {
+      throw new ClientException('Failed', $this->createMock(RequestInterface::class));
+    }
 
     $data = [];
     switch ($uri) {
@@ -229,7 +263,13 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
         ];
         break;
       case'/api/2/events/labels':
-        $data = ['filters' => ['event_audience' => 'Audience', 'event_types' => 'Types','event_subject' => 'Subject']];
+        $data = [
+          'filters' => [
+            'event_audience' => 'Audience',
+            'event_types' => 'Types',
+            'event_subject' => 'Subject',
+          ],
+        ];
         break;
     }
 

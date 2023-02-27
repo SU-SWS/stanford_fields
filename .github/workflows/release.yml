@@ -21,8 +21,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: 'main'
+          fetch-depth: 0
       - name: Back to Dev
         if: ${{ steps.tag.outputs.tag }}
         run: |
           composer global require su-sws/stanford-caravan:dev-8.x-2.x
-          ~/.composer/vendor/bin/sws-caravan back-to-dev $GITHUB_REF $GITHUB_WORKSPACE main
+          ~/.composer/vendor/bin/sws-caravan back-to-dev ${{ steps.tag.outputs.tag }} $GITHUB_WORKSPACE main
