@@ -380,14 +380,15 @@ class LocalistUrlWidget extends LinkWidget {
       'base_uri' => $base_url,
       'query' => ['pp' => 1],
     ];
-    $promises = [
-      'groups' => $this->client->requestAsync('GET', '/api/2/groups', $options),
-      'departments' => $this->client->requestAsync('GET', '/api/2/departments', $options),
-      'places' => $this->client->requestAsync('GET', '/api/2/places', $options),
-      'events/filters' => $this->client->requestAsync('GET', '/api/2/events/filters', $options),
-      'events/labels' => $this->client->requestAsync('GET', '/api/2/events/labels', $options),
-    ];
+
     try {
+      $promises = [
+        'groups' => $this->client->requestAsync('GET', '/api/2/groups', $options),
+        'departments' => $this->client->requestAsync('GET', '/api/2/departments', $options),
+        'places' => $this->client->requestAsync('GET', '/api/2/places', $options),
+        'events/filters' => $this->client->requestAsync('GET', '/api/2/events/filters', $options),
+        'events/labels' => $this->client->requestAsync('GET', '/api/2/events/labels', $options),
+      ];
       $results = self::unwrapAsyncRequests($promises);
     }
     catch (\Exception $e) {
@@ -431,11 +432,11 @@ class LocalistUrlWidget extends LinkWidget {
     ];
 
     $number_of_pages = ceil($total_count / 100);
-    for ($i = 1; $i <= $number_of_pages; $i++) {
-      $options['query']['page'] = $i;
-      $paged_data[$i] = $this->client->requestAsync('GET', '/api/2/' . $endpoint, $options);
-    }
     try {
+      for ($i = 1; $i <= $number_of_pages; $i++) {
+        $options['query']['page'] = $i;
+        $paged_data[$i] = $this->client->requestAsync('GET', '/api/2/' . $endpoint, $options);
+      }
       $paged_data = self::unwrapAsyncRequests($paged_data);
     }
     catch (\Exception $e) {
