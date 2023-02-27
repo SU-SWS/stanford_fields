@@ -11,3 +11,10 @@
 function stanford_fields_uninstall() {
   \Drupal::state()->delete('stanford_fields.dates_cleared');
 }
+
+/**
+ * Clear Localist field widget cache data.
+ */
+function stanford_field_update_8001() {
+  \Drupal::cache()->delete('localist_api:https://events.stanford.edu');
+}
