@@ -125,8 +125,7 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
     $entity_form_display->buildForm($node, $form, $form_state);
     $widget_value = $form['su_localist_url']['widget'];
 
-    $this->assertIsArray($widget_value[0]['filters']['venue_id']);
-    $this->assertEmpty($widget_value[0]['filters']['venue_id']['#options']);
+    $this->assertArrayNotHasKey('filters', $widget_value[0]);
 
     \Drupal::cache()->set('localist_api:https://events.stanford.edu', [
       'data' => ['places' => [['place' => ['id' => 12345, 'name' => 'foobar']]]],
