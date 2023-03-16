@@ -1,5 +1,11 @@
 # Stanford Fields
 
+8.2.3
+--------------------------------------------------------------------------------
+_Release Date: 2023-03-16_
+
+- Provide a graceful fallback for Localist field widget if the API fails.
+
 8.2.2
 --------------------------------------------------------------------------------
 _Release Date: 2023-02-27_
