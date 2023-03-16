@@ -126,11 +126,7 @@ class LocalistUrlWidget extends LinkWidget {
     }
     try {
       $response = $this->client->request('GET', '/api/2/events', ['base_uri' => $input]);
-      $response = json_decode((string) $response->getBody(), TRUE);
-
-      if (!is_array($response)) {
-        throw new \Exception('Invalid response');
-      }
+      json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
     }
     catch (\Throwable $e) {
       $form_state->setError($element, $this->t('URL is not a Localist domain.'));
@@ -160,6 +156,16 @@ class LocalistUrlWidget extends LinkWidget {
     if (!$this->getSetting('base_url')) {
       return $element;
     }
+
+    try {
+      $this->getApiData();
+    }
+    catch (\Throwable $e) {
+      $this->messenger()
+        ->addError('Unable to fetch data from the system to provide easy to use field options. Please try again later.');
+      return $element;
+    }
+
     $element['uri']['#access'] = FALSE;
     $element['title']['#access'] = FALSE;
     $element['attributes']['#access'] = FALSE;
@@ -263,8 +269,6 @@ class LocalistUrlWidget extends LinkWidget {
    *   Form element render array.
    */
   protected function getFilters(array $default_value = []): array {
-    $this->getApiData();
-
     $element = [];
     foreach ($this->apiData['events/filters'] ?? [] as $filter_key => $options) {
       $filter_options = [];
@@ -295,7 +299,6 @@ class LocalistUrlWidget extends LinkWidget {
    *   Form element render array.
    */
   protected function getGroups(?string $default_value = NULL): array {
-    $this->getApiData();
     $element = [
       '#type' => 'select',
       '#title' => $this->t('Departments/Groups'),
@@ -324,7 +327,6 @@ class LocalistUrlWidget extends LinkWidget {
    *   Form element render array.
    */
   protected function getPlaces(?string $default_value = NULL): array {
-    $this->getApiData();
     $element = [
       '#type' => 'select',
       '#title' => $this->t('Venues'),
@@ -341,11 +343,8 @@ class LocalistUrlWidget extends LinkWidget {
 
   /**
    * Get the data from the localist API.
-   *
-   * @return array
-   *   API Data.
    */
-  protected function getApiData(): array {
+  protected function getApiData() {
     // Data was already fetched.
     if ($this->apiData) {
       return $this->apiData;
@@ -364,7 +363,15 @@ class LocalistUrlWidget extends LinkWidget {
       }
     }
 
-    return $this->fetchApiData();
+    try {
+      $this->fetchApiData();
+    }
+    catch (\Throwable $e) {
+      if (!$this->apiData) {
+        throw $e;
+      }
+    }
+
   }
 
   /**
@@ -381,20 +388,14 @@ class LocalistUrlWidget extends LinkWidget {
       'query' => ['pp' => 1],
     ];
 
-    try {
-      $promises = [
-        'groups' => $this->client->requestAsync('GET', '/api/2/groups', $options),
-        'departments' => $this->client->requestAsync('GET', '/api/2/departments', $options),
-        'places' => $this->client->requestAsync('GET', '/api/2/places', $options),
-        'events/filters' => $this->client->requestAsync('GET', '/api/2/events/filters', $options),
-        'events/labels' => $this->client->requestAsync('GET', '/api/2/events/labels', $options),
-      ];
-      $results = self::unwrapAsyncRequests($promises);
-    }
-    catch (\Exception $e) {
-      $this->messenger()->addError('Unable to fetch data to populate the field options. Please try again later.');
-      return $this->apiData;
-    }
+    $promises = [
+      'groups' => $this->client->requestAsync('GET', '/api/2/groups', $options),
+      'departments' => $this->client->requestAsync('GET', '/api/2/departments', $options),
+      'places' => $this->client->requestAsync('GET', '/api/2/places', $options),
+      'events/filters' => $this->client->requestAsync('GET', '/api/2/events/filters', $options),
+      'events/labels' => $this->client->requestAsync('GET', '/api/2/events/labels', $options),
+    ];
+    $results = self::unwrapAsyncRequests($promises);
 
     foreach ($results as $key => $response) {
       if (empty($response['page']['total'])) {
@@ -404,6 +405,7 @@ class LocalistUrlWidget extends LinkWidget {
 
       $this->apiData[$key] = $this->fetchPagedApiData($key, $response['page']['total']);
     }
+
     $this->cache->set("localist_api:$base_url", [
       'data' => $this->apiData,
       'expires' => time() + 60 * 60,
@@ -432,17 +434,11 @@ class LocalistUrlWidget extends LinkWidget {
     ];
 
     $number_of_pages = ceil($total_count / 100);
-    try {
-      for ($i = 1; $i <= $number_of_pages; $i++) {
-        $options['query']['page'] = $i;
-        $paged_data[$i] = $this->client->requestAsync('GET', '/api/2/' . $endpoint, $options);
-      }
-      $paged_data = self::unwrapAsyncRequests($paged_data);
+    for ($i = 1; $i <= $number_of_pages; $i++) {
+      $options['query']['page'] = $i;
+      $paged_data[$i] = $this->client->requestAsync('GET', '/api/2/' . $endpoint, $options);
     }
-    catch (\Exception $e) {
-      $this->messenger()->addError('Unable to fetch data to populate the field options. Please try again later.');
-      return [];
-    }
+    $paged_data = self::unwrapAsyncRequests($paged_data);
 
     $data = [];
     foreach ($paged_data as $page) {
@@ -466,7 +462,7 @@ class LocalistUrlWidget extends LinkWidget {
     $promises = Utils::unwrap($promises);
     /** @var \GuzzleHttp\Psr7\Response $response */
     foreach ($promises as &$response) {
-      $response = json_decode((string) $response->getBody(), TRUE);
+      $response = json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
     }
 
     return $promises;
