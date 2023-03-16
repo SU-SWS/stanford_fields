@@ -126,11 +126,7 @@ class LocalistUrlWidget extends LinkWidget {
     }
     try {
       $response = $this->client->request('GET', '/api/2/events', ['base_uri' => $input]);
-      $response = json_decode((string) $response->getBody(), TRUE);
-
-      if (!is_array($response)) {
-        throw new \Exception('Invalid response');
-      }
+      json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
     }
     catch (\Throwable $e) {
       $form_state->setError($element, $this->t('URL is not a Localist domain.'));
@@ -466,7 +462,7 @@ class LocalistUrlWidget extends LinkWidget {
     $promises = Utils::unwrap($promises);
     /** @var \GuzzleHttp\Psr7\Response $response */
     foreach ($promises as &$response) {
-      $response = json_decode((string) $response->getBody(), TRUE);
+      $response = json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
     }
 
     return $promises;
