@@ -33,7 +33,7 @@ class FieldCacheTest extends StanfordFieldKernelTestBase {
   /**
    * {@inheritDoc}
    */
-  protected function setUp(): void {
+  public function setup(): void {
     parent::setUp();
 
     // Create a comment field attached to a host 'entity_test' entity.

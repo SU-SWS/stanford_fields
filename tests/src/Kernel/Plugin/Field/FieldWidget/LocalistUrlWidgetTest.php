@@ -34,7 +34,7 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
   /**
    * {@inheritDoc}
    */
-  protected function setUp(): void {
+  public function setup(): void {
     parent::setUp();
 
     $field_storage = FieldStorageConfig::create([

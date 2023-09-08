@@ -18,7 +18,7 @@ abstract class FieldFormatterTestBase extends UnitTestCase {
   /**
    * {@inheritDoc}
    */
-  protected function setUp(): void {
+  public function setup(): void {
     parent::setUp();
     $path_matcher = $this->createMock(PathMatcherInterface::class);
     $path_matcher->method('isFrontPage')

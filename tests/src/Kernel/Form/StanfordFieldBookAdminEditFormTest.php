@@ -23,7 +23,7 @@ class StanfordFieldBookAdminEditFormTest extends StanfordFieldKernelTestBase {
   /**
    * {@inheritDoc}
    */
-  protected function setUp(): void {
+  public function setup(): void {
     parent::setUp();
     \Drupal::service('module_installer')->install(['book']);
 

@@ -22,7 +22,7 @@ class DateYearOnlyWidgetTest extends StanfordFieldKernelTestBase {
   /**
    * {@inheritDoc}
    */
-  protected function setUp(): void {
+  public function setup(): void {
     parent::setUp();
     $field_storage = FieldStorageConfig::create([
       'field_name' => 'field_date',
