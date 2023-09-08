@@ -13,6 +13,7 @@ use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -34,7 +35,7 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
   /**
    * {@inheritDoc}
    */
-  protected function setUp(): void {
+  public function setup(): void {
     parent::setUp();
 
     $field_storage = FieldStorageConfig::create([
@@ -272,8 +273,13 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
         break;
     }
 
+    $resource = fopen('php://memory','r+');
+    fwrite($resource, json_encode($data));
+    rewind($resource);
+    $body = new Stream($resource);
+
     $response = $this->createMock(ResponseInterface::class);
-    $response->method('getBody')->willReturn(json_encode($data));
+    $response->method('getBody')->willReturn($body);
 
     $promise = $this->createMock(PromiseInterface::class);
     $promise->method('wait')->willReturn($response);
