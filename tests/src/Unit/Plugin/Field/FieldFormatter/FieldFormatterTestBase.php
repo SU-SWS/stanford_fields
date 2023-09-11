@@ -19,7 +19,7 @@ abstract class FieldFormatterTestBase extends UnitTestCase {
   /**
    * {@inheritDoc}
    */
-  public function setup(): void {
+  public function setUp(): void {
     parent::setUp();
     $path_matcher = $this->createMock(PathMatcherInterface::class);
     $path_matcher->method('isFrontPage')
@@ -28,7 +28,10 @@ abstract class FieldFormatterTestBase extends UnitTestCase {
     $path_validator = $this->createMock(PathValidatorInterface::class);
 
     $link_generator = $this->createMock(LinkGeneratorInterface::class);
+
     $link_generator->method('generate')
+      ->will($this->returnCallback([$this, 'generateLink']));
+    $link_generator->method('generateFromLink')
       ->will($this->returnCallback([$this, 'generateFromLinkCallback']));
 
     $this->container = new ContainerBuilder();
@@ -43,7 +46,12 @@ abstract class FieldFormatterTestBase extends UnitTestCase {
     return $this->isFrontPage;
   }
 
-  public function generateFromLinkCallback($text, Url $url) {
+  public function generateLink($text, Url $url) {
+      return '<a href="/foo-bar">Foo Bar</a>';
+    }
+
+
+  public function generateFromLinkCallback(Link $link) {
     return '<a href="/foo-bar">Foo Bar</a>';
   }
 
