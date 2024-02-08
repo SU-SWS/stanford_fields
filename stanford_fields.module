@@ -42,3 +42,11 @@ function stanford_fields_field_storage_add_validate(&$form, FormStateInterface $
 function stanford_fields_cron() {
   \Drupal::service('stanford_fields.field_cache')->invalidateDateFieldsCache();
 }
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function stanford_fields_preprocess_oembed_lazyload(&$variables) {
+  // Remove the ID attribute because it is not unique on the same page.
+  unset($variables['iframe']['#attributes']['id']);
+}
