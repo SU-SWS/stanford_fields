@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "drupal/core": "^9 || ^10",
+        "drupal/core": "^9 || ^10 || ^11",
         "drupal/ds": "~3.3 || ^5.0@alpha"
     },
     "autoload-dev": {
