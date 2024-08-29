@@ -22,5 +22,8 @@
         "psr-4": {
             "Drupal\\Tests\\stanford_fields\\": "./tests/src"
         }
+    },
+    "require-dev": {
+        "drupal/cshs": "^4.0"
     }
 }
