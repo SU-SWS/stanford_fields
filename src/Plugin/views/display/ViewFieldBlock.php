@@ -2,6 +2,8 @@
 
 namespace Drupal\stanford_fields\Plugin\views\display;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\views\Attribute\ViewsDisplay;
 use Drupal\views\Plugin\views\display\Block;
 
 /**
@@ -9,20 +11,19 @@ use Drupal\views\Plugin\views\display\Block;
  *
  * @ingroup views_display_plugins
  *
- * @ViewsDisplay(
- *   id = "viewfield_block",
- *   title = @Translation("View Field Block"),
- *   help = @Translation("Identical to a block, but allows for granular viewfield settings."),
- *   theme = "views_view",
- *   register_theme = FALSE,
- *   uses_hook_block = TRUE,
- *   contextual_links_locations = {"block"},
- *   admin = @Translation("Block")
- * )
- *
  * @see \Drupal\views\Plugin\Block\ViewsBlock
  * @see \Drupal\views\Plugin\Derivative\ViewsBlock
  */
+#[ViewsDisplay(
+  id: "viewfield_block",
+  title: new TranslatableMarkup("View Field Block"),
+  admin: new TranslatableMarkup("Block"),
+  help: new TranslatableMarkup("Identical to a block, but allows for granular viewfield settings."),
+  theme: "views_view",
+  contextual_links_locations: ["block"],
+  register_theme: FALSE,
+  uses_hook_block: TRUE,
+)]
 class ViewFieldBlock extends Block {
 
   /**

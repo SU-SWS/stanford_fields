@@ -109,6 +109,8 @@ final class TaxonomyLabelHierarchyWidget extends OptionsWidgetBase {
 
   /**
    * Ajax callback to add another.
+   *
+   * @codeCoverageIgnore
    */
   public static function addMoreCallback(array &$form, FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
@@ -119,6 +121,8 @@ final class TaxonomyLabelHierarchyWidget extends OptionsWidgetBase {
 
   /**
    * Form callback to add another.
+   *
+   * @codeCoverageIgnore
    */
   public static function addOne(array &$form, FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
@@ -129,6 +133,8 @@ final class TaxonomyLabelHierarchyWidget extends OptionsWidgetBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @codeCoverageIgnore
    */
   public static function validateElement(array $element, FormStateInterface $form_state) {
     $value = [];

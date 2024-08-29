@@ -5,10 +5,12 @@ namespace Drupal\stanford_fields\Plugin\Field\FieldWidget;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Field\Attribute\FieldWidget;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\Url as UrlElement;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\link\Plugin\Field\FieldWidget\LinkWidget;
 use GuzzleHttp\ClientInterface;
@@ -17,15 +19,12 @@ use GuzzleHttp\Promise\Utils;
 
 /**
  * Plugin implementation of the 'localist_url' widget.
- *
- * @FieldWidget(
- *   id = "localist_url",
- *   label = @Translation("Localist"),
- *   field_types = {
- *     "link"
- *   }
- * )
  */
+#[FieldWidget(
+  id: 'localist_url',
+  label: new TranslatableMarkup('Localist URL'),
+  field_types: ['link'],
+)]
 class LocalistUrlWidget extends LinkWidget {
 
   /**

@@ -2,21 +2,20 @@
 
 namespace Drupal\stanford_fields\Plugin\Field\FieldWidget;
 
+use Drupal\Core\Field\Attribute\FieldWidget;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\datetime\Plugin\Field\FieldWidget\DateTimeDatelistWidget;
 
 /**
  * Plugin to provide a date widget that only collects the year.
- *
- * @FieldWidget(
- *   id = "datetime_year_only",
- *   label = @Translation("Year Only"),
- *   field_types = {
- *     "datetime"
- *   }
- * )
  */
+#[FieldWidget(
+  id: 'datetime_year_only',
+  label: new TranslatableMarkup('Year Only'),
+  field_types: ['datetime'],
+)]
 class DateYearOnlyWidget extends DateTimeDatelistWidget {
 
   /**
