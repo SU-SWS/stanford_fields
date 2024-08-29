@@ -6,6 +6,7 @@ namespace Drupal\stanford_fields\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Field\Attribute\FieldWidget;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\OptionsWidgetBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -24,6 +25,14 @@ use Drupal\cshs\Element\CshsElement;
   multiple_values: TRUE,
 )]
 final class TaxonomyLabelHierarchyWidget extends OptionsWidgetBase {
+
+  /**
+   * {@inheritDoc}
+   */
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    // Make sure the CSHS module is available.
+    return \Drupal::moduleHandler()->moduleExists('cshs');
+  }
 
   /**
    * {@inheritdoc}
@@ -87,6 +96,7 @@ final class TaxonomyLabelHierarchyWidget extends OptionsWidgetBase {
         '#value' => $this->t('Add More'),
         '#name' => $key,
         '#submit' => [[self::class, 'addOne']],
+        '#limit_validation_errors' => [],
         '#ajax' => [
           'callback' => [self::class, 'addMoreCallback'],
           'wrapper' => $key,
