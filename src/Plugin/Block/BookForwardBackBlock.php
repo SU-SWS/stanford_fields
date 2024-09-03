@@ -12,15 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'Book navigation' block.
- *
- * @Block(
- *   id = "book_forward_back",
- *   admin_label = @Translation("Book Forward & Back"),
- *   category = @Translation("Book"),
- *   context_definitions = {
- *    "node" = @ContextDefinition("entity:node", label = @Translation("Node"), required = FALSE)
- *  }
- * )
  */
 #[Block(
   id: "book_forward_back",

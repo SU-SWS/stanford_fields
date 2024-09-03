@@ -14,7 +14,7 @@
         }
     ],
     "require": {
-        "drupal/core": "^9 || ^10 || ^11",
+        "drupal/core": "^10.2 || ^11",
         "drupal/ds": "~3.3 || ^5.0@alpha",
         "drupal/book": "^1.0"
     },
