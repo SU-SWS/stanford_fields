@@ -1,5 +1,11 @@
 # Stanford Fields
 
+8.3.0
+--------------------------------------------------------------------------------
+_Release Date: 2024-09-04_
+
+- New taxonomy field widget that uses the parent most terms as field labels.
+
 8.2.7
 --------------------------------------------------------------------------------
 _Release Date: 2024-06-26_
