@@ -2,23 +2,25 @@
 
 namespace Drupal\stanford_fields\Plugin\Block;
 
+use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Plugin\Context\EntityContextDefinition;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'Book navigation' block.
- *
- * @Block(
- *   id = "book_forward_back",
- *   admin_label = @Translation("Book Forward & Back"),
- *   category = @Translation("Book"),
- *   context_definitions = {
- *    "node" = @ContextDefinition("entity:node", label = @Translation("Node"), required = FALSE)
- *  }
- * )
  */
+#[Block(
+  id: "book_forward_back",
+  admin_label: new TranslatableMarkup("Book Forward & Back"),
+  category: new TranslatableMarkup("Book"),
+  context_definitions: [
+    'node' => new EntityContextDefinition(data_type: 'entity:node', label: new TranslatableMarkup("Node"), required: FALSE),
+  ]
+)]
 class BookForwardBackBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**

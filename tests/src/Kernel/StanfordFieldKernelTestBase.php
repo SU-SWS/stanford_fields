@@ -22,6 +22,9 @@ class StanfordFieldKernelTestBase extends KernelTestBase {
     'stanford_fields',
     'field',
     'link',
+    'taxonomy',
+    'text',
+    'cshs',
   ];
 
   /**
@@ -33,6 +36,8 @@ class StanfordFieldKernelTestBase extends KernelTestBase {
     $this->installEntitySchema('node');
     $this->installEntitySchema('field_config');
     $this->installEntitySchema('date_format');
+    $this->installEntitySchema('taxonomy_term');
+    $this->installEntitySchema('path_alias');
     $this->installConfig(['system', 'field', 'link']);
     $this->installSchema('node', ['node_access']);
 
