@@ -33,3 +33,11 @@ field.widget.settings.localist_url:
     select_distinct:
       type: boolean
       label: 'Select Distinct'
+
+field.field.*.third_party.stanford_fields:
+  type: config_entity
+  label: "Stanford Fields third party settings"
+  mapping:
+    force_relative:
+      type: boolean
+      label: "Force relative internal links"

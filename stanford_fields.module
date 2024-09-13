@@ -5,7 +5,61 @@
  * stanford_fields.module
  */
 
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\field\FieldConfigInterface;
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function stanford_fields_form_field_config_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  /** @var \Drupal\field\FieldConfigInterface $field_config */
+  $field_config = $form_state->get('field_config');
+  if ($field_config->getType() == 'link') {
+    $form['settings']['force_relative'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Force relative internal links'),
+      '#default_value' => $field_config->getThirdPartySetting('stanford_fields', 'force_relative'),
+      '#states' => [
+        'invisible' => [
+          ':input[name="settings[link_type]"]' => ['value' => '16'],
+        ],
+      ],
+    ];
+    $form['#entity_builders'][] = 'stanford_fields_form_field_config_entity_builder';
+  }
+}
+
+/**
+ * Field config form submission to save the third party settings.
+ *
+ * @param string $entity_type
+ *   Entity type ID.
+ * @param \Drupal\field\FieldConfigInterface $entity
+ *   Submitted entity object.
+ * @param array $form
+ *   Submitted form render array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   Submitted form state.
+ */
+function stanford_fields_form_field_config_entity_builder(string $entity_type, FieldConfigInterface $entity, array &$form, FormStateInterface $form_state) {
+  if ($form_state->getValue(['settings', 'force_relative'])) {
+    $entity->setThirdPartySetting('stanford_fields', 'force_relative', TRUE);
+    return;
+  }
+  $entity->unsetThirdPartySetting('stanford_fields', 'force_relative');
+}
+
+/**
+ * Implements hook_entity_bundle_field_info_alter().
+ */
+function stanford_fields_entity_bundle_field_info_alter(&$fields, EntityTypeInterface $entity_type, $bundle) {
+  foreach ($fields as $field) {
+    if ($field->getType() == 'link' && $field->getThirdPartySetting('stanford_fields', 'force_relative')) {
+      $field->addConstraint('relative_internal_link', []);
+    }
+  }
+}
 
 /**
  * Implements hook_form_FORM_ID_alter().
