@@ -2,6 +2,12 @@
 
 8.3.0
 --------------------------------------------------------------------------------
+_Release Date: 2024-09-13_
+
+- Added configurable option on link fields to force relative internal links.
+
+8.3.0
+--------------------------------------------------------------------------------
 _Release Date: 2024-09-04_
 
 - New taxonomy field widget that uses the parent most terms as field labels.
