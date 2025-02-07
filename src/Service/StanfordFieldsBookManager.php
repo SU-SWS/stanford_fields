@@ -35,8 +35,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager service.
    */
-  public function __construct(protected BookManagerInterface $bookManager, protected ConfigFactoryInterface $configFactory, protected EventDispatcherInterface $eventDispatcher, protected EntityTypeManagerInterface $entityTypeManager) {
-  }
+  public function __construct(protected BookManagerInterface $bookManager, protected ConfigFactoryInterface $configFactory, protected EventDispatcherInterface $eventDispatcher, protected EntityTypeManagerInterface $entityTypeManager) {}
 
   /**
    * {@inheritdoc}
@@ -95,7 +94,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function bookTreeCollectNodeLinks(array &$tree, array &$node_links): void{
+  public function bookTreeCollectNodeLinks(array &$tree, array &$node_links): void {
     $this->bookManager->bookTreeCollectNodeLinks($tree, $node_links);
   }
 
@@ -104,7 +103,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function bookLinkTranslate(array &$link): array{
+  public function bookLinkTranslate(array &$link): array {
     return $this->bookManager->bookLinkTranslate($link);
   }
 
@@ -113,7 +112,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function bookTreeGetFlat(array $book_link): array{
+  public function bookTreeGetFlat(array $book_link): array {
     return $this->bookManager->bookTreeGetFlat($book_link);
   }
 
@@ -131,12 +130,10 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    */
   public function updateOutline(NodeInterface $node): bool {
     if (isset($node->book['weight'])) {
-
       // Before saving the node, look at the book weight data . The weight has
       // to be an integer, but we also have to adjust the weights of the sibling
       // book items so that they all stay in proper order.
       if (is_array($node->book['weight'])) {
-
         // Remove the parent ID from the keys in the weight data.
         $weights = $node->book['weight'];
         foreach ($weights as $key => $weight) {
@@ -229,7 +226,6 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     // Prepare the form state before passing to the original service to add form
     // elements.
     if ($form_state->hasValue(['book', 'weight'])) {
-
       // During the AJAX call, the weight value is keyed array of other book
       // links. Extract the weight of the current node on this form so that the
       // original service can still use it normally.
@@ -294,7 +290,6 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     $form['book']['weight']['#access'] = TRUE;
 
     foreach ($this->getSiblingBookItems($parent_id, $form['book']['nid']['#value']) as $nid => $link_data) {
-
       // To avoid the weight value to linger after the ajax finishes, use
       // different keys for each parent. That way when you change to a different
       // parent, the weight will all reset to proper order.
@@ -451,7 +446,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function  bookTreeCheckAccess(array &$tree, array $node_links = []): void {
+  public function bookTreeCheckAccess(array &$tree, array $node_links = []): void {
     $this->bookManager->bookTreeCheckAccess($tree, $node_links);
   }
 
@@ -460,7 +455,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function bookSubtreeData(array $link): array{
+  public function bookSubtreeData(array $link): array {
     return $this->bookManager->bookSubtreeData($link);
   }
 

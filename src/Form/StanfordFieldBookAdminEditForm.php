@@ -31,14 +31,14 @@ class StanfordFieldBookAdminEditForm extends BookAdminEditForm {
   /**
    * {@inheritDoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state): void {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     foreach (Element::children($form['table']) as $key) {
       if (isset($form['table'][$key]['#nid'])) {
         $page_title = $form['table'][$key]['title']['#markup'];
         $form_state->setValue(['table', $key, 'title'], $page_title);
       }
     }
-    parent::submitForm($form, $form_state);
+    parent::validateForm($form, $form_state);
   }
 
 }
