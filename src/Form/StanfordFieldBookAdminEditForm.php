@@ -15,7 +15,7 @@ class StanfordFieldBookAdminEditForm extends BookAdminEditForm {
   /**
    * {@inheritDoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, NodeInterface $node = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, ?NodeInterface $node = NULL): array {
     $form = parent::buildForm($form, $form_state, $node);
     foreach (Element::children($form['table']) as $key) {
       if (isset($form['table'][$key]['#nid'])) {
@@ -31,7 +31,7 @@ class StanfordFieldBookAdminEditForm extends BookAdminEditForm {
   /**
    * {@inheritDoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     foreach (Element::children($form['table']) as $key) {
       if (isset($form['table'][$key]['#nid'])) {
         $page_title = $form['table'][$key]['title']['#markup'];
