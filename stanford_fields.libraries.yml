@@ -1,0 +1,6 @@
+combobox:
+  js:
+    js/dist/select-list-filters.island.js: {}
+hierarchy-combo:
+  js:
+    js/dist/hierarchy-label-select-lists.island.js: {}
