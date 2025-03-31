@@ -198,6 +198,7 @@ const SelectList = ({
           textAlign: "left",
           minHeight: "40px"
         }}
+        data-bef-auto-submit-exclude
       >
         <span
           className="select-option-display"
@@ -281,7 +282,7 @@ const SelectList = ({
         </ul>
       </div>
 
-      <input ref={inputRef} type="hidden" value={value ?? ""}/>
+      <input ref={inputRef} type="hidden" value={value ?? ""} data-bef-auto-submit-exclude/>
     </div>
   );
 }

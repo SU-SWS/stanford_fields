@@ -39,8 +39,6 @@ const FilterIsland = ({focus = false}) => {
   }
 
   const onSelectChange = (parentLabel, event, value) => {
-    event.stopPropagation()
-
     for (let option of originalSelect.children) {
       if (option.getAttribute('data-preact-parent') === parentLabel) {
         if (value?.includes(option.getAttribute('value'))) {
@@ -96,7 +94,7 @@ const FilterIsland = ({focus = false}) => {
 if (process.env.NODE_ENV === 'development') {
   const island = createIslandWebComponent('combobox-select-list', FilterIsland)
   island.render({
-    selector: `.taxonomy-label-hierarchy-checkbox`,
+    selector: `.taxonomy-label-hierarchy`,
   })
 } else {
   (function () {
@@ -111,7 +109,7 @@ if (process.env.NODE_ENV === 'development') {
         const island = createIslandWebComponent('combobox-select-list', FilterIsland)
 
         island.render({
-          selector: `${contextClass} .taxonomy-label-hierarchy-checkbox`.trim(),
+          selector: `${contextClass} .taxonomy-label-hierarchy`.trim(),
           initialProps: {focus: contextClass.indexOf('js-view-dom-id') >= 0}
         })
       }

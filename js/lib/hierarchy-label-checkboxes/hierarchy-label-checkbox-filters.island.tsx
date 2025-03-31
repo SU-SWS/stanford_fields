@@ -25,12 +25,15 @@ const Checkbox = styled.input`
 
 const FilterIsland = ({focus = false}) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [originalSelect, setOriginalSelect] = useState<HTMLSelectElement>(null);
+  const initialLoad = useRef(true)
   const [selectedValues, setSelectedValues] = useState<Array<number>>([])
 
+  const getOriginalSelect = () => {
+    return ref.current?.parentNode.querySelector('select')
+  }
+
   useEffect(() => {
-    const selectElement = ref.current.parentNode.querySelector('select')
-    setOriginalSelect(selectElement);
+    const selectElement = getOriginalSelect()
 
     let defaultValues = [];
     for (let option of selectElement.children) {
@@ -40,17 +43,28 @@ const FilterIsland = ({focus = false}) => {
   }, [])
 
   useEffect(() => {
-    if (!originalSelect) return
-    for (let option of originalSelect.children) {
+    if (initialLoad.current) {
+      initialLoad.current = false;
+      return;
+    }
+    console.log('here')
+    for (let option of getOriginalSelect().children) {
       if (selectedValues?.includes(parseInt(option.getAttribute('value')))) {
         option.setAttribute('selected', 'selected')
       } else {
         option.removeAttribute('selected');
       }
     }
+
+    // Figure out the autosubmit.
+    // originalSelect.closest('form').querySelector('[data-bef-auto-submit-click]').click();
   }, [selectedValues]);
 
-  const getSelectOptions = (selectElement) => {
+  const getSelectOptions = () => {
+    const selectElement = getOriginalSelect()
+    if(!selectElement) return []
+
+
     const options: Array<{ label: string, options: [] }> = [];
 
     const optionElements = selectElement.children
@@ -79,7 +93,6 @@ const FilterIsland = ({focus = false}) => {
   }
 
   const onChange = (event) => {
-    event.stopPropagation()
 
     const value = parseInt(event.target.value); // Parse value to a number
     const isChecked = event.target.checked;
@@ -102,7 +115,7 @@ const FilterIsland = ({focus = false}) => {
       label: string,
       disabled: boolean
     }>
-  }> = (originalSelect && getSelectOptions(originalSelect)) || [];
+  }> = getSelectOptions();
 
   return (
     <div ref={ref} className="hierarchy-preact-checkbox">
@@ -119,6 +132,7 @@ const FilterIsland = ({focus = false}) => {
                 value={option.value}
                 checked={selectedValues.includes(option.value)}
                 onChange={onChange}
+                data-bef-auto-submit-exclude
               />
               {option.label.substring(1)}
             </Label>
