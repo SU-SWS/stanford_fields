@@ -1,12 +1,19 @@
-combobox:
-  css:
-    theme:
-      css/preact-combobox.css: {}
-  js:
-    js/dist/select-list-filters.island.js: {}
-hierarchy-combo:
+bef-styles:
   css:
     theme:
       css/preact-combobox.css: { }
+combobox:
+  js:
+    js/dist/select-list-filters.island.js: {}
+  dependencies:
+    - stanford_fields/bef-styles
+hierarchy-combo:
   js:
     js/dist/hierarchy-label-select-lists.island.js: {}
+  dependencies:
+    - stanford_fields/bef-styles
+hierarchy-checkbox:
+  js:
+    js/dist/hierarchy-label-checkboxes.island.js: {}
+  dependencies:
+    - stanford_fields/bef-styles

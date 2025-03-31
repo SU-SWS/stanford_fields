@@ -1,4 +1,3 @@
-html.js .hierarchy-select-preact .form-type-select,
-html.js .select-preact .form-type-select {
-  display: none;
+html.js .preact-filter .form-type-select {
+  /*display: none;*/
 }

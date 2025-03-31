@@ -26,7 +26,9 @@ const FilterIsland = ({focus = false}) => {
     return options;
   }
 
-  const onSelectChange = (e, value) => {
+  const onSelectChange = (event, value) => {
+    event.stopPropagation()
+
     if (!originalSelect.getAttribute('multiple')) return originalSelect.value = value;
 
     for (let option of originalSelect.children) {
@@ -50,7 +52,11 @@ const FilterIsland = ({focus = false}) => {
     return defaultValue;
   }
 
-  const selectOptions: Array<{ value: string, label: string, disabled: boolean }> = originalSelect && getSelectOptions(originalSelect);
+  const selectOptions: Array<{
+    value: string,
+    label: string,
+    disabled: boolean
+  }> = originalSelect && getSelectOptions(originalSelect);
 
   return (
     <div ref={ref} className="preact-select">
@@ -72,7 +78,7 @@ const FilterIsland = ({focus = false}) => {
 if (process.env.NODE_ENV === 'development') {
   const island = createIslandWebComponent('combobox-select-list', FilterIsland)
   island.render({
-    selector: `.select-preact`,
+    selector: `.preact-combo-box`,
   })
 } else {
   (function () {
@@ -87,7 +93,7 @@ if (process.env.NODE_ENV === 'development') {
         const island = createIslandWebComponent('combobox-select-list', FilterIsland)
 
         island.render({
-          selector: `${contextClass} .select-preact`.trim(),
+          selector: `${contextClass} .preact-combo-box`.trim(),
           initialProps: {focus: contextClass.indexOf('js-view-dom-id') >= 0}
         })
       }

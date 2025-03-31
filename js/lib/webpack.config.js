@@ -32,6 +32,7 @@ module.exports = ({ dev, prod }) => {
     entry: {
       'select-list-filters': './select-lists/select-list-filters.island.tsx',
       'hierarchy-label-select-lists': './hierarchy-label-select-lists/hierarchy-label-select-list-filters.island.tsx',
+      'hierarchy-label-checkboxes': './hierarchy-label-checkboxes/hierarchy-label-checkbox-filters.island.tsx',
     },
     output: {
       path: path.join(__dirname, '/../dist'),

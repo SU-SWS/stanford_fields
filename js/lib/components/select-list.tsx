@@ -3,7 +3,6 @@ import {useSelect, SelectOptionDefinition, SelectProvider, SelectValue} from '@m
 import {useOption} from '@mui/base/useOption';
 import {ChevronDownIcon} from "@heroicons/react/20/solid";
 import {useEffect, useState, useRef, useId, useLayoutEffect, RefObject, ReactNode} from "preact/compat";
-import useOutsideClick from "./use-outside-click";
 
 type OptionProps = {
   id: string
