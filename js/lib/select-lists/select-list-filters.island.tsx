@@ -10,19 +10,6 @@ const FilterIsland = ({focus = false}) => {
   useEffect(() => {
     setOriginalSelect(ref.current.parentNode.querySelector('select'));
     setLabel(ref.current.parentNode.querySelector('label').textContent);
-
-    // Use visibility because when display none, the field isn't updated
-    // sometimes after ajax.
-    const origSelect = ref.current.parentNode.querySelector('select');
-    origSelect.setAttribute('aria-hidden', 'true');
-    origSelect.style.visibility = 'hidden'
-    origSelect.style.height = '0'
-    origSelect.style.position = 'absolute'
-
-    const origLabel = ref.current.parentNode.querySelector('label');
-    origLabel.style.visibility = 'hidden'
-    origLabel.style.height = '0'
-    origLabel.style.position = 'absolute'
   }, [])
 
   const getSelectOptions = (selectElement) => {
@@ -66,7 +53,7 @@ const FilterIsland = ({focus = false}) => {
   const selectOptions: Array<{ value: string, label: string, disabled: boolean }> = originalSelect && getSelectOptions(originalSelect);
 
   return (
-    <div ref={ref}>
+    <div ref={ref} className="preact-select">
       {originalSelect &&
         <SelectList
           name={originalSelect.getAttribute('id') + '-preact'}

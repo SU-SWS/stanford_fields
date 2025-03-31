@@ -95,6 +95,7 @@ function CustomOption(props: OptionProps) {
       selected={selected}
       highlighted={highlighted}
       disabled={disabled}
+      className="option"
     >
       {children}
     </StyledOption>
@@ -117,17 +118,17 @@ type Props = {
 }
 
 const SelectList = ({
-  options = [],
-  label,
-  multiple,
-  ariaLabelledby,
-  required,
-  defaultValue,
-  name,
-  emptyValue,
-  emptyLabel = "- None -",
-  ...props
-}: Props) => {
+                      options = [],
+                      label,
+                      multiple,
+                      ariaLabelledby,
+                      required,
+                      defaultValue,
+                      name,
+                      emptyValue,
+                      emptyLabel = "- None -",
+                      ...props
+                    }: Props) => {
   const ref = useRef(null)
   const labelId = useId();
   const labeledBy = ariaLabelledby ?? labelId;
@@ -167,12 +168,15 @@ const SelectList = ({
       style={{
         position: "relative",
         width: "100%",
+        maxWidth: "400px",
         minWidth: "250px"
       }}
+      className="select-wrapper"
     >
       {label &&
         <div
           id={labelId}
+          className="select-label"
           style={{
             marginBottom: "1.2rem",
             fontSize: "1.8rem",
@@ -196,23 +200,29 @@ const SelectList = ({
           minHeight: "40px"
         }}
       >
-        <span style={{
-          display: "flex",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-        }}>
+        <span
+          className="select-option-display"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+          }}
+        >
           {optionChosen &&
-            <span style={{overflow: "hidden", maxWidth: "calc(100% - 30px)", padding: "8px 5px 8px 0"}}>
+            <span
+              className="select-chosen-options"
+              style={{overflow: "hidden", maxWidth: "calc(100% - 30px)", padding: "8px 5px 8px 0"}}
+            >
               {renderSelectedValue(value, options)}
             </span>
           }
           {(!optionChosen && !multiple) &&
-            <span id={labelId} style={{padding: "8px 5px 8px 0", color: "#4c4740"}}>
+            <span id={labelId} className="empty-label" style={{padding: "8px 5px 8px 0", color: "#4c4740"}}>
               {emptyLabel}
             </span>
           }
           {(!optionChosen && multiple) &&
-            <span id={labelId} style={{padding: "8px 5px 8px 0", color: "#4c4740"}}>
+            <span id={labelId} className="empty-label" style={{padding: "8px 5px 8px 0", color: "#4c4740"}}>
               Choose one or more from dropdown
             </span>
           }
@@ -226,6 +236,7 @@ const SelectList = ({
 
       <div
         ref={listboxContainerRef}
+        className="list-box-wrapper"
         style={{
           position: "absolute",
           zIndex: "10",
@@ -242,6 +253,7 @@ const SelectList = ({
           {...getListboxProps()}
           aria-hidden={!listboxVisible}
           aria-labelledby={labeledBy}
+          className="list-box"
           style={{
             listStyle: "none",
             margin: 0,

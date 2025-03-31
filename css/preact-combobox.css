@@ -1,0 +1,4 @@
+html.js .hierarchy-select-preact .form-type-select,
+html.js .select-preact .form-type-select {
+  display: none;
+}

@@ -1,6 +1,12 @@
 combobox:
+  css:
+    theme:
+      css/preact-combobox.css: {}
   js:
     js/dist/select-list-filters.island.js: {}
 hierarchy-combo:
+  css:
+    theme:
+      css/preact-combobox.css: { }
   js:
     js/dist/hierarchy-label-select-lists.island.js: {}

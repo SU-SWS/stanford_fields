@@ -4,23 +4,10 @@ import {useEffect, useRef, useState} from "preact/compat";
 
 const FilterIsland = ({focus = false}) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [originalSelect, setOriginalSelect] = useState(null);
+  const [originalSelect, setOriginalSelect] = useState<HTMLSelectElement>(null);
 
   useEffect(() => {
     setOriginalSelect(ref.current.parentNode.querySelector('select'));
-
-    // Use visibility because when display none, the field isn't updated
-    // sometimes after ajax.
-    const origSelect = ref.current.parentNode.querySelector('select');
-    origSelect.setAttribute('aria-hidden', 'true');
-    origSelect.style.visibility = 'hidden'
-    origSelect.style.height = '0'
-    origSelect.style.position = 'absolute'
-
-    const origLabel = ref.current.parentNode.querySelector('label');
-    origLabel.style.visibility = 'hidden'
-    origLabel.style.height = '0'
-    origLabel.style.position = 'absolute'
   }, [])
 
   const getSelectOptions = (selectElement) => {
@@ -38,7 +25,7 @@ const FilterIsland = ({focus = false}) => {
         options.push({label, options: []})
         parent = label
       } else {
-        options.find(item => item.label === parent).options.push({
+        options.find(item => item.label === parent)?.options.push({
           value,
           label,
           disabled: option.getAttribute('disabled') === 'disabled'
@@ -52,10 +39,9 @@ const FilterIsland = ({focus = false}) => {
   }
 
   const onSelectChange = (parentLabel, e, value) => {
-    console.log(parentLabel, value)
     for (let option of originalSelect.children) {
       if (option.getAttribute('data-preact-parent') === parentLabel) {
-        if (value.includes(option.getAttribute('value'))) {
+        if (value?.includes(option.getAttribute('value'))) {
           option.setAttribute('selected', 'selected')
         } else {
           option.removeAttribute('selected');
@@ -86,18 +72,19 @@ const FilterIsland = ({focus = false}) => {
   }> = (originalSelect && getSelectOptions(originalSelect)) || [];
 
   return (
-    <div ref={ref}>
+    <div ref={ref} className="hierarchy-preact-select">
       {selectOptions.map((set, i) =>
-        <SelectList
-          key={i}
-          name={originalSelect.getAttribute('id') + `-preact-${i}`}
-          options={set.options.filter(item => item.value !== 'All')}
-          label={set.label}
-          multiple={originalSelect.getAttribute('multiple') === 'multiple'}
-          onChange={onSelectChange.bind(null, set.label)}
-          defaultValue={getDefaultValue()}
-          emptyLabel={set.options.find(item => item.value === 'All')?.label}
-        />
+        <div key={i} className="preact-select-item">
+          <SelectList
+            name={originalSelect.getAttribute('id') + `-preact-${i}`}
+            options={set.options.filter(item => item.value !== 'All')}
+            label={set.label}
+            multiple={originalSelect.getAttribute('multiple') === 'multiple'}
+            onChange={onSelectChange.bind(null, set.label)}
+            defaultValue={getDefaultValue()}
+            emptyLabel={set.options.find(item => item.value === 'All')?.label}
+          />
+        </div>
       )
       }
     </div>
