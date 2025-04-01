@@ -4,17 +4,18 @@ import styled from "styled-components";
 
 const Fieldset = styled.fieldset`
   max-height: 300px;
-  overflow-y: scroll;
+  overflow-y: auto;
 `
 
 const Label = styled.label`
   display: flex;
   align-items: center;
   gap: 10px;
+  margin: 0;
 `
 
 const Checkbox = styled.input`
-  border: 1px solid black;
+  outline: 2px;
   clip: unset;
   position: relative;
   width: 25px;
