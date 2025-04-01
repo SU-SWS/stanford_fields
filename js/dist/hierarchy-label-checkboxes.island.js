@@ -6,6 +6,7 @@
   align-items: center;
   gap: 10px;
   margin: 0;
+  cursor: pointer;
 `,po=uo.input`
   outline: 2px;
   clip: unset;

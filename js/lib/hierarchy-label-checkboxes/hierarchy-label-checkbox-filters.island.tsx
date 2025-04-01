@@ -12,6 +12,7 @@ const Label = styled.label`
   align-items: center;
   gap: 10px;
   margin: 0;
+  cursor: pointer;
 `
 
 const Checkbox = styled.input`
