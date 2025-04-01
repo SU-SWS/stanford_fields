@@ -2,19 +2,24 @@ import {createIslandWebComponent} from 'preact-island'
 import SelectList from "../components/select-list";
 import {useEffect, useRef, useState} from "preact/compat";
 
-const FilterIsland = ({focus = false}) => {
+type SelectOptionSet = {
+  label: string
+  options: Array<{value: string, label: string, disabled: boolean}>
+}
+
+const FilterIsland = () => {
+  const [selectOptions, setSelectOptions] = useState<SelectOptionSet[]>([])
   const ref = useRef<HTMLDivElement>(null);
-  const [originalSelect, setOriginalSelect] = useState<HTMLSelectElement>(null);
 
   useEffect(() => {
-    setOriginalSelect(ref.current.parentNode.querySelector('select'));
-  }, [])
+    const selectElement = getOriginalSelect()
+    if (!selectElement) return []
 
-  const getSelectOptions = (selectElement) => {
     const options: Array<{ label: string, options: [] }> = [];
 
     const optionElements = selectElement.children
     let parent = ''
+
     for (let i = 0; i < optionElements.length; i++) {
       const option = optionElements[i]
 
@@ -27,30 +32,31 @@ const FilterIsland = ({focus = false}) => {
       } else {
         options.find(item => item.label === parent)?.options.push({
           value,
-          label,
+          label: label.substring(1),
           disabled: option.getAttribute('disabled') === 'disabled'
         })
 
         option.setAttribute('data-preact-parent', parent)
       }
     }
+    setSelectOptions(options)
+  }, []);
 
-    return options;
+  const getOriginalSelect = () => {
+    return ref.current?.parentNode.querySelector('select')
   }
 
   const onSelectChange = (parentLabel, event, value) => {
-    for (let option of originalSelect.children) {
+    for (let option of getOriginalSelect().children) {
       if (option.getAttribute('data-preact-parent') === parentLabel) {
-        if (value?.includes(option.getAttribute('value'))) {
-          option.setAttribute('selected', 'selected')
-        } else {
-          option.removeAttribute('selected');
-        }
+        option.selected = value?.includes(option.getAttribute('value'))
       }
     }
   }
 
   const getDefaultValue = () => {
+    const originalSelect = getOriginalSelect()
+
     let defaultValue = [];
     for (let option of originalSelect?.children) {
       if (option.getAttribute('selected')) {
@@ -62,14 +68,7 @@ const FilterIsland = ({focus = false}) => {
     return defaultValue;
   }
 
-  const selectOptions: Array<{
-    label: string,
-    options: Array<{
-      value: string,
-      label: string,
-      disabled: boolean
-    }>
-  }> = (originalSelect && getSelectOptions(originalSelect)) || [];
+  const originalSelect = getOriginalSelect()
 
   return (
     <div ref={ref} className="hierarchy-preact-select">

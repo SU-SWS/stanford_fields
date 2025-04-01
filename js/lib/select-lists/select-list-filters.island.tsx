@@ -2,61 +2,65 @@ import {createIslandWebComponent} from 'preact-island'
 import SelectList from "../components/select-list";
 import {useEffect, useRef, useState} from "preact/compat";
 
+type SelectOption = {
+  value: string,
+  label: string,
+  disabled: boolean
+}
+
 const FilterIsland = ({focus = false}) => {
+  const initRef = useRef(0)
   const ref = useRef();
-  const [originalSelect, setOriginalSelect] = useState(null);
-  const [label, setLabel] = useState('');
+  const [selectOptions, setSelectOptions] = useState<SelectOption[]>([])
+  const [selectedValues, setSelectedValues] = useState([])
 
   useEffect(() => {
-    setOriginalSelect(ref.current.parentNode.querySelector('select'));
-    setLabel(ref.current.parentNode.querySelector('label').textContent);
-  }, [])
+    const selectElement = getOriginalSelect()
 
-  const getSelectOptions = (selectElement) => {
     const options = [];
+    const defaultValue = [];
 
-    const optionElements = selectElement.children;
+    for (let option of selectElement?.children) {
+      if (option.getAttribute('selected')) {
+        defaultValue.push(option.getAttribute('value'))
+      }
 
-    for (let i = 0; i < optionElements.length; i++) {
-      const option = optionElements[i];
       const value = option.getAttribute('value')
       const label = option.textContent;
       options.push({value, label, disabled: option.getAttribute('disabled') === 'disabled'});
     }
-    return options;
+
+    setSelectedValues(defaultValue);
+    setSelectOptions(options);
+  }, []);
+
+  useEffect(() => {
+    // Initial render has a value of 0, and after the default selected values is set, the value is 1.
+    // We only want to update the original select element after that point, then submit the form.
+    if (initRef.current <= 1) {
+      initRef.current++
+      return
+    }
+
+    for (let option of originalSelect.children) {
+      option.selected = selectedValues.includes(option.getAttribute('value'))
+    }
+    getOriginalSelect()?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
+  }, [selectedValues]);
+
+  const getOriginalSelect = () => {
+    return ref.current?.parentNode.querySelector('select')
+  }
+
+  const getOriginalLabel = () => {
+    return ref.current?.parentNode.querySelector('label').textContent
   }
 
   const onSelectChange = (event, value) => {
-    event.stopPropagation()
-
-    if (!originalSelect.getAttribute('multiple')) return originalSelect.value = value;
-
-    for (let option of originalSelect.children) {
-      if (value.includes(option.getAttribute('value'))) {
-        option.setAttribute('selected', 'selected')
-      } else {
-        option.removeAttribute('selected');
-      }
-    }
+    setSelectedValues(Array.isArray(value) ? value : [value])
   }
 
-  const getDefaultValue = () => {
-    let defaultValue = [];
-    for (let option of originalSelect?.children) {
-      if (option.getAttribute('selected')) {
-        if (!originalSelect.getAttribute('multiple')) return option.getAttribute('value');
-
-        defaultValue.push(option.getAttribute('value'))
-      }
-    }
-    return defaultValue;
-  }
-
-  const selectOptions: Array<{
-    value: string,
-    label: string,
-    disabled: boolean
-  }> = originalSelect && getSelectOptions(originalSelect);
+  const originalSelect = getOriginalSelect()
 
   return (
     <div ref={ref} className="preact-select">
@@ -64,10 +68,10 @@ const FilterIsland = ({focus = false}) => {
         <SelectList
           name={originalSelect.getAttribute('id') + '-preact'}
           options={selectOptions.filter(item => item.value !== 'All')}
-          label={label}
+          label={getOriginalLabel()}
           multiple={originalSelect.getAttribute('multiple') === 'multiple'}
           onChange={onSelectChange}
-          defaultValue={getDefaultValue()}
+          value={selectedValues}
           emptyLabel={selectOptions.find(item => item.value === 'All')?.label}
         />
       }

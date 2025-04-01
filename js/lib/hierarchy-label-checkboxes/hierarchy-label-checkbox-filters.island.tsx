@@ -23,9 +23,10 @@ const Checkbox = styled.input`
   clip-path: unset;
 `
 
-const FilterIsland = ({focus = false}) => {
+const FilterIsland = () => {
+  const initRef = useRef(0)
+
   const ref = useRef<HTMLDivElement>(null);
-  const initialLoad = useRef(true)
   const [selectedValues, setSelectedValues] = useState<Array<number>>([])
 
   const getOriginalSelect = () => {
@@ -43,27 +44,24 @@ const FilterIsland = ({focus = false}) => {
   }, [])
 
   useEffect(() => {
-    if (initialLoad.current) {
-      initialLoad.current = false;
-      return;
-    }
-    console.log('here')
-    for (let option of getOriginalSelect().children) {
-      if (selectedValues?.includes(parseInt(option.getAttribute('value')))) {
-        option.setAttribute('selected', 'selected')
-      } else {
-        option.removeAttribute('selected');
-      }
+    // Initial render has a value of 0, and after the default selected values is set, the value is 1.
+    // We only want to update the original select element after that point, then submit the form.
+    if (initRef.current <= 1) {
+      initRef.current++
+      return
     }
 
-    // Figure out the autosubmit.
-    // originalSelect.closest('form').querySelector('[data-bef-auto-submit-click]').click();
+    const selectElement = getOriginalSelect()
+    for (let i = 0; i < selectElement.options.length; i++) {
+      selectElement.options[i].selected = selectedValues.indexOf(parseInt(selectElement.options[i].value)) >= 0;
+    }
+
+    getOriginalSelect()?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
   }, [selectedValues]);
 
   const getSelectOptions = () => {
     const selectElement = getOriginalSelect()
-    if(!selectElement) return []
-
+    if (!selectElement) return []
 
     const options: Array<{ label: string, options: [] }> = [];
 
@@ -93,7 +91,6 @@ const FilterIsland = ({focus = false}) => {
   }
 
   const onChange = (event) => {
-
     const value = parseInt(event.target.value); // Parse value to a number
     const isChecked = event.target.checked;
 
