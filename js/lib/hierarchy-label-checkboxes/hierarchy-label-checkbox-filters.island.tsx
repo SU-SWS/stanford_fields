@@ -1,5 +1,4 @@
 import {createIslandWebComponent} from 'preact-island'
-import {useEffect, useRef, useState} from "preact/compat";
 import styled from "styled-components";
 
 const Fieldset = styled.fieldset`
@@ -26,48 +25,17 @@ const Checkbox = styled.input`
 `
 
 const FilterIsland = ({originalSelect, selectOptions}) => {
-  const initRef = useRef(0)
-  const [selectedValues, setSelectedValues] = useState<Array<string>>([])
-
-  useEffect(() => {
-    let defaultValues = [];
-    for (let option of originalSelect.children) {
-      if (option.getAttribute('selected')) defaultValues.push(option.getAttribute('value'))
-    }
-    setSelectedValues(defaultValues)
-  }, [])
-
-  useEffect(() => {
-    // Initial render has a value of 0, and after the default selected values is set, the value is 1.
-    // We only want to update the original select element after that point, then submit the form.
-    if (initRef.current <= 1) {
-      initRef.current++
-      return
-    }
-
-    for (let i = 0; i < originalSelect.options.length; i++) {
-      originalSelect.options[i].selected = selectedValues.indexOf(originalSelect.options[i].value) >= 0;
-    }
-
-    originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
-  }, [selectedValues]);
 
   const onChange = (event) => {
-    const value = event.target.value
-    const isChecked = event.target.checked;
-
-    setSelectedValues(prevSelectedValues => {
-      if (isChecked) {
-        // Add the number to the array if checked
-        return [...prevSelectedValues, value];
-      } else {
-        // Remove the number from the array if unchecked
-        return prevSelectedValues.filter(val => val !== value);
+    for (let i = 0; i < originalSelect.options.length; i++) {
+      if (event.target.value === originalSelect.options[i].value) {
+        originalSelect.options[i].selected = event.target.checked
       }
-    });
+    }
+    originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
   };
 
-  const optionSets: Array<{ label: string, options: { label: string, value: string | number }[] }> = []
+  const optionSets: Array<{ label: string, options: { label: string, value: string }[] }> = []
   let parentLabel = ''
 
   selectOptions.map(option => {
@@ -82,6 +50,12 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
     }
   })
 
+
+  let defaultValues:Array<string> = [];
+  for (let option of originalSelect.children) {
+    if (option.getAttribute('selected')) defaultValues.push(option.getAttribute('value'))
+  }
+
   return (
     <div className="hierarchy-preact-checkbox">
       {optionSets.map((set, i) =>
@@ -95,7 +69,7 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
               <Checkbox
                 type="checkbox"
                 value={option.value}
-                checked={selectedValues.includes(option.value)}
+                defaultChecked={defaultValues.includes(option.value)}
                 onChange={onChange}
                 data-bef-auto-submit-exclude
               />

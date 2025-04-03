@@ -46,8 +46,6 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
   let defaultValue = [];
   for (let option of originalSelect?.children) {
     if (option.getAttribute('selected')) {
-      if (!originalSelect.getAttribute('multiple')) return option.getAttribute('value');
-
       defaultValue.push(option.getAttribute('value'))
     }
   }
