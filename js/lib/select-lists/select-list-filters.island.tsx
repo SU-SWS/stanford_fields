@@ -1,43 +1,33 @@
 import {createIslandWebComponent} from 'preact-island'
 import SelectList from "../components/select-list";
-import {useEffect, useState} from "preact/compat";
 
 const FilterIsland = ({originalSelect, selectOptions}) => {
-  const [selectedValues, setSelectedValues] = useState([])
-
-  useEffect(() => {
-
-    const defaultValue = [];
-    for (let option of originalSelect?.children) {
-      if (option.getAttribute('selected')) {
-        defaultValue.push(option.getAttribute('value'))
-      }
-    }
-
-    setSelectedValues(defaultValue);
-  }, []);
 
   const onSelectChange = (event, value) => {
-    setSelectedValues(Array.isArray(value) ? value : [value])
-
     for (let option of originalSelect.children) {
       option.selected = value.includes(option.getAttribute('value'))
+    }
+    originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
+  }
+
+  const defaultValue = [];
+  for (let option of originalSelect?.children) {
+    if (option.getAttribute('selected')) {
+      defaultValue.push(option.getAttribute('value'))
     }
   }
 
   return (
     <div className="preact-select">
-      {originalSelect &&
-        <SelectList
-          name={originalSelect.getAttribute('id') + '-preact'}
-          options={selectOptions.filter(item => item.value !== 'All')}
-          label={originalSelect.parentNode.querySelector('label').textContent}
-          multiple={originalSelect.getAttribute('multiple') === 'multiple'}
-          onChange={onSelectChange}
-          value={selectedValues}
-          emptyLabel={selectOptions.find(item => item.value === 'All')?.label}
-        />
-      }
+      <SelectList
+        name={originalSelect.getAttribute('id') + '-preact'}
+        options={selectOptions.filter(item => item.value !== 'All')}
+        label={originalSelect.parentNode.querySelector('label').textContent}
+        multiple={originalSelect.getAttribute('multiple') === 'multiple'}
+        onChange={onSelectChange}
+        defaultValue={defaultValue}
+        emptyLabel={selectOptions.find(item => item.value === 'All')?.label}
+      />
     </div>
   )
 }

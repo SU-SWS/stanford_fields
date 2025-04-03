@@ -27,12 +27,12 @@ const Checkbox = styled.input`
 
 const FilterIsland = ({originalSelect, selectOptions}) => {
   const initRef = useRef(0)
-  const [selectedValues, setSelectedValues] = useState<Array<number>>([])
+  const [selectedValues, setSelectedValues] = useState<Array<string>>([])
 
   useEffect(() => {
     let defaultValues = [];
     for (let option of originalSelect.children) {
-      if (option.getAttribute('selected')) defaultValues.push(parseInt(option.getAttribute('value')))
+      if (option.getAttribute('selected')) defaultValues.push(option.getAttribute('value'))
     }
     setSelectedValues(defaultValues)
   }, [])
@@ -46,14 +46,14 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
     }
 
     for (let i = 0; i < originalSelect.options.length; i++) {
-      originalSelect.options[i].selected = selectedValues.indexOf(parseInt(originalSelect.options[i].value)) >= 0;
+      originalSelect.options[i].selected = selectedValues.indexOf(originalSelect.options[i].value) >= 0;
     }
 
     originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
   }, [selectedValues]);
 
   const onChange = (event) => {
-    const value = parseInt(event.target.value); // Parse value to a number
+    const value = event.target.value
     const isChecked = event.target.checked;
 
     setSelectedValues(prevSelectedValues => {
@@ -62,12 +62,12 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
         return [...prevSelectedValues, value];
       } else {
         // Remove the number from the array if unchecked
-        return prevSelectedValues.filter(number => number !== value);
+        return prevSelectedValues.filter(val => val !== value);
       }
     });
   };
 
-  const optionSets: Array<{ label: string, options: { label: string, value: string }[] }> = []
+  const optionSets: Array<{ label: string, options: { label: string, value: string | number }[] }> = []
   let parentLabel = ''
 
   selectOptions.map(option => {

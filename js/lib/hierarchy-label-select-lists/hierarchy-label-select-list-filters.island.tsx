@@ -3,6 +3,7 @@ import SelectList from "../components/select-list";
 import {useEffect} from "preact/compat";
 
 const FilterIsland = ({originalSelect, selectOptions}) => {
+
   useEffect(() => {
     const optionElements = originalSelect.children
     let parent = ''
@@ -24,18 +25,7 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
         option.selected = value?.includes(option.getAttribute('value'))
       }
     }
-  }
-
-  const getDefaultValue = () => {
-    let defaultValue = [];
-    for (let option of originalSelect?.children) {
-      if (option.getAttribute('selected')) {
-        if (!originalSelect.getAttribute('multiple')) return option.getAttribute('value');
-
-        defaultValue.push(option.getAttribute('value'))
-      }
-    }
-    return defaultValue;
+    originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
   }
 
   const optionSets: Array<{ label: string, options: { label: string, value: string | number }[] }> = []
@@ -53,6 +43,15 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
     }
   })
 
+  let defaultValue = [];
+  for (let option of originalSelect?.children) {
+    if (option.getAttribute('selected')) {
+      if (!originalSelect.getAttribute('multiple')) return option.getAttribute('value');
+
+      defaultValue.push(option.getAttribute('value'))
+    }
+  }
+
   return (
     <div className="hierarchy-preact-select">
       {optionSets.map((set, i) =>
@@ -63,8 +62,7 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
             label={set.label}
             multiple={originalSelect.getAttribute('multiple') === 'multiple'}
             onChange={onSelectChange.bind(null, set.label)}
-            defaultValue={getDefaultValue()}
-            emptyLabel={set.options.find(item => item.value === 'All')?.label}
+            defaultValue={defaultValue.filter(val => set.options.find(opt => opt.value === val))}
           />
         </div>
       )}
