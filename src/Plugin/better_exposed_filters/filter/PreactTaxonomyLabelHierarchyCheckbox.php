@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\stanford_fields\Plugin\better_exposed_filters\filter;
 
+use Drupal\better_exposed_filters\BetterExposedFiltersHelper;
 use Drupal\Core\Form\FormStateInterface;
 
 /**

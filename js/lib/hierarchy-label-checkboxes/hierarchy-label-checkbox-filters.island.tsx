@@ -25,21 +25,13 @@ const Checkbox = styled.input`
   clip-path: unset;
 `
 
-const FilterIsland = () => {
+const FilterIsland = ({originalSelect, selectOptions}) => {
   const initRef = useRef(0)
-
-  const ref = useRef<HTMLDivElement>(null);
   const [selectedValues, setSelectedValues] = useState<Array<number>>([])
 
-  const getOriginalSelect = () => {
-    return ref.current?.parentNode.querySelector('select')
-  }
-
   useEffect(() => {
-    const selectElement = getOriginalSelect()
-
     let defaultValues = [];
-    for (let option of selectElement.children) {
+    for (let option of originalSelect.children) {
       if (option.getAttribute('selected')) defaultValues.push(parseInt(option.getAttribute('value')))
     }
     setSelectedValues(defaultValues)
@@ -53,44 +45,12 @@ const FilterIsland = () => {
       return
     }
 
-    const selectElement = getOriginalSelect()
-    for (let i = 0; i < selectElement.options.length; i++) {
-      selectElement.options[i].selected = selectedValues.indexOf(parseInt(selectElement.options[i].value)) >= 0;
+    for (let i = 0; i < originalSelect.options.length; i++) {
+      originalSelect.options[i].selected = selectedValues.indexOf(parseInt(originalSelect.options[i].value)) >= 0;
     }
 
-    getOriginalSelect()?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
+    originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
   }, [selectedValues]);
-
-  const getSelectOptions = () => {
-    const selectElement = getOriginalSelect()
-    if (!selectElement) return []
-
-    const options: Array<{ label: string, options: [] }> = [];
-
-    const optionElements = selectElement.children
-    let parent = ''
-    for (let i = 0; i < optionElements.length; i++) {
-      const option = optionElements[i]
-
-      const value = parseInt(option.getAttribute('value'))
-      const label = option.textContent
-
-      if (!label.startsWith('-')) {
-        options.push({label, options: []})
-        parent = label
-      } else {
-        options.find(item => item.label === parent)?.options.push({
-          value,
-          label,
-          disabled: option.getAttribute('disabled') === 'disabled'
-        })
-
-        option.setAttribute('data-preact-parent', parent)
-      }
-    }
-
-    return options;
-  }
 
   const onChange = (event) => {
     const value = parseInt(event.target.value); // Parse value to a number
@@ -107,18 +67,24 @@ const FilterIsland = () => {
     });
   };
 
-  const selectOptions: Array<{
-    label: string,
-    options: Array<{
-      value: string,
-      label: string,
-      disabled: boolean
-    }>
-  }> = getSelectOptions();
+  const optionSets: Array<{ label: string, options: { label: string, value: string }[] }> = []
+  let parentLabel = ''
+
+  selectOptions.map(option => {
+    if (!option.label.startsWith('-')) {
+      parentLabel = option.label
+      optionSets.push({label: option.label, options: []})
+    } else {
+      optionSets.find(item => item.label === parentLabel)?.options.push({
+        value: option.value,
+        label: option.label.substring(1),
+      })
+    }
+  })
 
   return (
-    <div ref={ref} className="hierarchy-preact-checkbox">
-      {selectOptions.map((set, i) =>
+    <div className="hierarchy-preact-checkbox">
+      {optionSets.map((set, i) =>
         <Fieldset key={i} className="preact-checkbox-item">
           <legend>
             {set.label}
@@ -133,7 +99,7 @@ const FilterIsland = () => {
                 onChange={onChange}
                 data-bef-auto-submit-exclude
               />
-              {option.label.substring(1)}
+              {option.label}
             </Label>
           )}
         </Fieldset>
@@ -144,26 +110,25 @@ const FilterIsland = () => {
 }
 
 if (process.env.NODE_ENV === 'development') {
-  const island = createIslandWebComponent('combobox-hierarchy-checkbox', FilterIsland)
+  const island = createIslandWebComponent('hierarchy-checkbox', FilterIsland)
   island.render({
     selector: `.hierarchy-checkbox-preact`,
   })
 } else {
   (function () {
     Drupal.behaviors.stanfordFieldsHierarchyCheckboxesPreact = {
-      attach: function (context) {
-        let contextClass = ''
+      attach: function (context, settings) {
+        const island = createIslandWebComponent('hierarchy-checkbox', FilterIsland)
 
-        try {
-          contextClass = '.' + context.getAttribute('class').replace(/ /g, '.');
-        } catch (e) {
-        }
+        settings.preactFilters.taxonomy_label_hierarchy_checkbox.map(field => {
+          island.render({
+            selector: '#' + field.id,
+            initialProps: {
+              selectOptions: field.options,
+              originalSelect: context.querySelector('#' + field.id + ' select')
+            }
+          })
 
-        const island = createIslandWebComponent('combobox-hierarchy-checkbox', FilterIsland)
-
-        island.render({
-          selector: `${contextClass} .taxonomy-label-hierarchy-checkbox`.trim(),
-          initialProps: {focus: contextClass.indexOf('js-view-dom-id') >= 0}
         })
       }
     };
