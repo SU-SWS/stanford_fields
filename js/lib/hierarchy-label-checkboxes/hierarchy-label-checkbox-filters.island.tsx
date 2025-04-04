@@ -83,17 +83,14 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
   )
 }
 
+const island = createIslandWebComponent('hierarchy-checkbox', FilterIsland)
+
 if (process.env.NODE_ENV === 'development') {
-  const island = createIslandWebComponent('hierarchy-checkbox', FilterIsland)
-  island.render({
-    selector: `.hierarchy-checkbox-preact`,
-  })
+  island.render({selector: `.hierarchy-checkbox-preact`})
 } else {
   (function () {
     Drupal.behaviors.stanfordFieldsHierarchyCheckboxesPreact = {
       attach: function (context, settings) {
-        const island = createIslandWebComponent('hierarchy-checkbox', FilterIsland)
-
         settings.preactFilters.taxonomy_label_hierarchy_checkbox.map(field => {
           island.render({
             selector: '#' + field.id,
