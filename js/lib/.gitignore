@@ -1,0 +1,5 @@
+.env.local
+
+# Yarn files. See https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored.
+.yarn
+.pnp*
