@@ -1,5 +1,11 @@
 # Stanford Fields
 
+8.5.0
+--------------------------------------------------------------------------------
+_Release Date: 2025-04-04_
+
+- Add Better Exposed Filters plugin for combo box select lists & hierarchy taxonomy filters.
+
 8.4.1
 --------------------------------------------------------------------------------
 _Release Date: 2025-02-24_
