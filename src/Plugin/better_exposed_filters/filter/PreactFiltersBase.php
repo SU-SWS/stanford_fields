@@ -22,7 +22,7 @@ class PreactFiltersBase extends FilterWidgetBase {
     $form['#attached']['library'][] = 'stanford_fields/bef-styles';
     $field_id = $this->getExposedFilterFieldId();
     $pluginClass = Html::cleanCssIdentifier($this->getPluginId());
-    $id = Html::getUniqueId($field_id);
+    $id = Html::cleanCssIdentifier("preact-$field_id");
 
     $form[$field_id]['#prefix'] = "<div id='$id' class='preact-filter $pluginClass'>";
     $form[$field_id]['#suffix'] = '</div>';
