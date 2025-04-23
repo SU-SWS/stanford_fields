@@ -42,7 +42,7 @@ function stanford_fields_field_widget_third_party_settings_form(WidgetInterface 
     $element['hidden_settings'] = [
       '#type' => 'select',
       '#title' => t('My setting'),
-      '#default_value' => $plugin->getThirdPartySetting('stanford_fields', 'hidden_settings'),
+      '#default_value' => $plugin->getThirdPartySetting('stanford_fields', 'hidden_settings', []),
       '#multiple' => TRUE,
       '#options' => [
         'iconset' => t('Icon Set'),
@@ -66,7 +66,7 @@ function stanford_fields_field_widget_third_party_settings_form(WidgetInterface 
  * Implements hook_field_widget_complete_WIDGET_TYPE_form_alter().
  */
 function stanford_fields_field_widget_complete_fontawesome_icon_widget_form_alter(&$field_widget_complete_form, FormStateInterface $form_state, $context) {
-  $hidden_settings = $context['widget']->getThirdPartySetting('stanford_fields', 'hidden_settings');
+  $hidden_settings = $context['widget']->getThirdPartySetting('stanford_fields', 'hidden_settings', []);
   foreach (Element::children($field_widget_complete_form['widget']) as $delta) {
     foreach ($hidden_settings as $hidden_setting) {
       $field_widget_complete_form['widget'][$delta]['settings'][$hidden_setting]['#access'] = FALSE;
