@@ -41,7 +41,7 @@ function stanford_fields_field_widget_third_party_settings_form(WidgetInterface 
   if ($plugin->getPluginId() == 'fontawesome_icon_widget') {
     $element['hidden_settings'] = [
       '#type' => 'select',
-      '#title' => t('My setting'),
+      '#title' => t('Hide additional settings'),
       '#default_value' => $plugin->getThirdPartySetting('stanford_fields', 'hidden_settings', []),
       '#multiple' => TRUE,
       '#options' => [
