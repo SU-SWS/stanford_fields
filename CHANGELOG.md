@@ -1,5 +1,11 @@
 # Stanford Fields
 
+8.6.0
+--------------------------------------------------------------------------------
+_Release Date: 2025-04-23_
+
+- Add display options to hide additional settings on FontAwesome fields
+
 8.5.1
 --------------------------------------------------------------------------------
 _Release Date: 2025-04-09_
