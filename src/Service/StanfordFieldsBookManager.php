@@ -35,14 +35,13 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager service.
    */
-  public function __construct(protected BookManagerInterface $bookManager, protected ConfigFactoryInterface $configFactory, protected EventDispatcherInterface $eventDispatcher, protected EntityTypeManagerInterface $entityTypeManager) {
-  }
+  public function __construct(protected BookManagerInterface $bookManager, protected ConfigFactoryInterface $configFactory, protected EventDispatcherInterface $eventDispatcher, protected EntityTypeManagerInterface $entityTypeManager) {}
 
   /**
    * {@inheritdoc}
    */
-  public function bookTreeAllData($bid, $link = NULL, $max_depth = NULL) {
-    return $this->bookManager->bookTreeAllData($bid, $link, $max_depth);
+  public function bookTreeAllData(int $bid, ?array $link = NULL, ?int $max_depth = NULL, ?int $min_depth = NULL): array {
+    return $this->bookManager->bookTreeAllData($bid, $link, $max_depth, $min_depth);
   }
 
   /**
@@ -50,7 +49,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function getActiveTrailIds($bid, $link) {
+  public function getActiveTrailIds(string $bid, array $link): array {
     return $this->bookManager->getActiveTrailIds($bid, $link);
   }
 
@@ -59,7 +58,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function loadBookLink($nid, $translate = TRUE) {
+  public function loadBookLink(int $nid, bool $translate = TRUE): array {
     return $this->bookManager->loadBookLink($nid, $translate);
   }
 
@@ -68,7 +67,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function loadBookLinks($nids, $translate = TRUE) {
+  public function loadBookLinks(array $nids, bool $translate = TRUE): array {
     return $this->bookManager->loadBookLinks($nids, $translate);
   }
 
@@ -77,8 +76,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function getTableOfContents($bid, $depth_limit, array $exclude = []) {
-    return $this->bookManager->getTableOfContents($bid, $depth_limit, $exclude);
+  public function getTableOfContents(int|string $bid, int $depth_limit, array $exclude = [], bool $truncate = TRUE): array {
+    return $this->bookManager->getTableOfContents($bid, $depth_limit, $exclude, $truncate);
   }
 
   /**
@@ -86,7 +85,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function getParentDepthLimit(array $book_link) {
+  public function getParentDepthLimit(array $book_link): int {
     return $this->bookManager->getParentDepthLimit($book_link);
   }
 
@@ -95,8 +94,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function bookTreeCollectNodeLinks(&$tree, &$node_links) {
-    return $this->bookManager->bookTreeCollectNodeLinks($tree, $node_links);
+  public function bookTreeCollectNodeLinks(array &$tree, array &$node_links): void {
+    $this->bookManager->bookTreeCollectNodeLinks($tree, $node_links);
   }
 
   /**
@@ -104,7 +103,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function bookLinkTranslate(&$link) {
+  public function bookLinkTranslate(array &$link): array {
     return $this->bookManager->bookLinkTranslate($link);
   }
 
@@ -113,7 +112,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function bookTreeGetFlat(array $book_link) {
+  public function bookTreeGetFlat(array $book_link): array {
     return $this->bookManager->bookTreeGetFlat($book_link);
   }
 
@@ -122,21 +121,19 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function getAllBooks() {
+  public function getAllBooks(): array {
     return $this->bookManager->getAllBooks();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function updateOutline(NodeInterface $node) {
+  public function updateOutline(NodeInterface $node): bool {
     if (isset($node->book['weight'])) {
-
       // Before saving the node, look at the book weight data . The weight has
       // to be an integer, but we also have to adjust the weights of the sibling
       // book items so that they all stay in proper order.
       if (is_array($node->book['weight'])) {
-
         // Remove the parent ID from the keys in the weight data.
         $weights = $node->book['weight'];
         foreach ($weights as $key => $weight) {
@@ -177,7 +174,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function saveBookLink(array $link, $new) {
+  public function saveBookLink(array $link, bool $new): array {
     return $this->bookManager->saveBookLink($link, $new);
   }
 
@@ -186,7 +183,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function getLinkDefaults($nid) {
+  public function getLinkDefaults(int|string $nid): array {
     return $this->bookManager->getLinkDefaults($nid);
   }
 
@@ -195,7 +192,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function getBookParents(array $item, array $parent = []) {
+  public function getBookParents(array $item, array $parent = []): array {
     return $this->bookManager->getBookParents($item, $parent);
   }
 
@@ -217,7 +214,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function addFormElements(array $form, FormStateInterface $form_state, NodeInterface $node, AccountInterface $account, $collapsed = TRUE) {
+  public function addFormElements(array $form, FormStateInterface $form_state, NodeInterface $node, AccountInterface $account, bool $collapsed = TRUE): array {
     // The book module will add the book settings to all node types for admins,
     // which makes it annoying. This checks the node against the settings
     // instead of only the 'administer book outlines' permission.
@@ -229,7 +226,6 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     // Prepare the form state before passing to the original service to add form
     // elements.
     if ($form_state->hasValue(['book', 'weight'])) {
-
       // During the AJAX call, the weight value is keyed array of other book
       // links. Extract the weight of the current node on this form so that the
       // original service can still use it normally.
@@ -294,7 +290,6 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     $form['book']['weight']['#access'] = TRUE;
 
     foreach ($this->getSiblingBookItems($parent_id, $form['book']['nid']['#value']) as $nid => $link_data) {
-
       // To avoid the weight value to linger after the ajax finishes, use
       // different keys for each parent. That way when you change to a different
       // parent, the weight will all reset to proper order.
@@ -433,8 +428,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function deleteFromBook($nid) {
-    return $this->bookManager->deleteFromBook($nid);
+  public function deleteFromBook(int $nid): void {
+    $this->bookManager->deleteFromBook($nid);
   }
 
   /**
@@ -442,7 +437,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function bookTreeOutput(array $tree) {
+  public function bookTreeOutput(array $tree): array {
     return $this->bookManager->bookTreeOutput($tree);
   }
 
@@ -451,8 +446,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function bookTreeCheckAccess(&$tree, $node_links = []) {
-    return $this->bookManager->bookTreeCheckAccess($tree, $node_links);
+  public function bookTreeCheckAccess(array &$tree, array $node_links = []): void {
+    $this->bookManager->bookTreeCheckAccess($tree, $node_links);
   }
 
   /**
@@ -460,7 +455,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function bookSubtreeData($link) {
+  public function bookSubtreeData(array $link): array {
     return $this->bookManager->bookSubtreeData($link);
   }
 
@@ -469,7 +464,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    *
    * @codeCoverageIgnore
    */
-  public function checkNodeIsRemovable(NodeInterface $node) {
+  public function checkNodeIsRemovable(NodeInterface $node): bool {
     return $this->bookManager->checkNodeIsRemovable($node);
   }
 

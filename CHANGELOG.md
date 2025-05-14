@@ -1,5 +1,29 @@
 # Stanford Fields
 
+8.6.0
+--------------------------------------------------------------------------------
+_Release Date: 2025-04-23_
+
+- Add display options to hide additional settings on FontAwesome fields
+
+8.5.1
+--------------------------------------------------------------------------------
+_Release Date: 2025-04-09_
+
+- Fix element id attribute for proper attachment of BEF widgets.
+
+8.5.0
+--------------------------------------------------------------------------------
+_Release Date: 2025-04-04_
+
+- Add Better Exposed Filters plugin for combo box select lists & hierarchy taxonomy filters.
+
+8.4.1
+--------------------------------------------------------------------------------
+_Release Date: 2025-02-24_
+
+- Update book service override with book module 2.0+.
+
 8.3.0
 --------------------------------------------------------------------------------
 _Release Date: 2024-09-13_
