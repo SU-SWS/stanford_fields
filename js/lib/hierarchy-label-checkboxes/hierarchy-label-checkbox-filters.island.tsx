@@ -14,7 +14,7 @@ const Label = styled.label`
   cursor: pointer;
 `
 
-const Checkbox = styled.input`
+const Radio = styled.input`
   outline: 2px;
   clip: unset;
   position: relative;
@@ -26,22 +26,32 @@ const Checkbox = styled.input`
 
 const FilterIsland = ({originalSelect, selectOptions}) => {
 
-  const onChange = (event) => {
+  const onChange = (parentValue: string, event) => {
+    let parent = null
     for (let i = 0; i < originalSelect.options.length; i++) {
-      if (event.target.value === originalSelect.options[i].value) {
-        originalSelect.options[i].selected = event.target.checked
+      if (!selectOptions.find(opt => opt.value === originalSelect.options[i].value).label.startsWith('-')) {
+        parent = originalSelect.options[i].value
+        continue
       }
+
+      if (parentValue !== parent) continue
+      originalSelect.options[i].selected = event.target.value === originalSelect.options[i].value
     }
     originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
   };
 
-  const optionSets: Array<{ label: string, options: { label: string, value: string }[] }> = []
+
+  const optionSets: Array<{
+    label: string,
+    value: string,
+    options: { label: string, value: string }[]
+  }> = []
   let parentLabel = ''
 
   selectOptions.map(option => {
     if (!option.label.startsWith('-')) {
       parentLabel = option.label
-      optionSets.push({label: option.label, options: []})
+      optionSets.push({...option, options: []})
     } else {
       optionSets.find(item => item.label === parentLabel)?.options.push({
         value: option.value,
@@ -51,26 +61,38 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
   })
 
 
-  let defaultValues:Array<string> = [];
+  let defaultValues: Array<string> = [];
   for (let option of originalSelect.children) {
     if (option.getAttribute('selected')) defaultValues.push(option.getAttribute('value'))
   }
 
   return (
     <div className="hierarchy-preact-checkbox">
-      {optionSets.map((set, i) =>
-        <Fieldset key={i} className="preact-checkbox-item">
+      {optionSets.map(set =>
+        <Fieldset key={set.value} className="preact-checkbox-item">
           <legend>
             {set.label}
           </legend>
 
+          <Label>
+            <Radio
+              type="radio"
+              name={set.value}
+              defaultChecked={!set.options.find(option => defaultValues.includes(option.value))}
+              onChange={onChange.bind(null, set.value)}
+              data-bef-auto-submit-exclude
+            />
+            - All -
+          </Label>
+
           {set.options.map(option =>
             <Label key={option.value}>
-              <Checkbox
-                type="checkbox"
+              <Radio
+                type="radio"
+                name={set.value}
                 value={option.value}
                 defaultChecked={defaultValues.includes(option.value)}
-                onChange={onChange}
+                onChange={onChange.bind(null, set.value)}
                 data-bef-auto-submit-exclude
               />
               {option.label}

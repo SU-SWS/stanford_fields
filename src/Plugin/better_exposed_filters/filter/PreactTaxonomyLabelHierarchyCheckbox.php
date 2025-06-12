@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\stanford_fields\Plugin\better_exposed_filters\filter;
 
-use Drupal\better_exposed_filters\BetterExposedFiltersHelper;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -12,7 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @BetterExposedFiltersFilterWidget(
  *   id = "taxonomy_label_hierarchy_checkbox",
- *   label = @Translation("Hierarchy taxonomy labels checkboxes"),
+ *   label = @Translation("Hierarchy taxonomy labels Radios"),
  * )
  */
 class PreactTaxonomyLabelHierarchyCheckbox extends PreactFiltersBase {
