@@ -1,5 +1,11 @@
 # Stanford Fields
 
+8.6.1
+--------------------------------------------------------------------------------
+_Release Date: 2025-06-12_
+
+- Use radio buttons instead of checkboxes for accurate filter behavior
+
 8.6.0
 --------------------------------------------------------------------------------
 _Release Date: 2025-04-23_
