@@ -69,7 +69,7 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
 
     $guzzle_client = $this->createMock(ClientInterface::class);
     $guzzle_client->method('requestAsync')
-      ->will($this->returnCallback([$this, 'requestAsyncCallback']));
+      ->willReturnCallback([$this, 'requestAsyncCallback']);
 
     \Drupal::getContainer()->set('http_client', $guzzle_client);
   }

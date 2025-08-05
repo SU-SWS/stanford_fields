@@ -60,7 +60,7 @@ class FieldCacheTest extends StanfordFieldKernelTestBase {
 
     $cache_invalidator = $this->createMock(CacheTagsInvalidatorInterface::class);
     $cache_invalidator->method('invalidateTags')
-      ->will($this->returnCallback([$this, 'invalidateTagsCallback']));
+      ->willReturnCallback([$this, 'invalidateTagsCallback']);
     \Drupal::getContainer()->set('cache_tags.invalidator', $cache_invalidator);
   }
 

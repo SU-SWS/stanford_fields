@@ -8,6 +8,7 @@ use Drupal\Core\Validation\TranslatorInterface;
 use Drupal\stanford_fields\Plugin\Validation\Constraint\RelativeLinkFieldItemConstraint;
 use Drupal\stanford_fields\Plugin\Validation\Constraint\RelativeLinkFieldItemConstraintValidator;
 use Drupal\Tests\UnitTestCase;
+use PHPUnit\Framework\Attributes\TestWith;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -15,28 +16,16 @@ use Drupal\Core\Field\FieldItemInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @coversDefaultClass \Drupal\stanford_fields\Plugin\Validation\Constraint\RelativeLinkFieldItemConstraintValidator
+ * Test link field validation.
  */
 class LinkFieldItemConstraintValidatorTest extends UnitTestCase {
 
   /**
-   * Data provider for validator.
-   *
-   * @return array[]
-   */
-  public function dataProvider() {
-    return [
-      ['http://localhost', 'http://localhost/foo/bar', TRUE],
-      ['http://localhost', '/foo/bar', FALSE],
-      ['http://localhost', 'http://hostlocal/foo/bar', FALSE],
-    ];
-  }
-
-  /**
    * Tests the validate method.
-   *
-   * @dataProvider dataProvider
    */
+  #[TestWith(['http://localhost', 'http://localhost/foo/bar', TRUE])]
+  #[TestWith(['http://localhost', '/foo/bar', FALSE])]
+  #[TestWith(['http://localhost', 'http://hostlocal/foo/bar', FALSE])]
   public function testValidation($currentDomain, $linkUrl, $shouldHaveViolations) {
     // Create mocks for the services and dependencies.
     $request_stack = $this->createMock(RequestStack::class);
