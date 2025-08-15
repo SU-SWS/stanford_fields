@@ -2,8 +2,10 @@ import {createIslandWebComponent} from 'preact-island'
 import styled from "styled-components";
 
 const Fieldset = styled.fieldset`
-  max-height: 300px;
-  overflow-y: auto;
+  .options {
+    max-height: 300px;
+    overflow-y: auto;
+  }
 `
 
 const Label = styled.label`
@@ -74,30 +76,32 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
             {set.label}
           </legend>
 
-          <Label>
-            <Radio
-              type="radio"
-              name={set.value}
-              defaultChecked={!set.options.find(option => defaultValues.includes(option.value))}
-              onChange={onChange.bind(null, set.value)}
-              data-bef-auto-submit-exclude
-            />
-            - All -
-          </Label>
-
-          {set.options.map(option =>
-            <Label key={option.value}>
+          <div className="options">
+            <Label>
               <Radio
                 type="radio"
                 name={set.value}
-                value={option.value}
-                defaultChecked={defaultValues.includes(option.value)}
+                defaultChecked={!set.options.find(option => defaultValues.includes(option.value))}
                 onChange={onChange.bind(null, set.value)}
                 data-bef-auto-submit-exclude
               />
-              {option.label}
+              - All -
             </Label>
-          )}
+
+            {set.options.map(option =>
+              <Label key={option.value}>
+                <Radio
+                  type="radio"
+                  name={set.value}
+                  value={option.value}
+                  defaultChecked={defaultValues.includes(option.value)}
+                  onChange={onChange.bind(null, set.value)}
+                  data-bef-auto-submit-exclude
+                />
+                {option.label}
+              </Label>
+            )}
+          </div>
         </Fieldset>
       )
       }
