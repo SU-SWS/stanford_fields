@@ -1,7 +1,7 @@
 name: 'Stanford Fields'
 type: module
 description: 'Field types, widgets and formatters to enhance Drupal and Contrib.'
-core_version_requirement: ^10.3 || ^11
+core_version_requirement: ^11.1
 package: Stanford
 version: 8.6.3
 dependencies:
