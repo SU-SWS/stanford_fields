@@ -21,6 +21,12 @@ class StanfordFieldsHooks {
 
   use StringTranslationTrait;
 
+  /**
+   * Hook constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   Config factory service.
+   */
   public function __construct(private readonly ConfigFactoryInterface $configFactory) {}
 
   /**
