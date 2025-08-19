@@ -41,6 +41,14 @@ field.field.*.*.*.third_party.stanford_fields:
     force_relative:
       type: boolean
       label: "Force relative internal links"
+
+field.widget.third_party.stanford_fields:
+  type: mapping
+  label: 'Stanford Fields settings'
+  mapping:
     hidden_settings:
       type: sequence
       label: "Hidden FA Widget elements"
+      sequence:
+        type: string
+        label: Hidden Element

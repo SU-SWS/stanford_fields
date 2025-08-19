@@ -6,6 +6,7 @@ namespace Drupal\stanford_fields\Hook;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\WidgetInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -26,8 +27,10 @@ class StanfordFieldsHooks {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   Config factory service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   Entity type manager service.
    */
-  public function __construct(private readonly ConfigFactoryInterface $configFactory) {}
+  public function __construct(private readonly ConfigFactoryInterface $configFactory, private readonly EntityTypeManagerInterface $entityTypeManager) {}
 
   /**
    * Add checkbox to link field to enable relative validation.
@@ -82,7 +85,7 @@ class StanfordFieldsHooks {
   }
 
   /**
-   * Implements hook_field_widget_complete_WIDGET_TYPE_form_alter().
+   * Hides the font awesome additional settings options.
    */
   #[Hook('field_widget_complete_fontawesome_icon_widget_form_alter')]
   public function fontawesomeIconWidgetFormAlter(&$field_widget_complete_form, FormStateInterface $form_state, $context) {
@@ -115,7 +118,7 @@ class StanfordFieldsHooks {
   }
 
   /**
-   * Implements hook_entity_bundle_field_info_alter().
+   * Adds link field constraint.
    */
   #[Hook('entity_bundle_field_info_alter')]
   public function entityFieldInfoAlter(&$fields, EntityTypeInterface $entity_type, $bundle) {
@@ -127,13 +130,21 @@ class StanfordFieldsHooks {
   }
 
   /**
-   * Implements hook_form_FORM_ID_alter().
-   *
    * Add validation to field add form.
    */
   #[Hook('form_field_ui_field_storage_add_form_alter')]
-  public function fieldUiStorageFormLAlter(&$form, FormStateInterface $form_state, $form_id) {
-    $form['#validate'][] = [$this, 'fieldStorageValidate'];
+  public function fieldUiStorageFormAlter(&$form, FormStateInterface $form_state, $form_id) {
+    $entity_type = $form_state->getBuildInfo()['args'][0];
+    $isRevisionable = $this->entityTypeManager->getDefinition($entity_type)
+      ->isRevisionable();
+
+    $field_prefix = $this->configFactory->get('field_ui.settings')
+      ->get('field_prefix');
+
+    $revision_table = $isRevisionable? "_revision": '';
+
+    $form['field_name']['#maxlength'] = 48 - strlen("$entity_type{$revision_table}__$field_prefix$field_prefix");
+    $form['field_name']['#description'] = $this->t('A unique machine-readable name containing letters, numbers, and underscores. The length of the name has been limited to %length characters to prevent database table hashing.', ['%length' => $form['field_name']['#maxlength']]);
   }
 
   /**
@@ -151,14 +162,14 @@ class StanfordFieldsHooks {
     // to create a shorter field table. This makes it nearly impossible to track
     // down exactly what table is for what field without inspecting the field
     // storage config entity.
-    if (strlen("{$entity_type}_revision__{$field_prefix}$field_name") > 48) {
+    if (strlen("{$entity_type}_revision__$field_prefix$field_name") > 48) {
       $allowed_length = 48 - strlen("{$entity_type}_revision__{$field_prefix}");
-      $form_state->setError($form['new_storage_wrapper']['field_name'], $this->t('Field name is too long. Please keep this field name under @count characters', ['@count' => $allowed_length]));
+      $form_state->setError($form['field_name'], $this->t('Field name is too long. Please keep this field name under @count characters', ['@count' => $allowed_length]));
     }
   }
 
   /**
-   * Implements hook_cron().
+   * Invalidate date field caches.
    */
   #[Hook('cron')]
   public function cron() {
@@ -167,11 +178,10 @@ class StanfordFieldsHooks {
   }
 
   /**
-   * Implements hook_preprocess_HOOK().
+   * Remove the ID attribute because it is not unique on the same page.
    */
   #[Hook('preprocess_oembed_lazyload')]
   public function preprocessOembedLazyload(&$variables) {
-    // Remove the ID attribute because it is not unique on the same page.
     unset($variables['iframe']['#attributes']['id']);
   }
 
