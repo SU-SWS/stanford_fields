@@ -21,10 +21,12 @@ class StanfordFieldKernelTestBase extends KernelTestBase {
     'datetime_range',
     'stanford_fields',
     'field',
+    'field_ui',
     'link',
     'taxonomy',
     'text',
     'cshs',
+    'filter',
   ];
 
   /**

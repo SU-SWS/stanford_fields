@@ -17,12 +17,18 @@
         "drupal/book": "<2.0"
     },
     "require": {
-        "drupal/core": "^10.3 || ^11",
-        "drupal/ds": "~3.3 || ^5.0@alpha"
+        "drupal/core": "^11.1",
+        "drupal/ds": "^3.3"
     },
     "require-dev": {
         "drupal/cshs": "^4.0",
-        "drupal/book": "^2.0"
+        "drupal/book": "^2.0",
+        "drupal/fontawesome": ">=3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Drupal\\stanford_fields\\": "./src"
+        }
     },
     "autoload-dev": {
         "psr-4": {

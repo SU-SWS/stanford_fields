@@ -8,8 +8,6 @@ use Drupal\Tests\UnitTestCase;
 /**
  * Class DateYearOnlyWidgetTest
  *
- * @group
- * @coversDefaultClass \Drupal\stanford_fields\Plugin\Field\FieldWidget\DateYearOnlyWidget
  */
 class DateYearOnlyWidgetTest extends UnitTestCase {
 

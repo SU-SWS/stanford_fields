@@ -13,8 +13,6 @@ use Drupal\stanford_fields\Plugin\Field\FieldFormatter\EntityTitleHeading;
 /**
  * Class EntityTitleHeadingTest
  *
- * @group stanford_fields
- * @coversDefaultClass \Drupal\stanford_fields\Plugin\Field\FieldFormatter\EntityTitleHeading
  */
 class EntityTitleHeadingTest extends FieldFormatterTestBase {
 

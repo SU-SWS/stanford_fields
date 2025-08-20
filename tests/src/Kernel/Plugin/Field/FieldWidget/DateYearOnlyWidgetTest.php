@@ -14,8 +14,6 @@ use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 /**
  * Class DateYearOnlyWidgetTest
  *
- * @group
- * @coversDefaultClass \Drupal\stanford_fields\Plugin\Field\FieldWidget\DateYearOnlyWidget
  */
 class DateYearOnlyWidgetTest extends StanfordFieldKernelTestBase {
 

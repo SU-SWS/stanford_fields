@@ -12,9 +12,6 @@ use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 use Drupal\user\Entity\User;
 /**
  * Class TaxonomyLabelHierarchyWidgetTest.
- *
- * @group stanford_fields
- * @coversDefaultClass \Drupal\stanford_fields\Plugin\Field\FieldWidget\TaxonomyLabelHierarchyWidget
  */
 class TaxonomyLabelHierarchyWidgetTest extends StanfordFieldKernelTestBase {
 

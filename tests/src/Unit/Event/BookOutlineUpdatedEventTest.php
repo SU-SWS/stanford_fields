@@ -7,7 +7,6 @@ use Drupal\stanford_fields\Event\BookOutlineUpdatedEvent;
 use Drupal\Tests\UnitTestCase;
 
 /**
- * @coversDefaultClass \Drupal\stanford_fields\Event\BookOutlineUpdatedEvent
  */
 class BookOutlineUpdatedEventTest extends UnitTestCase {
 

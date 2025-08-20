@@ -7,7 +7,6 @@ use Drupal\stanford_fields\Service\StanfordFieldsBookManager;
 /**
  * Test the service provider registers and alters services.
  *
- * @coversDefaultClass \Drupal\stanford_fields\StanfordFieldsServiceProvider
  */
 class StanfordFieldsServiceProviderTest extends StanfordFieldKernelTestBase {
 

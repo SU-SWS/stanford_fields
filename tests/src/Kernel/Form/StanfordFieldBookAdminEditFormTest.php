@@ -9,7 +9,6 @@ use Drupal\stanford_fields\Form\StanfordFieldBookAdminEditForm;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 
 /**
- * @coversDefaultClass \Drupal\stanford_fields\Form\StanfordFieldBookAdminEditForm
  */
 class StanfordFieldBookAdminEditFormTest extends StanfordFieldKernelTestBase {
 
