@@ -160,17 +160,17 @@ class StanfordFieldsHooks {
   }
 
   /**
-   * Implements hook_graphql_compose_field_type_alter().
+   * Replace field type plugins for graphql compose.
    */
-  #[Hook('hook_graphql_compose_field_type_alter')]
+  #[Hook('graphql_compose_field_type_alter')]
   function graphqlComposeFieldTypeAlter(array &$field_types) {
     $field_types['image']['class'] = 'Drupal\stanford_fields\Plugin\GraphQLCompose\FieldType\ImageItem';
   }
 
   /**
-   * Implements hook_graphql_compose_graphql_type_alter().
+   * Replace schema type plugins for graphql compose.
    */
-  #[Hook('hook_graphql_compose_graphql_type_alter')]
+  #[Hook('graphql_compose_graphql_type_alter')]
   function graphqlComposeGraphqlTypeAlter(array &$entity_types) {
     $entity_types['Image']['class'] = 'Drupal\stanford_fields\Plugin\GraphQLCompose\SchemaType\ImageType';
   }
