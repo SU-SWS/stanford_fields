@@ -20,8 +20,6 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Class LocalistUrlWidgetTest.
  *
- * @group
- * @coversDefaultClass \Drupal\stanford_fields\Plugin\Field\FieldWidget\LocalistUrlWidget
  */
 class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
 

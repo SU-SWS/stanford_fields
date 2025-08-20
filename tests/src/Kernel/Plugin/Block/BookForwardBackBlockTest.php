@@ -9,7 +9,6 @@ use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 /**
  * Test the book block.
  *
- * @coversDefaultClass \Drupal\stanford_fields\Plugin\Block\BookForwardBackBlock
  */
 class BookForwardBackBlockTest extends StanfordFieldKernelTestBase {
   /**

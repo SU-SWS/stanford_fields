@@ -11,8 +11,6 @@ use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 
 /**
  * Class FieldCacheTest
- *
- * @package Drupal\Tests\stanford_fields\Kernel\Service
  */
 class FieldCacheTest extends StanfordFieldKernelTestBase {
 

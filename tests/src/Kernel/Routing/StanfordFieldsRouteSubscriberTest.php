@@ -8,7 +8,6 @@ use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 /**
  * Route subscriber modifies routes.
  *
- * @coversDefaultClass \Drupal\stanford_fields\Routing\StanfordFieldsRouteSubscriber
  */
 class StanfordFieldsRouteSubscriberTest extends StanfordFieldKernelTestBase {
 

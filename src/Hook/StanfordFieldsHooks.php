@@ -122,6 +122,7 @@ class StanfordFieldsHooks {
    */
   #[Hook('entity_bundle_field_info_alter')]
   public function entityFieldInfoAlter(&$fields, EntityTypeInterface $entity_type, $bundle) {
+    /** @var \Drupal\Core\Field\FieldDefinitionInterface $field */
     foreach ($fields as $field) {
       if ($field->getType() == 'link' && $field->getThirdPartySetting('stanford_fields', 'force_relative')) {
         $field->addConstraint('relative_internal_link', []);
@@ -170,19 +171,13 @@ class StanfordFieldsHooks {
 
   /**
    * Invalidate date field caches.
+   *
+   * @codeCoverageIgnore
    */
   #[Hook('cron')]
   public function cron() {
     \Drupal::service('stanford_fields.field_cache')
       ->invalidateDateFieldsCache();
-  }
-
-  /**
-   * Remove the ID attribute because it is not unique on the same page.
-   */
-  #[Hook('preprocess_oembed_lazyload')]
-  public function preprocessOembedLazyload(&$variables) {
-    unset($variables['iframe']['#attributes']['id']);
   }
 
 }

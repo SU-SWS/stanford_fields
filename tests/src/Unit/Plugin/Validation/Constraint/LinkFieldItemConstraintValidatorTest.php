@@ -22,10 +22,6 @@ class LinkFieldItemConstraintValidatorTest extends UnitTestCase {
 
   /**
    * Tests the validate method.
-   *
-   * @testWith ["http://localhost", "http://localhost/foo/bar", true]
-   *           ["http://localhost", "/foo/bar", false]
-   *           ["http://localhost", "http://hostlocal/foo/bar", false]
    */
   #[TestWith(['http://localhost', 'http://localhost/foo/bar', TRUE])]
   #[TestWith(['http://localhost', '/foo/bar', FALSE])]

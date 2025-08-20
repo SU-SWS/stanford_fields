@@ -15,7 +15,6 @@ use Drupal\user\RoleInterface;
 /**
  * Decorated book manager service tests.
  *
- * @coversDefaultClass \Drupal\stanford_fields\Service\StanfordFieldsBookManager
  */
 class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
 
