@@ -135,38 +135,17 @@ class StanfordFieldsHooks {
    */
   #[Hook('form_field_ui_field_storage_add_form_alter')]
   public function fieldUiStorageFormAlter(&$form, FormStateInterface $form_state, $form_id) {
-    $entity_type = $form_state->getBuildInfo()['args'][0];
-    $isRevisionable = $this->entityTypeManager->getDefinition($entity_type)
+    $entity_type = $form_state->get('entity_type_id');
+    $isRevisionable = $this->entityTypeManager->getDefinition($form_state->get('entity_type_id'))
       ->isRevisionable();
 
     $field_prefix = $this->configFactory->get('field_ui.settings')
       ->get('field_prefix');
 
-    $revision_table = $isRevisionable? "_revision": '';
+    $revision_table = $isRevisionable ? '_revision' : '';
 
     $form['field_name']['#maxlength'] = 48 - strlen("$entity_type{$revision_table}__$field_prefix$field_prefix");
     $form['field_name']['#description'] = $this->t('A unique machine-readable name containing letters, numbers, and underscores. The length of the name has been limited to %length characters to prevent database table hashing.', ['%length' => $form['field_name']['#maxlength']]);
-  }
-
-  /**
-   * Field storage add validation to prevent hashed table names.
-   *
-   * @see \Drupal\Core\Entity\Sql\DefaultTableMapping::generateFieldTableName()
-   */
-  public function fieldStorageValidate(&$form, FormStateInterface $form_state) {
-    $entity_type = $form_state->getBuildInfo()['args'][0];
-    $field_name = $form_state->getValue('field_name');
-    $field_prefix = $this->configFactory->get('field_ui.settings')
-      ->get('field_prefix');
-
-    // When a table name is over 48 characters, Drupal will hash the field name
-    // to create a shorter field table. This makes it nearly impossible to track
-    // down exactly what table is for what field without inspecting the field
-    // storage config entity.
-    if (strlen("{$entity_type}_revision__$field_prefix$field_name") > 48) {
-      $allowed_length = 48 - strlen("{$entity_type}_revision__{$field_prefix}");
-      $form_state->setError($form['field_name'], $this->t('Field name is too long. Please keep this field name under @count characters', ['@count' => $allowed_length]));
-    }
   }
 
   /**

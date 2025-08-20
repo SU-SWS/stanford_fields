@@ -3,8 +3,10 @@
 namespace Drupal\Tests\stanford_fields\Kernel\Hook;
 
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Form\FormState;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field_ui\Form\FieldStorageAddForm;
 use Drupal\node\Entity\Node;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 use Drupal\user\RoleInterface;
@@ -157,6 +159,18 @@ class StanfordFieldsHooksTest extends StanfordFieldKernelTestBase {
         $this->assertFalse($node_form['field_foo']['widget'][0]['settings'][$setting]['#access'], sprintf('%s should not have access', $setting));
       }
     }
+  }
+
+  public function testFieldUiStorageFormAlter() {
+    $form_state = new FormState();
+    $form_state->set('entity_type_id', 'node');
+    $form_state->set('bundle', 'page');
+    $form_state->set('field_type', 'text');
+    $form_state->set('display_as_group', FALSE);
+
+    $form = $this->container->get('form_builder')
+      ->buildForm(FieldStorageAddForm::class, $form_state);
+    $this->assertEquals(33, $form['field_name']['#maxlength']);
   }
 
 }
