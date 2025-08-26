@@ -343,13 +343,13 @@ class LocalistUrlWidget extends LinkWidget {
   /**
    * Get the data from the localist API.
    */
-  protected function getApiData() {
+  public function getApiData($base_url = NULL) {
     // Data was already fetched.
     if ($this->apiData) {
       return $this->apiData;
     }
 
-    $base_url = $this->getSetting('base_url');
+    $base_url = $base_url ?? $this->getSetting('base_url');
 
     // Check for some cached data before we fetch it all again.
     if ($cache = $this->cache->get("localist_api:$base_url")) {
@@ -363,7 +363,7 @@ class LocalistUrlWidget extends LinkWidget {
     }
 
     try {
-      $this->fetchApiData();
+      $this->fetchApiData($base_url);
     }
     catch (\Throwable $e) {
       if (!$this->apiData) {
@@ -371,6 +371,7 @@ class LocalistUrlWidget extends LinkWidget {
       }
     }
 
+    return $this->apiData;
   }
 
   /**
@@ -379,8 +380,7 @@ class LocalistUrlWidget extends LinkWidget {
    * @return array
    *   Keyed array of api data.
    */
-  protected function fetchApiData(): array {
-    $base_url = $this->getSetting('base_url');
+  protected function fetchApiData($base_url): array {
     $options = [
       'timeout' => 5,
       'base_uri' => $base_url,
@@ -402,7 +402,7 @@ class LocalistUrlWidget extends LinkWidget {
         continue;
       }
 
-      $this->apiData[$key] = $this->fetchPagedApiData($key, $response['page']['total']);
+      $this->apiData[$key] = $this->fetchPagedApiData($base_url, $key, $response['page']['total']);
     }
 
     $this->cache->set("localist_api:$base_url", [
@@ -424,8 +424,7 @@ class LocalistUrlWidget extends LinkWidget {
    * @return array
    *   Indexed array of api data.
    */
-  protected function fetchPagedApiData($endpoint, $total_count): array {
-    $base_url = $this->getSetting('base_url');
+  protected function fetchPagedApiData($base_url, $endpoint, $total_count): array {
     $options = [
       'timeout' => 5,
       'base_uri' => $base_url,
