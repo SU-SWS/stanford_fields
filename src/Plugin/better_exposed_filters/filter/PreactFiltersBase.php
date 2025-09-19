@@ -11,6 +11,8 @@ use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Base class for preact exposed filters.
+ *
+ * @codeCoverageIgnore
  */
 class PreactFiltersBase extends FilterWidgetBase {
 

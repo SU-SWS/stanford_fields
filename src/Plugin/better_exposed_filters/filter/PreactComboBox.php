@@ -9,6 +9,8 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Default widget implementation.
  *
+ * @codeCoverageIgnore
+ *
  * @BetterExposedFiltersFilterWidget(
  *   id = "preact_combo_box",
  *   label = @Translation("Preact ComboBox"),

@@ -23,7 +23,8 @@
     "require-dev": {
         "drupal/cshs": "^4.0",
         "drupal/book": "^2.0",
-        "drupal/fontawesome": ">=3.0"
+        "drupal/fontawesome": ">=3.0",
+        "drupal/search_api": "^1.38"
     },
     "autoload": {
         "psr-4": {

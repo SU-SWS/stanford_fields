@@ -11,6 +11,8 @@ use Drupal\views\Plugin\views\display\Block;
  *
  * @ingroup views_display_plugins
  *
+ * @codeCoverageIgnore
+ *
  * @see \Drupal\views\Plugin\Block\ViewsBlock
  * @see \Drupal\views\Plugin\Derivative\ViewsBlock
  */

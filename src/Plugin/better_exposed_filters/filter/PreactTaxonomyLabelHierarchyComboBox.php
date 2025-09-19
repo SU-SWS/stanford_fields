@@ -9,6 +9,8 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Default widget implementation.
  *
+ * @codeCoverageIgnore
+ *
  * @BetterExposedFiltersFilterWidget(
  *   id = "taxonomy_label_hierarchy",
  *   label = @Translation("Hierarchy taxonomy labels combo box"),
