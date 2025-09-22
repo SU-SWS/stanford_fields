@@ -85,12 +85,16 @@ class StanfordFieldsHooks {
   }
 
   /**
-   * Hides the font awesome additional settings options.
+   * Hides the font awesome additional settings options
+   * and replace the default help text with field-specific help text.
    */
   #[Hook('field_widget_complete_fontawesome_icon_widget_form_alter')]
   public function fontawesomeIconWidgetFormAlter(&$field_widget_complete_form, FormStateInterface $form_state, $context) {
     $hidden_settings = $context['widget']->getThirdPartySetting('stanford_fields', 'hidden_settings', []);
     foreach (Element::children($field_widget_complete_form['widget']) as $delta) {
+      if (isset($field_widget_complete_form['widget'][$delta]['icon_name']) && $field_widget_complete_form['widget'][$delta]['#description']) {
+        $field_widget_complete_form['widget'][$delta]['icon_name']['#description'] = $field_widget_complete_form['widget'][$delta]['#description'];
+      }
       foreach ($hidden_settings as $hidden_setting) {
         $field_widget_complete_form['widget'][$delta]['settings'][$hidden_setting]['#access'] = FALSE;
       }
