@@ -96,6 +96,7 @@ class StanfordFieldsHooksTest extends StanfordFieldKernelTestBase {
       'field_name' => 'field_foo',
       'bundle' => 'page',
       'label' => 'Field',
+      'description' => 'Foo Bar Baz',
     ]);
     $field->save();
 
@@ -136,6 +137,8 @@ class StanfordFieldsHooksTest extends StanfordFieldKernelTestBase {
 
     $node = Node::create(['type' => 'page', 'title' => 'foo']);
     $node_form = $form_builder->getForm($node);
+
+    $this->assertEquals('Foo Bar Baz', $node_form['field_foo']['widget'][0]['icon_name']['#description']);
 
     $settings = [
       'style' => TRUE,
