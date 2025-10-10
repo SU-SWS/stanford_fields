@@ -142,7 +142,7 @@ const SelectList = ({
     listboxId: `${name}-preact-listbox`,
     onOpenChange: setListboxVisible,
     open: listboxVisible,
-    defaultValue,
+    defaultValue: multiple ? defaultValue: defaultValue?.[0],
     multiple,
     ...props
   });

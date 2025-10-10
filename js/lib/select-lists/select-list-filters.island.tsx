@@ -2,10 +2,9 @@ import {createIslandWebComponent} from 'preact-island'
 import SelectList from "../components/select-list";
 
 const FilterIsland = ({originalSelect, selectOptions}) => {
-
   const onSelectChange = (event, value) => {
     for (let option of originalSelect.children) {
-      option.selected = value.includes(option.getAttribute('value'))
+      option.selected = value && value == option.getAttribute('value')
     }
     originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
   }
@@ -27,6 +26,7 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
         onChange={onSelectChange}
         defaultValue={defaultValue}
         emptyLabel={selectOptions.find(item => item.value === 'All')?.label}
+        required={originalSelect.getAttribute('required') == 'required'}
       />
     </div>
   )
@@ -44,11 +44,15 @@ if (process.env.NODE_ENV === 'development') {
         const island = createIslandWebComponent('combobox-select-list', FilterIsland)
 
         settings.preactFilters.preact_combo_box.map(field => {
+          const originalSelect = context.querySelector('#' + field.id + ' select')
+          field.options.map(option => {
+            option.disabled = originalSelect.querySelector(`[value="${option.value}"]`).getAttribute('disabled') === "true"
+          })
           island.render({
             selector: '#' + field.id,
             initialProps: {
               selectOptions: field.options,
-              originalSelect: context.querySelector('#' + field.id + ' select')
+              originalSelect
             }
           })
         })
