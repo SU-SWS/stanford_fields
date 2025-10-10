@@ -4,7 +4,8 @@ import SelectList from "../components/select-list";
 const FilterIsland = ({originalSelect, selectOptions}) => {
   const onSelectChange = (event, value) => {
     for (let option of originalSelect.children) {
-      option.selected = value && value == option.getAttribute('value')
+
+      option.selected = value && (typeof value === 'string' ? value == option.getAttribute('value') : value.includes(option.getAttribute('value')))
     }
     originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
   }
