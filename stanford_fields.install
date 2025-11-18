@@ -18,3 +18,32 @@ function stanford_fields_uninstall() {
 function stanford_field_update_8001() {
   \Drupal::cache()->delete('localist_api:https://events.stanford.edu');
 }
+
+/**
+ * Clear localist url fields that have no filters.
+ */
+function stanford_fields_update_8002() {
+  /** @var \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager */
+  $entityFieldManager = \Drupal::service('entity_field.manager');
+  $linkFields = $entityFieldManager->getFieldMapByFieldType('link');
+
+  foreach ($linkFields as $entityType => $entityFields) {
+    $storage = \Drupal::entityTypeManager()
+      ->getStorage($entityType);
+    foreach (array_keys($entityFields) as $fieldName) {
+      $entity_ids = $storage->getQuery()
+        ->accessCheck(FALSE)
+        ->condition($fieldName, '%?match=all&days=365&pp=100', 'LIKE')
+        ->execute();
+
+      if (!$entity_ids) {
+        continue;
+      }
+      foreach ($storage->loadMultiple($entity_ids) as $entity) {
+        $fieldValues = $entity->get($fieldName)->getValue();
+        $fieldValues = array_values(array_filter($fieldValues, fn(array $item) => !str_ends_with($item['uri'], '?match=all&days=365&pp=100')));
+        $entity->set($fieldName, $fieldValues)->save();
+      }
+    }
+  }
+}
