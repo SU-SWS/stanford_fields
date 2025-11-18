@@ -209,7 +209,6 @@ class LocalistUrlWidget extends LinkWidget {
     }
 
     foreach ($values as $delta => &$value) {
-
       foreach ($value['filters'] as &$filter_values) {
         if (is_array($filter_values)) {
           $filter_values = self::flattenValues($filter_values);
@@ -218,7 +217,10 @@ class LocalistUrlWidget extends LinkWidget {
 
       $value['filters'] = array_filter($value['filters']);
 
-      if (empty($value['filters'])) {
+      if (
+        empty($value['filters']) ||
+        (isset($value['filters']['match']) && count($value['filters']) == 1)
+      ) {
         unset($values[$delta]);
         continue;
       }
@@ -236,7 +238,6 @@ class LocalistUrlWidget extends LinkWidget {
 
       $value['uri'] = Url::fromUri(rtrim($this->getSetting('base_url'), '/') . '/api/2/events', ['query' => $value['filters']])
         ->toString();
-
     }
     return parent::massageFormValues($values, $form, $form_state);
   }
@@ -252,7 +253,7 @@ class LocalistUrlWidget extends LinkWidget {
    */
   protected static function flattenValues(array $array): array {
     $return = [];
-    array_walk_recursive($array, function ($a) use (&$return) {
+    array_walk_recursive($array, function($a) use (&$return) {
       $return[] = $a;
     });
     return $return;
@@ -370,7 +371,6 @@ class LocalistUrlWidget extends LinkWidget {
         throw $e;
       }
     }
-
   }
 
   /**
