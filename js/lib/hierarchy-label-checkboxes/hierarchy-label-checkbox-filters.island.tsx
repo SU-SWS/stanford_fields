@@ -1,4 +1,4 @@
-import {createIslandWebComponent} from 'preact-island'
+import {createIsland} from 'preact-island'
 import styled from "styled-components";
 
 const Fieldset = styled.fieldset`
@@ -109,15 +109,16 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
   )
 }
 
-const island = createIslandWebComponent('hierarchy-checkbox', FilterIsland)
+const island = createIsland(FilterIsland)
 
 if (process.env.NODE_ENV === 'development') {
   island.render({selector: `.hierarchy-checkbox-preact`})
 } else {
-  (function () {
+  (() => {
     Drupal.behaviors.stanfordFieldsHierarchyCheckboxesPreact = {
       attach: function (context, settings) {
         settings.preactFilters.taxonomy_label_hierarchy_checkbox.map(field => {
+          delete settings.views.ajaxViews[`views_dom_id:${field.viewId}`].view_path
           island.render({
             selector: '#' + field.id,
             initialProps: {
