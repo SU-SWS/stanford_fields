@@ -83,6 +83,8 @@ if (process.env.NODE_ENV === 'development') {
           const originalSelect = once('preact-select', `#${field.id} select`, context)[0]
           if (!originalSelect) return;
 
+          delete settings.views.ajaxViews[`views_dom_id:${field.viewId}`].view_path
+
           island.render({
             selector: '#' + field.id,
             initialProps: {
