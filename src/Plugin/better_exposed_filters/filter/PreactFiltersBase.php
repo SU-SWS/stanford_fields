@@ -37,6 +37,7 @@ class PreactFiltersBase extends FilterWidgetBase {
     $form['#attached']['drupalSettings']['preactFilters'][$this->getPluginId()][] = [
       'id' => $id,
       'options' => $js_options,
+      'viewId' => $form_state->get('view')->dom_id,
     ];
 
   }

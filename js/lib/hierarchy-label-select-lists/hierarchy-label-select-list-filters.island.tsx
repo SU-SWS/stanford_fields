@@ -1,4 +1,4 @@
-import {createIslandWebComponent} from 'preact-island'
+import {createIsland} from 'preact-island'
 import SelectList from "../components/select-list";
 import {useEffect} from "preact/compat";
 
@@ -69,26 +69,31 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
 }
 
 if (process.env.NODE_ENV === 'development') {
-  const island = createIslandWebComponent('hierarchy-combobox-select-list', FilterIsland)
+  const island = createIsland(FilterIsland)
   island.render({
     selector: `.taxonomy-label-hierarchy`,
   })
 } else {
-  (function () {
+  (function (once) {
     Drupal.behaviors.stanfordFieldsSelectPreact = {
       attach: function (context, settings) {
 
-        const island = createIslandWebComponent('hierarchy-combobox-select-list', FilterIsland)
+        const island = createIsland(FilterIsland)
         settings.preactFilters.taxonomy_label_hierarchy.map(field => {
+          const originalSelect = once('preact-select', `#${field.id} select`, context)[0]
+          if (!originalSelect) return;
+
+          delete settings.views.ajaxViews[`views_dom_id:${field.viewId}`].view_path
+
           island.render({
             selector: '#' + field.id,
             initialProps: {
               selectOptions: field.options,
-              originalSelect: context.querySelector('#' + field.id + ' select')
+              originalSelect: originalSelect
             }
           })
         })
       }
     };
-  })();
+  })(once);
 }

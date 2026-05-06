@@ -2,6 +2,8 @@ bef-styles:
   css:
     theme:
       css/preact-combobox.css: { }
+  dependencies:
+    - core/once
 combobox:
   js:
     js/dist/select-list-filters.island.js: {}
