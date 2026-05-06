@@ -74,21 +74,24 @@ if (process.env.NODE_ENV === 'development') {
     selector: `.taxonomy-label-hierarchy`,
   })
 } else {
-  (function () {
+  (function (once) {
     Drupal.behaviors.stanfordFieldsSelectPreact = {
       attach: function (context, settings) {
 
         const island = createIslandWebComponent('hierarchy-combobox-select-list', FilterIsland)
         settings.preactFilters.taxonomy_label_hierarchy.map(field => {
+          const originalSelect = once('preact-select', `#${field.id} select`, context)[0]
+          if (!originalSelect) return;
+
           island.render({
             selector: '#' + field.id,
             initialProps: {
               selectOptions: field.options,
-              originalSelect: context.querySelector('#' + field.id + ' select')
+              originalSelect: originalSelect
             }
           })
         })
       }
     };
-  })();
+  })(once);
 }

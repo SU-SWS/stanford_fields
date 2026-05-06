@@ -114,21 +114,25 @@ const island = createIsland(FilterIsland)
 if (process.env.NODE_ENV === 'development') {
   island.render({selector: `.hierarchy-checkbox-preact`})
 } else {
-  (() => {
+  ((once) => {
     Drupal.behaviors.stanfordFieldsHierarchyCheckboxesPreact = {
       attach: function (context, settings) {
         settings.preactFilters.taxonomy_label_hierarchy_checkbox.map(field => {
           delete settings.views.ajaxViews[`views_dom_id:${field.viewId}`].view_path
+
+          const originalSelect = once('preact-select', `#${field.id} select`, context)[0]
+          if (!originalSelect) return
+
           island.render({
             selector: '#' + field.id,
             initialProps: {
               selectOptions: field.options,
-              originalSelect: context.querySelector('#' + field.id + ' select')
+              originalSelect: originalSelect
             }
           })
 
         })
       }
     };
-  })();
+  })(once);
 }

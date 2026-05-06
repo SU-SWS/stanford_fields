@@ -1,10 +1,9 @@
-import {createIslandWebComponent} from 'preact-island'
+import {createIsland} from 'preact-island'
 import SelectList from "../components/select-list";
 
 const FilterIsland = ({originalSelect, selectOptions}) => {
   const onSelectChange = (event, value) => {
     for (let option of originalSelect.children) {
-
       option.selected = value && (typeof value === 'string' ? value == option.getAttribute('value') : value.includes(option.getAttribute('value')))
     }
     originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
@@ -34,30 +33,33 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
 }
 
 if (process.env.NODE_ENV === 'development') {
-  const island = createIslandWebComponent('combobox-select-list', FilterIsland)
+  const island = createIsland(FilterIsland)
   island.render({
     selector: `.preact-combo-box`,
   })
 } else {
-  (function () {
+  (function (once) {
     Drupal.behaviors.stanfordFieldsSelectPreact = {
       attach: function (context, settings) {
-        const island = createIslandWebComponent('combobox-select-list', FilterIsland)
+        const island = createIsland(FilterIsland)
 
         settings.preactFilters.preact_combo_box.map(field => {
-          const originalSelect = context.querySelector('#' + field.id + ' select')
+          const originalSelect = once('preact-select', `#${field.id} select`, context)[0]
+          if (!originalSelect) return
+
           field.options.map(option => {
             option.disabled = originalSelect.querySelector(`[value="${option.value}"]`).getAttribute('disabled') === "true"
           })
           island.render({
-            selector: '#' + field.id,
+            selector: `#${field.id}`,
             initialProps: {
               selectOptions: field.options,
               originalSelect
             }
           })
+          context.querySelector(`#${field.id}`)
         })
       }
     };
-  })();
+  })(once);
 }
