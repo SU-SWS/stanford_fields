@@ -36,8 +36,9 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     \Drupal::service('module_installer')->install(['book']);
 
     \Drupal::configFactory()->getEditable('book.settings')
-      ->set('allowed_types', ['page'])
-      ->set('child_type', 'page')
+      ->set('allowed_types', [
+        ['content_type' => 'page', 'child_type' => 'page'],
+      ])
       ->save();
 
     $this->book = Node::create(['type' => 'page', 'title' => 'Book Foo']);
@@ -68,8 +69,8 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $this->assertEmpty($altered_form);
 
     $node = Node::create(['type' => 'page', 'title' => 'foobar']);
-    $node->book = $manager->getLinkDefaults('new');
-    $node->book['parent_depth_limit'] = 9;
+    $node->setBook($manager->getLinkDefaults('new'));
+    $node->setBookKey('parent_depth_limit', 9);
     $node->setPublished();
     $node->save();
 
@@ -136,15 +137,15 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $node->setPublished();
     $node->save();
     $node = Node::load($node->id());
-    $this->assertEquals(23, $node->book['weight']);
+    $this->assertEquals(23, $node->getBook()['weight']);
 
-    $node->book['weight'] = [
+    $node->setBookKey('weight', [
       'foo:' . $sibling->id() => ['weight' => 12],
       'foo:' . $node->id() => ['weight' => 24],
-    ];
+    ]);
     $node->save();
     $node = Node::load($node->id());
-    $this->assertEquals(24, $node->book['weight']);
+    $this->assertEquals(24, $node->getBook()['weight']);
   }
 
   public function testOutlineAccess() {
@@ -171,8 +172,9 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $this->assertTrue($access);
 
     \Drupal::configFactory()->getEditable('book.settings')
-      ->set('allowed_types', ['foobar_page'])
-      ->set('child_type', 'foobar_page')
+      ->set('allowed_types', [
+        ['content_type' => 'foobar_page', 'child_type' => 'foobar_page'],
+      ])
       ->save();
 
     $access = Url::fromRoute('entity.node.book_outline_form', ['node' => $this->book->id()])

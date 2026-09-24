@@ -32,8 +32,9 @@ class StanfordFieldBookAdminEditFormTest extends StanfordFieldKernelTestBase {
     \Drupal::service('module_installer')->install(['book']);
 
     \Drupal::configFactory()->getEditable('book.settings')
-      ->set('allowed_types', ['page'])
-      ->set('child_type', 'page')
+      ->set('allowed_types', [
+        ['content_type' => 'page', 'child_type' => 'page'],
+      ])
       ->save();
 
     $this->book = Node::create(['type' => 'page', 'title' => 'Book Foo']);

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Drupal\stanford_fields\Plugin\GraphQL\DataProducer;
 
+use Drupal\book\BookInterface;
 use Drupal\book\BookManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
 use Drupal\graphql\GraphQL\Execution\FieldContext;
 use Drupal\graphql\Plugin\GraphQL\DataProducer\DataProducerPluginBase;
-use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -62,8 +62,8 @@ class Book extends DataProducerPluginBase implements ContainerFactoryPluginInter
    *   The field context.
    */
   public function resolve(EntityInterface $entity, FieldContext $context): ?array {
-    if ($entity instanceof NodeInterface && isset($entity->book['bid'])) {
-      $book_tree = $this->bookManager->bookTreeAllData((int) $entity->book['bid']);
+    if ($entity instanceof BookInterface && isset($entity->getBook()['bid'])) {
+      $book_tree = $this->bookManager->bookTreeAllData((int) $entity->getBook()['bid']);
       return $this->buildBookTreeData(reset($book_tree));
     }
 
