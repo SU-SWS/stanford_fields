@@ -4,11 +4,12 @@ namespace Drupal\Tests\stanford_fields\Unit\Plugin\Field\FieldWidget;
 
 use Drupal\stanford_fields\Plugin\Field\FieldWidget\DateYearOnlyWidget;
 use Drupal\Tests\UnitTestCase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Class DateYearOnlyWidgetTest
- *
  */
+#[Group('stanford_fields')]
 class DateYearOnlyWidgetTest extends UnitTestCase {
 
   public function testDefaultSettings() {

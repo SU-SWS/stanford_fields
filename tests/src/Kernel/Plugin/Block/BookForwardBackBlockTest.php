@@ -5,11 +5,14 @@ namespace Drupal\Tests\stanford_fields\Kernel\Plugin\Block;
 use Drupal\node\Entity\Node;
 use Drupal\stanford_fields\Plugin\Block\BookForwardBackBlock;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Test the book block.
- *
  */
+#[Group('stanford_fields')]
+#[RunTestsInSeparateProcesses]
 class BookForwardBackBlockTest extends StanfordFieldKernelTestBase {
   /**
    * Book node entity.
@@ -21,7 +24,7 @@ class BookForwardBackBlockTest extends StanfordFieldKernelTestBase {
   /**
    * {@inheritDoc}
    */
-  public function setup(): void {
+  protected function setUp(): void {
     parent::setUp();
     \Drupal::service('module_installer')->install(['book']);
 

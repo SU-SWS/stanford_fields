@@ -4,11 +4,14 @@ namespace Drupal\Tests\stanford_fields\Kernel\Routing;
 
 use Drupal\stanford_fields\Form\StanfordFieldBookAdminEditForm;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Route subscriber modifies routes.
- *
  */
+#[Group('stanford_fields')]
+#[RunTestsInSeparateProcesses]
 class StanfordFieldsRouteSubscriberTest extends StanfordFieldKernelTestBase {
 
   /**

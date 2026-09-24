@@ -10,7 +10,9 @@ use Drupal\Tests\UnitTestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('stanford_fields')]
 class ResponseCodeConditionTest extends UnitTestCase {
 
   /**
@@ -20,7 +22,7 @@ class ResponseCodeConditionTest extends UnitTestCase {
 
   protected $requestAttributes = [];
 
-  public function setup(): void {
+  protected function setUp(): void {
     parent::setUp();
 
     $request_stack = $this->createMock(RequestStack::class);

@@ -48,6 +48,7 @@ final class TaxonomyLabelHierarchyWidget extends OptionsWidgetBase {
     ];
 
     $grouped_options = [];
+    $parent = '';
     foreach ($options as $id => $option) {
       if (!str_starts_with((string) $option, '-')) {
         $parent = (string) $option;

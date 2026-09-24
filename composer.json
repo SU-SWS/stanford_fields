@@ -14,17 +14,19 @@
         }
     ],
     "conflict": {
-        "drupal/book": "<2.0"
+        "drupal/better_exposed_filters": "<7.1",
+        "drupal/book": "<2.0",
+        "drupal/search_api": "<1.39"
     },
     "require": {
-        "drupal/core": "^11.1",
+        "drupal/core": "^11.1 || ^12",
         "drupal/ds": "^3.3"
     },
     "require-dev": {
         "drupal/cshs": "^4.0",
         "drupal/book": "^2.0",
         "drupal/fontawesome": ">=3.0",
-        "drupal/search_api": "^1.38"
+        "drupal/search_api": "^1.39"
     },
     "autoload": {
         "psr-4": {

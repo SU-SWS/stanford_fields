@@ -130,12 +130,12 @@ class FieldCache implements FieldCacheInterface {
 
     $field_properties = $field_definition->getPropertyNames();
     // If the field type has an end value, modify the end query's conditions to
-    // check for those values.
-    if (in_array('end_value', $field_properties)) {
-      $condition_group = $end_query->andConditionGroup()
-        ->condition("$field_name.end_value", $now->format($field_date_format), '<=')
-        ->condition("$field_name.end_value", $last_ran->format($field_date_format), '>=');
-    }
+    // check for those values. Condition groups must be created from the query
+    // they are added to.
+    $end_property = in_array('end_value', $field_properties) ? "$field_name.end_value" : $field_name;
+    $condition_group = $end_query->andConditionGroup()
+      ->condition($end_property, $now->format($field_date_format), '<=')
+      ->condition($end_property, $last_ran->format($field_date_format), '>=');
     $end_query->condition($condition_group);
 
     // Merge the start query ids with the end query ids.

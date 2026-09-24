@@ -11,11 +11,14 @@ use Drupal\node\NodeInterface;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 use Drupal\user\Entity\User;
 use Drupal\user\RoleInterface;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Decorated book manager service tests.
- *
  */
+#[Group('stanford_fields')]
+#[RunTestsInSeparateProcesses]
 class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
 
   /**
@@ -28,7 +31,7 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
   /**
    * {@inheritDoc}
    */
-  public function setup(): void {
+  protected function setUp(): void {
     parent::setUp();
     \Drupal::service('module_installer')->install(['book']);
 

@@ -16,11 +16,14 @@ use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class LocalistUrlWidgetTest.
- *
  */
+#[Group('stanford_fields')]
+#[RunTestsInSeparateProcesses]
 class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
 
   /**
@@ -33,7 +36,7 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
   /**
    * {@inheritDoc}
    */
-  public function setup(): void {
+  protected function setUp(): void {
     parent::setUp();
 
     $field_storage = FieldStorageConfig::create([
