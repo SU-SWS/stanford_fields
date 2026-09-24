@@ -2,6 +2,7 @@
 
 namespace Drupal\stanford_fields\Event;
 
+use Drupal\book\BookInterface;
 use Drupal\node\NodeInterface;
 use Drupal\Component\EventDispatcher\Event;
 
@@ -46,7 +47,7 @@ class BookOutlineUpdatedEvent extends Event {
    *   Book entity id.
    */
   public function getUpdatedBookId(): ?int {
-    return $this->node->book['bid'] ?? NULL;
+    return $this->node instanceof BookInterface ? ($this->node->getBook()['bid'] ?? NULL) : NULL;
   }
 
 }

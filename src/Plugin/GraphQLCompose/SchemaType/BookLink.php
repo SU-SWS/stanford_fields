@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\stanford_fields\Plugin\GraphQLCompose\SchemaType;
 
+use Drupal\book\BookHelperTrait;
 use Drupal\graphql_compose\Plugin\GraphQLCompose\GraphQLComposeSchemaTypeBase;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -19,6 +20,8 @@ use function Symfony\Component\String\u;
  * )
  */
 class BookLink extends GraphQLComposeSchemaTypeBase {
+
+  use BookHelperTrait;
 
   /**
    * {@inheritdoc}
@@ -84,7 +87,7 @@ class BookLink extends GraphQLComposeSchemaTypeBase {
 
     $book_settings = $this->configFactory->get('book.settings');
     $graphql_compose = $this->configFactory->get('graphql_compose.settings');
-    $book_types = $book_settings->get('allowed_types') ?: [];
+    $book_types = $this->getBookContentTypes($book_settings->get('allowed_types'));
 
     foreach ($book_types as $node_type) {
       $node_enabled = $graphql_compose->get("entity_config.node.$node_type.enabled");

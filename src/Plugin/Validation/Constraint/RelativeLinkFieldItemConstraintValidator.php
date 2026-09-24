@@ -16,7 +16,7 @@ class RelativeLinkFieldItemConstraintValidator extends ConstraintValidator imple
   /**
    * Current request.
    *
-   * @var \Drupal\path_alias\AliasManagerInterface
+   * @var \Symfony\Component\HttpFoundation\Request|null
    */
   protected $request;
 

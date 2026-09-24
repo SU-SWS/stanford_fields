@@ -2,6 +2,7 @@
 
 namespace Drupal\stanford_fields\Plugin\Block;
 
+use Drupal\book\BookInterface;
 use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -58,17 +59,18 @@ class BookForwardBackBlock extends BlockBase implements ContainerFactoryPluginIn
   public function build() {
     $node = $this->getContextValue('node');
 
-    if ($node && !empty($node->book['bid']) && empty($node->in_preview)) {
+    $book = $node instanceof BookInterface ? $node->getBook() : [];
+    if (!empty($book['bid']) && empty($node->in_preview)) {
       $book_node = $this->entityTypeManager->getStorage('node')
-        ->load($node->book['bid']);
+        ->load($book['bid']);
 
-      if (!$book_node->access()) {
+      if (!$book_node?->access()) {
         return [];
       }
 
       return [
         '#theme' => 'book_navigation',
-        '#book_link' => $node->book,
+        '#book_link' => $book,
         '#weight' => 100,
         '#cache' => ['tags' => $node->getEntityType()->getListCacheTags()],
       ];

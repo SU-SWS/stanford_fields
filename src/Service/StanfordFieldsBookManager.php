@@ -2,6 +2,8 @@
 
 namespace Drupal\stanford_fields\Service;
 
+use Drupal\book\BookInterface;
+use Drupal\book\BookHelperTrait;
 use Drupal\book\BookManagerInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\SortArray;
@@ -21,6 +23,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class StanfordFieldsBookManager implements BookManagerInterface {
 
+  use BookHelperTrait;
   use StringTranslationTrait;
 
   /**
@@ -40,8 +43,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function bookTreeAllData(int $bid, ?array $link = NULL, ?int $max_depth = NULL, ?int $min_depth = NULL): array {
-    return $this->bookManager->bookTreeAllData($bid, $link, $max_depth, $min_depth);
+  public function bookTreeAllData(int $bid, ?array $link = NULL, ?int $max_depth = NULL, ?int $min_depth = NULL, bool $expanded = FALSE): array {
+    return $this->bookManager->bookTreeAllData($bid, $link, $max_depth, $min_depth, $expanded);
   }
 
   /**
@@ -129,13 +132,14 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    * {@inheritdoc}
    */
   public function updateOutline(NodeInterface $node): bool {
-    if (isset($node->book['weight'])) {
+    $book = $node instanceof BookInterface ? $node->getBook() : [];
+    if ($node instanceof BookInterface && isset($book['weight'])) {
       // Before saving the node, look at the book weight data . The weight has
       // to be an integer, but we also have to adjust the weights of the sibling
       // book items so that they all stay in proper order.
-      if (is_array($node->book['weight'])) {
+      if (is_array($book['weight'])) {
         // Remove the parent ID from the keys in the weight data.
-        $weights = $node->book['weight'];
+        $weights = $book['weight'];
         foreach ($weights as $key => $weight) {
           [, $nid] = explode(':', $key);
           $weights[$nid] = $weight;
@@ -158,11 +162,11 @@ class StanfordFieldsBookManager implements BookManagerInterface {
         }
 
         // Finally set the weight of the current node to it's submitted value.
-        $node->book['weight'] = $weights[$key]['weight'] ?? 0;
+        $book['weight'] = $weights[$key]['weight'] ?? 0;
       }
       // Make sure there's always a number value in the weight. Empty strings
       // throw errors.
-      $node->book['weight'] = $node->book['weight'] ?: 0;
+      $node->setBookKey('weight', $book['weight'] ?: 0);
     }
     $return = $this->bookManager->updateOutline($node);
     $this->eventDispatcher->dispatch(new BookOutlineUpdatedEvent($node), BookOutlineUpdatedEvent::OUTLINE_UPDATED);
@@ -208,7 +212,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
   protected function nodeAllowedInBook(NodeInterface $node): bool {
     $allowed_types = $this->configFactory->get('book.settings')
       ->get('allowed_types');
-    return in_array($node->getType(), $allowed_types);
+    return in_array($node->getType(), $this->getBookContentTypes($allowed_types), TRUE);
   }
 
   /**

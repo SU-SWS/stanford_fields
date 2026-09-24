@@ -29,8 +29,9 @@ class BookForwardBackBlockTest extends StanfordFieldKernelTestBase {
     \Drupal::service('module_installer')->install(['book']);
 
     \Drupal::configFactory()->getEditable('book.settings')
-      ->set('allowed_types', ['page'])
-      ->set('child_type', 'page')
+      ->set('allowed_types', [
+        ['content_type' => 'page', 'child_type' => 'page'],
+      ])
       ->save();
 
     $this->book = Node::create(['type' => 'page', 'title' => 'Book Foo']);
@@ -53,6 +54,12 @@ class BookForwardBackBlockTest extends StanfordFieldKernelTestBase {
 
     $block->setContextValue('node', $this->book);
     $this->assertEquals('book_navigation', $block->build()['#theme']);
+
+    // If the book node can't be loaded, nothing is rendered.
+    $book_id = $this->book->getBook()['bid'];
+    \Drupal::entityTypeManager()->getStorage('node')->load($book_id)->delete();
+    $this->book->setBookKey('bid', $book_id);
+    $this->assertEmpty($block->build());
   }
 
 }
