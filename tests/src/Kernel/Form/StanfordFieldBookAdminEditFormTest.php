@@ -7,9 +7,14 @@ use Drupal\Core\Render\Element;
 use Drupal\node\Entity\Node;
 use Drupal\stanford_fields\Form\StanfordFieldBookAdminEditForm;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
+ * Test the book admin edit form override.
  */
+#[Group('stanford_fields')]
+#[RunTestsInSeparateProcesses]
 class StanfordFieldBookAdminEditFormTest extends StanfordFieldKernelTestBase {
 
   /**
@@ -22,7 +27,7 @@ class StanfordFieldBookAdminEditFormTest extends StanfordFieldKernelTestBase {
   /**
    * {@inheritDoc}
    */
-  public function setup(): void {
+  protected function setUp(): void {
     parent::setUp();
     \Drupal::service('module_installer')->install(['book']);
 

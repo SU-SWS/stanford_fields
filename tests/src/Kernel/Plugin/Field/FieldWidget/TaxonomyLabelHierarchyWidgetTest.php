@@ -10,15 +10,19 @@ use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 use Drupal\user\Entity\User;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Class TaxonomyLabelHierarchyWidgetTest.
  */
+#[Group('stanford_fields')]
+#[RunTestsInSeparateProcesses]
 class TaxonomyLabelHierarchyWidgetTest extends StanfordFieldKernelTestBase {
 
   /**
    * {@inheritDoc}
    */
-  public function setup(): void {
+  protected function setUp(): void {
     parent::setUp();
 
     Vocabulary::create(['vid' => 'tag_terms', 'label' => 'terms'])->save();

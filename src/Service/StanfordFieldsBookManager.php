@@ -266,8 +266,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
     $form['book']['weight'] = [
       '#type' => 'table',
       '#header' => [
-        'name' => t('Name'),
-        'weight' => t('Weight'),
+        'name' => $this->t('Name'),
+        'weight' => $this->t('Weight'),
       ],
       '#prefix' => '<div id="book-item-reorder-wrapper">',
       '#suffix' => '</div>',
@@ -303,7 +303,7 @@ class StanfordFieldsBookManager implements BookManagerInterface {
         'name' => ['#markup' => $link_data['title']],
         'weight' => [
           '#type' => 'weight',
-          '#title' => t('Weight'),
+          '#title' => $this->t('Weight'),
           '#default_value' => $link_data['weight'],
           '#delta' => 50,
           '#title_display' => 'invisible',

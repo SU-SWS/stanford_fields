@@ -8,10 +8,14 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\node\Entity\Node;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class FieldCacheTest
  */
+#[Group('stanford_fields')]
+#[RunTestsInSeparateProcesses]
 class FieldCacheTest extends StanfordFieldKernelTestBase {
 
   /**
@@ -31,7 +35,7 @@ class FieldCacheTest extends StanfordFieldKernelTestBase {
   /**
    * {@inheritDoc}
    */
-  public function setup(): void {
+  protected function setUp(): void {
     parent::setUp();
 
     // Create a comment field attached to a host 'entity_test' entity.

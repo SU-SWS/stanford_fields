@@ -15,10 +15,12 @@ use Drupal\search_api\Utility\FieldsHelperInterface;
 use Drupal\stanford_fields\Plugin\search_api\processor\StripTags;
 use Drupal\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\TestWith;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Test link field validation.
  */
+#[Group('stanford_fields')]
 class StripTagsTest extends UnitTestCase {
 
   #[TestWith([

@@ -2,6 +2,7 @@ services:
   stanford_fields.field_cache:
     class: 'Drupal\stanford_fields\Service\FieldCache'
     arguments: ['@entity_field.manager', '@entity_type.manager', '@state']
+  Drupal\stanford_fields\Service\FieldCacheInterface: '@stanford_fields.field_cache'
   stanford_fields.route_subscriber:
     class: Drupal\stanford_fields\Routing\StanfordFieldsRouteSubscriber
     tags:

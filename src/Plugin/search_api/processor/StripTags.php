@@ -5,24 +5,28 @@ declare(strict_types=1);
 namespace Drupal\stanford_fields\Plugin\search_api\processor;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\search_api\Attribute\SearchApiProcessor;
 use Drupal\search_api\Plugin\search_api\processor\HtmlFilter;
 
 /**
  * Strips HTML tags from fulltext fields and decodes HTML entities.
- *
- * @SearchApiProcessor(
- *   id = "strip_tags",
- *   label = @Translation("HTML filter (3rd party APIs)"),
- *   description = @Translation("Strips HTML tags from fulltext fields and decodes HTML entities. Use this processor when indexing HTML data for external API's such as Algolia – for example, node bodies for certain text formats. The processor also allows to boost (or ignore) the contents of specific elements. This differs from the 'HTML Filter' in that it keeps the result as a single string."),
- *   stages = {
- *     "pre_index_save" = 0,
- *     "preprocess_index" = -15,
- *     "preprocess_query" = -15,
- *   }
- * )
  */
+#[SearchApiProcessor(
+  id: 'strip_tags',
+  label: new TranslatableMarkup('HTML filter (3rd party APIs)'),
+  description: new TranslatableMarkup("Strips HTML tags from fulltext fields and decodes HTML entities. Use this processor when indexing HTML data for external API's such as Algolia – for example, node bodies for certain text formats. The processor also allows to boost (or ignore) the contents of specific elements. This differs from the 'HTML Filter' in that it keeps the result as a single string."),
+  stages: [
+    'pre_index_save' => 0,
+    'preprocess_index' => -15,
+    'preprocess_query' => -15,
+  ],
+)]
 class StripTags extends HtmlFilter {
 
+  /**
+   * {@inheritdoc}
+   */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
 

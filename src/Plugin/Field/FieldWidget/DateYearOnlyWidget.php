@@ -35,7 +35,7 @@ class DateYearOnlyWidget extends DateTimeDatelistWidget {
    */
   public function settingsSummary() {
     $summary = [];
-    $summary[] = t('Years @start to @end', [
+    $summary[] = $this->t('Years @start to @end', [
       '@start' => $this->getSetting('start'),
       '@end' => $this->getSetting('end'),
     ]);

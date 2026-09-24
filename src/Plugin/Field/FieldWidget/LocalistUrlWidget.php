@@ -178,7 +178,7 @@ class LocalistUrlWidget extends LinkWidget {
     ];
     $query_parameters = [];
     if ($item->uri) {
-      parse_str(parse_url(urldecode($item->uri), PHP_URL_QUERY), $query_parameters);
+      parse_str(parse_url(urldecode($item->uri), PHP_URL_QUERY) ?? '', $query_parameters);
     }
 
     $element['filters']['group_id'] = $this->getGroups($query_parameters['group_id'] ?? NULL);
@@ -433,6 +433,7 @@ class LocalistUrlWidget extends LinkWidget {
     ];
 
     $number_of_pages = ceil($total_count / 100);
+    $paged_data = [];
     for ($i = 1; $i <= $number_of_pages; $i++) {
       $options['query']['page'] = $i;
       $paged_data[$i] = $this->client->requestAsync('GET', '/api/2/' . $endpoint, $options);

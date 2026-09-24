@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Drupal\stanford_fields\Plugin\better_exposed_filters\filter;
 
+use Drupal\better_exposed_filters\Attribute\FiltersWidget;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Default widget implementation.
  *
  * @codeCoverageIgnore
- *
- * @BetterExposedFiltersFilterWidget(
- *   id = "taxonomy_label_hierarchy",
- *   label = @Translation("Hierarchy taxonomy labels combo box"),
- * )
  */
+#[FiltersWidget(
+  id: 'taxonomy_label_hierarchy',
+  title: new TranslatableMarkup('Hierarchy taxonomy labels combo box'),
+)]
 class PreactTaxonomyLabelHierarchyComboBox extends PreactFiltersBase {
 
   /**

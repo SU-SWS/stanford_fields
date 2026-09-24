@@ -14,10 +14,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Test link field validation.
  */
+#[Group('stanford_fields')]
 class LinkFieldItemConstraintValidatorTest extends UnitTestCase {
 
   /**

@@ -10,17 +10,20 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\node\Entity\Node;
 use Drupal\stanford_fields\Plugin\Field\FieldWidget\DateYearOnlyWidget;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class DateYearOnlyWidgetTest
- *
  */
+#[Group('stanford_fields')]
+#[RunTestsInSeparateProcesses]
 class DateYearOnlyWidgetTest extends StanfordFieldKernelTestBase {
 
   /**
    * {@inheritDoc}
    */
-  public function setup(): void {
+  protected function setUp(): void {
     parent::setUp();
     $field_storage = FieldStorageConfig::create([
       'field_name' => 'field_date',

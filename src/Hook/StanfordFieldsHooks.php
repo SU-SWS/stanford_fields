@@ -14,6 +14,7 @@ use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Render\Element;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\field\FieldConfigInterface;
+use Drupal\stanford_fields\Service\FieldCacheInterface;
 
 /**
  * Hooks for stanford fields functionality.
@@ -29,8 +30,10 @@ class StanfordFieldsHooks {
    *   Config factory service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager service.
+   * @param \Drupal\stanford_fields\Service\FieldCacheInterface $fieldCache
+   *   Stanford fields cache service.
    */
-  public function __construct(private readonly ConfigFactoryInterface $configFactory, private readonly EntityTypeManagerInterface $entityTypeManager) {}
+  public function __construct(private readonly ConfigFactoryInterface $configFactory, private readonly EntityTypeManagerInterface $entityTypeManager, private readonly FieldCacheInterface $fieldCache) {}
 
   /**
    * Add checkbox to link field to enable relative validation.
@@ -159,15 +162,14 @@ class StanfordFieldsHooks {
    */
   #[Hook('cron')]
   public function cron() {
-    \Drupal::service('stanford_fields.field_cache')
-      ->invalidateDateFieldsCache();
+    $this->fieldCache->invalidateDateFieldsCache();
   }
 
   /**
    * Replace field type plugins for graphql compose.
    */
   #[Hook('graphql_compose_field_type_alter')]
-  function graphqlComposeFieldTypeAlter(array &$field_types) {
+  public function graphqlComposeFieldTypeAlter(array &$field_types) {
     $field_types['image']['class'] = 'Drupal\stanford_fields\Plugin\GraphQLCompose\FieldType\ImageItem';
   }
 
@@ -175,7 +177,7 @@ class StanfordFieldsHooks {
    * Replace schema type plugins for graphql compose.
    */
   #[Hook('graphql_compose_graphql_type_alter')]
-  function graphqlComposeGraphqlTypeAlter(array &$entity_types) {
+  public function graphqlComposeGraphqlTypeAlter(array &$entity_types) {
     $entity_types['Image']['class'] = 'Drupal\stanford_fields\Plugin\GraphQLCompose\SchemaType\ImageType';
   }
 

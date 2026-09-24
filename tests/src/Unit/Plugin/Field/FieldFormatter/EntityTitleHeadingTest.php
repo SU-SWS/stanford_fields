@@ -9,11 +9,12 @@ use Drupal\Core\Form\FormState;
 use Drupal\Core\TypedData\TraversableTypedDataInterface;
 use Drupal\Core\Url;
 use Drupal\stanford_fields\Plugin\Field\FieldFormatter\EntityTitleHeading;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Class EntityTitleHeadingTest
- *
  */
+#[Group('stanford_fields')]
 class EntityTitleHeadingTest extends FieldFormatterTestBase {
 
   /**
@@ -33,7 +34,7 @@ class EntityTitleHeadingTest extends FieldFormatterTestBase {
   /**
    * {@inheritDoc}
    */
-  public function setup(): void {
+  protected function setUp(): void {
     parent::setUp();
     $field_definition = $this->createMock(FieldDefinitionInterface::class);
 

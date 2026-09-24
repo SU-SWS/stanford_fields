@@ -11,10 +11,14 @@ use Drupal\node\Entity\Node;
 use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 use Drupal\user\RoleInterface;
 use PHPUnit\Framework\Attributes\TestWith;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Test hook functionality.
  */
+#[Group('stanford_fields')]
+#[RunTestsInSeparateProcesses]
 class StanfordFieldsHooksTest extends StanfordFieldKernelTestBase {
 
   /**
@@ -165,6 +169,7 @@ class StanfordFieldsHooksTest extends StanfordFieldKernelTestBase {
   }
 
   public function testFieldUiStorageFormAlter() {
+    $this->config('field_ui.settings')->set('field_prefix', '')->save();
     $form_state = new FormState();
     $form_state->set('entity_type_id', 'node');
     $form_state->set('bundle', 'page');

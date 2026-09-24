@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Drupal\stanford_fields\Plugin\better_exposed_filters\filter;
 
+use Drupal\better_exposed_filters\Attribute\FiltersWidget;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Default widget implementation.
  *
  * @codeCoverageIgnore
- *
- * @BetterExposedFiltersFilterWidget(
- *   id = "preact_combo_box",
- *   label = @Translation("Preact ComboBox"),
- * )
  */
+#[FiltersWidget(
+  id: 'preact_combo_box',
+  title: new TranslatableMarkup('Preact ComboBox'),
+)]
 class PreactComboBox extends PreactFiltersBase {
 
   /**
