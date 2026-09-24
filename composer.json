@@ -15,7 +15,7 @@
     ],
     "conflict": {
         "drupal/better_exposed_filters": "<7.1",
-        "drupal/book": "<2.0",
+        "drupal/book": "<3.0",
         "drupal/search_api": "<1.39"
     },
     "require": {
@@ -24,7 +24,7 @@
     },
     "require-dev": {
         "drupal/cshs": "^4.0",
-        "drupal/book": "^2.0",
+        "drupal/book": "^3.0",
         "drupal/fontawesome": ">=3.0",
         "drupal/search_api": "^1.39"
     },
