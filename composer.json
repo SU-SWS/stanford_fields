@@ -16,7 +16,8 @@
     "conflict": {
         "drupal/better_exposed_filters": "<7.1",
         "drupal/book": "<3.0",
-        "drupal/search_api": "<1.39"
+        "drupal/search_api": "<1.39",
+        "drupal/graphql": "<5.0.0"
     },
     "require": {
         "drupal/core": "^11.1 || ^12",
