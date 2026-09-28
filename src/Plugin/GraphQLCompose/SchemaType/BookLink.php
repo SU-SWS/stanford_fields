@@ -5,20 +5,19 @@ declare(strict_types=1);
 namespace Drupal\stanford_fields\Plugin\GraphQLCompose\SchemaType;
 
 use Drupal\book\BookHelperTrait;
+use Drupal\graphql_compose\Attribute\SchemaType;
 use Drupal\graphql_compose\Plugin\GraphQLCompose\GraphQLComposeSchemaTypeBase;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use function Symfony\Component\String\u;
 
 /**
  * {@inheritDoc}
  *
  * @codeCoverageIgnore
- *
- * @GraphQLComposeSchemaType(
- *   id = "BookLink"
- * )
  */
+#[SchemaType(
+  id: "BookLink",
+)]
 class BookLink extends GraphQLComposeSchemaTypeBase {
 
   use BookHelperTrait;
@@ -86,19 +85,14 @@ class BookLink extends GraphQLComposeSchemaTypeBase {
     $extensions = parent::getExtensions();
 
     $book_settings = $this->configFactory->get('book.settings');
-    $graphql_compose = $this->configFactory->get('graphql_compose.settings');
     $book_types = $this->getBookContentTypes($book_settings->get('allowed_types'));
+    $node_plugin = $this->gqlEntityTypeManager->getPluginInstance('node');
 
     foreach ($book_types as $node_type) {
-      $node_enabled = $graphql_compose->get("entity_config.node.$node_type.enabled");
-
-      if ($node_enabled) {
-        $node_type = u($node_type)
-          ->camel()
-          ->title()
-          ->toString();
+      // Only enabled bundles are returned for the current server.
+      if ($bundle = $node_plugin?->getBundle($node_type)) {
         $extensions[] = new ObjectType([
-          'name' => 'Node' . $node_type,
+          'name' => $bundle->getTypeSdl(),
           'fields' => fn() => ['book' => static::type('BookLink')],
         ]);
       }

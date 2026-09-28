@@ -6,6 +6,7 @@ namespace Drupal\stanford_fields\Plugin\GraphQLCompose\FieldType;
 
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\graphql\GraphQL\Execution\FieldContext;
+use Drupal\graphql_compose\Attribute\FieldType;
 use Drupal\graphql_compose\Plugin\GraphQL\DataProducer\FieldProducerItemInterface;
 use Drupal\graphql_compose\Plugin\GraphQL\DataProducer\FieldProducerTrait;
 use Drupal\graphql_compose\Plugin\GraphQLCompose\GraphQLComposeFieldTypeBase;
@@ -14,12 +15,11 @@ use Drupal\graphql_compose\Plugin\GraphQLCompose\GraphQLComposeFieldTypeBase;
  * {@inheritDoc}
  *
  * @codeCoverageIgnore Unclear how to test for this.
- *
- * @GraphQLComposeFieldType(
- *   id = "name",
- *   type_sdl = "NameType",
- * )
  */
+#[FieldType(
+  id: "name",
+  type_sdl: "NameType",
+)]
 class NameItem extends GraphQLComposeFieldTypeBase implements FieldProducerItemInterface {
 
   use FieldProducerTrait;
