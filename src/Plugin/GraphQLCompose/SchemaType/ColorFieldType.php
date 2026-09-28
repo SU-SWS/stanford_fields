@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\stanford_fields\Plugin\GraphQLCompose\SchemaType;
 
+use Drupal\graphql_compose\Attribute\SchemaType;
 use Drupal\graphql_compose\Plugin\GraphQLCompose\GraphQLComposeSchemaTypeBase;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -12,11 +13,10 @@ use GraphQL\Type\Definition\Type;
  * {@inheritdoc}
  *
  * @codeCoverageIgnore Unclear how to test for this.
- *
- * @GraphQLComposeSchemaType(
- *   id = "ColorFieldType"
- * )
  */
+#[SchemaType(
+  id: "ColorFieldType",
+)]
 class ColorFieldType extends GraphQLComposeSchemaTypeBase {
 
   /**

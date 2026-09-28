@@ -8,7 +8,10 @@ use Drupal\book\BookInterface;
 use Drupal\book\BookManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Plugin\Context\ContextDefinition;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
+use Drupal\graphql\Attribute\DataProducer;
 use Drupal\graphql\GraphQL\Execution\FieldContext;
 use Drupal\graphql\Plugin\GraphQL\DataProducer\DataProducerPluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -17,21 +20,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Produces a book menu tree from an entity.
  *
  * @codeCoverageIgnore
- *
- * @DataProducer(
- *   id = "book",
- *   name = @Translation("Book Tree"),
- *   description = @Translation("Book tree data from the give node."),
- *   produces = @ContextDefinition("mixed",
- *     label = @Translation("FieldItemListInterface"),
- *   ),
- *   consumes = {
- *     "entity" = @ContextDefinition("entity",
- *       label = @Translation("Parent entity"),
- *     ),
- *   },
- * )
  */
+#[DataProducer(
+  id: "book",
+  name: new TranslatableMarkup("Book Tree"),
+  description: new TranslatableMarkup("Book tree data from the give node."),
+  produces: new ContextDefinition(
+    data_type: "mixed",
+    label: new TranslatableMarkup("FieldItemListInterface"),
+  ),
+  consumes: [
+    "entity" => new ContextDefinition(
+      data_type: "entity",
+      label: new TranslatableMarkup("Parent entity"),
+    ),
+  ],
+)]
 class Book extends DataProducerPluginBase implements ContainerFactoryPluginInterface {
 
   /**
