@@ -1,8 +1,10 @@
 import {createIsland} from 'preact-island'
-import SelectList from "../components/select-list";
+import SelectList, {SelectOption} from "../components/select-list";
 import {useEffect} from "preact/compat";
+import {useRef} from "preact/hooks";
 
-const FilterIsland = ({originalSelect, selectOptions}) => {
+const FilterIsland = ({originalSelect, selectOptions}: { originalSelect: HTMLSelectElement, selectOptions: SelectOption[] }) => {
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const optionElements = originalSelect.children
@@ -19,16 +21,18 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
 
   }, []);
 
-  const onSelectChange = (parentLabel, event, value) => {
-    for (let option of originalSelect.children) {
+  const onSelectChange = (parentLabel: string, value: string | string[]) => {
+    const selectElem: HTMLSelectElement | null | undefined = ref.current?.closest('.preact-filter')?.querySelector('.form-select')
+    for (let option of selectElem.children) {
+
       if (option.getAttribute('data-preact-parent') === parentLabel) {
         option.selected = value?.includes(option.getAttribute('value'))
       }
     }
-    originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
+    selectElem?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
   }
 
-  const optionSets: Array<{ label: string, options: { label: string, value: string | number }[] }> = []
+  const optionSets: Array<{ label: string, options: SelectOption[] }> = []
   let parentLabel = ''
 
   selectOptions.map(option => {
@@ -43,23 +47,26 @@ const FilterIsland = ({originalSelect, selectOptions}) => {
     }
   })
 
-  let defaultValue = [];
+  let defaultValue: string[] = [];
   for (let option of originalSelect?.children) {
-    if (option.getAttribute('selected')) {
-      defaultValue.push(option.getAttribute('value'))
+    const val = option.getAttribute('value')
+    if (val && option.getAttribute('selected')) {
+      defaultValue.push(val)
     }
   }
 
+  const multiple = originalSelect.getAttribute('multiple') === 'multiple' || undefined
+
   return (
-    <div className="hierarchy-preact-select">
+    <div className="hierarchy-preact-select" ref={ref}>
       {optionSets.map((set, i) =>
         <div key={i} className="preact-select-item">
           <SelectList
             name={originalSelect.getAttribute('id') + `-preact-${i}`}
-            options={set.options.filter(item => item.value !== 'All')}
+            items={set.options.filter(item => item.value !== 'All')}
             label={set.label}
-            multiple={originalSelect.getAttribute('multiple') === 'multiple'}
-            onChange={onSelectChange.bind(null, set.label)}
+            multiple={multiple}
+            onValueChange={onSelectChange.bind(null, set.label)}
             defaultValue={defaultValue.filter(val => set.options.find(opt => opt.value === val))}
           />
         </div>

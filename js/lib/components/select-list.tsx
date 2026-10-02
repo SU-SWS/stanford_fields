@@ -1,291 +1,144 @@
+import {Select, SelectRootChangeEventDetails} from "@base-ui/react/select"
+import {ReactNode} from "preact/compat";
+import {ChevronDownIcon} from "@heroicons/react/20/solid"
+import {SelectRootProps} from "@base-ui/react/select"
 import styled from "styled-components";
-import {useSelect, SelectOptionDefinition, SelectProvider, SelectValue} from '@mui/base/useSelect';
-import {useOption} from '@mui/base/useOption';
-import {ChevronDownIcon} from "@heroicons/react/20/solid";
-import {useEffect, useState, useRef, useId, useLayoutEffect, RefObject, ReactNode} from "preact/compat";
+import {useRef} from "preact/hooks";
 
-type OptionProps = {
-  id: string
-  rootRef: RefObject<HTMLUListElement>
-  children?: ReactNode;
-  value: string;
-  disabled?: boolean;
+export type SelectOption = {
+  value: string
+  label: string
 }
 
-const SelectedItem = styled.span`
-  border: 1px solid #b6b1a9;
-  padding: 2px 10px;
-  margin-right: 5px;
-  border-radius: 4px;
-  white-space: nowrap;
-`
-
-const renderSelectedValue = (value: SelectValue<string, boolean>, options: Array<SelectOptionDefinition<string>>) => {
-
-  if (Array.isArray(value)) {
-    return value.map(item =>
-      <SelectedItem
-        key={item}
-      >
-        {renderSelectedValue(item, options)}
-      </SelectedItem>
-    );
-  }
-  const selectedOption = options.find((option) => option.value === value);
-  return selectedOption ? selectedOption.label : null;
-}
-
-const StyledOption = styled.li<{ selected: boolean, highlighted: boolean, disabled: boolean }>`
-  cursor: pointer;
-  overflow: hidden;
-  margin: 0 !important;
-  padding: 5px 10px !important;
-  background: ${props => props.disabled ? "#f1f0ee" : props.selected ? "#b6b1a9" : props.highlighted ? "#d9d7d2" : ""};
-  color: ${props => props.disabled ? "#b6b1a9" : "#000"};
-  text-decoration: ${props => props.highlighted ? "underline" : "none"};;
-
-  &:hover {
-    background: ${props => props.disabled ? "#f1f0ee" : (props.selected || props.highlighted ? "" : "#d9d7d2")};
-    color: ${props => props.disabled ? "#b6b1a9" : props.selected ? "" : "#2e2d29"};
-    text-decoration: ${props => !props.disabled && "underline"};
-  }
-
-  &:before {
-    display: none !important;
-  }
-`
-
-function CustomOption(props: OptionProps) {
-  const {children, value, rootRef, id, disabled = false} = props;
-  const {getRootProps, highlighted, selected} = useOption({
-    rootRef: rootRef,
-    value,
-    disabled,
-    label: children,
-    id
-  });
-
-  const {...otherProps}: { id: string } = getRootProps();
-
-  useEffect(() => {
-    if (highlighted && id && rootRef?.current?.parentElement) {
-      const item = document.getElementById(id)
-      if (item) {
-        const itemTop = item?.offsetTop
-        const itemHeight = item?.offsetHeight
-        const parentScrollTop = rootRef.current.parentElement.scrollTop
-        const parentHeight = rootRef.current.parentElement.offsetHeight
-
-        if (itemTop < parentScrollTop) {
-          rootRef.current.parentElement.scrollTop = itemTop
-        }
-
-        if (itemTop + itemHeight > parentScrollTop + parentHeight) {
-          rootRef.current.parentElement.scrollTop = itemTop - parentHeight + itemHeight
-        }
-      }
-    }
-  }, [rootRef, id, highlighted])
-
-  return (
-    <StyledOption
-      {...otherProps}
-      id={id}
-      selected={selected}
-      highlighted={highlighted}
-      disabled={disabled}
-      className="option"
-    >
-      {children}
-    </StyledOption>
-  );
-}
-
-type Props = {
-  options: SelectOptionDefinition<string>[];
+interface Props<Value, Multiple extends boolean | undefined = false> extends Omit<
+  SelectRootProps<Value, Multiple>,
+  "items"
+> {
+  items?: SelectOption[]
   label?: string
-  ariaLabelledby?: string
-  defaultValue?: SelectValue<string, boolean>
-  onChange?: (event: MouseEvent | KeyboardEvent | FocusEvent | null, value: SelectValue<string, boolean>) => void;
-  multiple?: boolean
-  disabled?: boolean
-  value?: SelectValue<string, boolean>
-  required?: boolean
   emptyValue?: string
   emptyLabel?: string
-  name: string
+  className?: string
 }
 
-const SelectList = ({
-                      options = [],
-                      label,
-                      multiple,
-                      ariaLabelledby,
-                      required,
-                      defaultValue,
-                      name,
-                      emptyValue,
-                      emptyLabel = "- None -",
-                      ...props
-                    }: Props) => {
-  const ref = useRef(null)
-  const labelId = useId();
-  const labeledBy = ariaLabelledby ?? labelId;
+const SelectList = ({items = [], label, emptyValue, className, emptyLabel, required, multiple, onValueChange, ...props}: Props<string, true>) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const valChanged = (val: string [], e: SelectRootChangeEventDetails) => {
+    if (onValueChange) onValueChange(val, e)
+  }
 
-  const listboxContainerRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const listboxRef = useRef<HTMLUListElement | null>(null);
-  const [listboxVisible, setListboxVisible] = useState<boolean>(false);
-
-  const {getButtonProps, getListboxProps, contextValue, value} = useSelect<string, boolean>({
-    listboxRef,
-    listboxId: `${name}-preact-listbox`,
-    onOpenChange: setListboxVisible,
-    open: listboxVisible,
-    defaultValue: multiple ? defaultValue: defaultValue?.[0],
-    multiple,
-    ...props
-  });
-
-  useEffect(() => {
-    listboxRef.current?.focus()
-    listboxContainerRef.current?.scroll(0, 0)
-  }, [listboxVisible])
-
-  useLayoutEffect(() => {
-    const parentContainer = listboxContainerRef.current?.getBoundingClientRect()
-    if (parentContainer && parentContainer.bottom > window.innerHeight) {
-      listboxRef.current?.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"})
-    }
-  }, [listboxVisible, value])
-
-  const optionChosen = (multiple && value) ? value.length > 0 : !!value;
-
+  const options = !multiple && !required && emptyLabel ? [{
+    value: emptyValue || "",
+    label: emptyLabel
+  }, ...items] : [...items]
+  emptyLabel = emptyLabel || multiple ? "Choose one or more from dropdown" : "Choose from dropdown"
   return (
-    <div
-      ref={ref}
-      style={{
-        position: "relative",
-        width: "100%",
-        maxWidth: "400px",
-        minWidth: "250px"
-      }}
-      className="select-wrapper"
-    >
-      {label &&
-        <div
-          id={labelId}
-          className="select-label"
-          style={{
-            marginBottom: "1.2rem",
-            fontSize: "1.8rem",
-            fontWeight: "600"
-          }}
-        >
-          {label}
-        </div>
-      }
-
-      <button
-        {...getButtonProps()}
-        aria-labelledby={labeledBy}
-        style={{
-          background: "#fff",
-          color: "#000",
-          width: "100%",
-          border: props.disabled ? "1px solid #ABABA9" : "1px solid #000",
-          borderRadius: "5px",
-          textAlign: "left",
-          minHeight: "40px"
-        }}
-        data-bef-auto-submit-exclude
-      >
-        <span
-          className="select-option-display"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-          }}
-        >
-          {optionChosen &&
-            <span
-              className="select-chosen-options"
-              style={{overflow: "hidden", maxWidth: "calc(100% - 30px)", padding: "8px 5px 8px 0"}}
-            >
-              {renderSelectedValue(value, options)}
-            </span>
-          }
-          {(!optionChosen && !multiple) &&
-            <span id={labelId} className="empty-label" style={{padding: "8px 5px 8px 0", color: "#4c4740"}}>
-              {emptyLabel}
-            </span>
-          }
-          {(!optionChosen && multiple) &&
-            <span id={labelId} className="empty-label" style={{padding: "8px 5px 8px 0", color: "#4c4740"}}>
-              Choose one or more from dropdown
-            </span>
-          }
-
-          <ChevronDownIcon
-            width={20}
-            style={{flexShrink: "0", marginLeft: "auto", color: props.disabled ? "#ababa9" : "#000"}}
-          />
-        </span>
-      </button>
-
-      <div
-        ref={listboxContainerRef}
-        className="list-box-wrapper"
-        style={{
-          position: "absolute",
-          zIndex: "10",
-          background: "#fff",
-          maxHeight: "300px",
-          overflowY: "scroll",
-          width: "100%",
-          border: "1px solid #D5D5D4",
-          boxShadow: "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
-          display: listboxVisible ? "block" : "none"
-        }}
-      >
-        <ul
-          {...getListboxProps()}
-          aria-hidden={!listboxVisible}
-          aria-labelledby={labeledBy}
-          className="list-box"
-          style={{
-            listStyle: "none",
-            margin: 0,
-            padding: 0
-          }}
-        >
-          <SelectProvider value={contextValue}>
-            {(!required && !multiple) &&
-              <CustomOption value={emptyValue ?? ""} rootRef={listboxRef} id={`${name}-empty`}>
-                {emptyLabel}
-              </CustomOption>
-            }
-
-            {options.map(option =>
-              <CustomOption
-                key={option.value}
-                value={option.value}
-                disabled={option.disabled}
-                rootRef={listboxRef}
-                id={`${name}-${option.value.replace(/\W+/g, '-')}`}
-              >
-                {option.label}
-              </CustomOption>
+    <SelectListWrapper ref={ref}>
+      <Select.Root items={options} required={required} multiple={multiple} onValueChange={valChanged} modal={false} {...props}>
+        <Select.Label>{label}</Select.Label>
+        <Select.Trigger className="select-trigger">
+          <Select.Value>
+            {(value: Array<SelectOption["value"]>) => (
+              <span className="selected-values">
+                {!value.length && <span className="empty-label">{emptyLabel}</span>}
+                {value.map(val =>
+                  <span className="selected-value" key={val}>{options.find(o => o.value === val)?.label}</span>
+                )}
+              </span>
             )}
-          </SelectProvider>
-        </ul>
-      </div>
+          </Select.Value>
+          <Select.Icon>
+            <ChevronDownIcon width={20}/>
+          </Select.Icon>
+        </Select.Trigger>
 
-      <input ref={inputRef} type="hidden" value={value ?? ""} data-bef-auto-submit-exclude/>
-    </div>
-  );
+        <Select.Portal className="select-portal" container={ref}>
+          <Portal>
+            <Select.Positioner align="start" alignItemWithTrigger={false}>
+              <Select.Popup className="select-popup" finalFocus={() => console.log('here')}>
+                <Select.List className="select-list">
+                  {options.map(item => (
+                    <Option key={item.value} value={item.value} label={item.label}/>
+                  ))}
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Portal>
+        </Select.Portal>
+      </Select.Root>
+    </SelectListWrapper>
+  )
 }
 
+const Option = ({value, label}: {
+  value: string | number;
+  label: string | ReactNode
+}) => {
+  return (
+    <Select.Item value={value} className="select-item">
+      <Select.ItemText>{label}</Select.ItemText>
+    </Select.Item>
+  )
+}
 
-export default SelectList;
+const SelectListWrapper = styled.div`
+  button {
+    background: transparent;
+    color: black;
+    width: 100%;
+    border: 1px solid black;
+    border-radius: 5px;
+    text-align: left;
+    min-height: 40px;
+    display: flex;
+    justify-content: space-between;
+
+    &:hover, &:focus {
+      background: transparent;
+      color: black;
+      text-decoration: underline;
+    }
+  }
+  .empty-label {
+    color: #4c4740;
+    font-size: 18px;
+  }
+
+  .selected-values {
+    display: block;
+    margin: 5px 0;
+  }
+  .selected-value {
+    padding: 5px;
+    border: 1px solid #b6b1a9;
+    border-radius: 5px;
+    margin: 5px 5px 5px 0;
+  }
+`
+
+const Portal = styled.div`
+  .select-popup {
+    background: white;
+    width: var(--anchor-width);
+    border: 1px solid rgb(213, 213, 212);
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .select-item {
+    cursor: pointer;
+    padding: 5px;
+
+    &:hover, &:focus {
+      background: #d9d7d2;
+      text-decoration: underline;
+    }
+
+    &[aria-selected="true"] {
+      background: #b6b1a9;
+    }
+  }
+`
+
+export default SelectList
