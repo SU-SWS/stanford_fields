@@ -1,138 +1,58 @@
-import {createIsland} from 'preact-island'
-import styled from "styled-components";
+import {useMemo} from "preact/hooks";
+import {buildOptionSets, OptionSet} from "../components/option-sets";
+import {FilterProps, FOCUS_KEY_ATTRIBUTE, getSelectedValues, registerPreactFilter, submitFilter} from "../components/drupal-filter";
 
-const Fieldset = styled.fieldset`
-  .options {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-`
+const FilterIsland = ({originalSelect, selectOptions}: FilterProps) => {
+  const optionSets = useMemo(() => buildOptionSets(selectOptions), [selectOptions])
+  const selectedValues = getSelectedValues(originalSelect)
 
-const Label = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  cursor: pointer;
-`
+  // Radios need a name to group them, but they must not be submitted with the
+  // exposed form. Pointing them to a form id that doesn't exist detaches them.
+  const detachedFormId = `${originalSelect.id}-preact-detached`
 
-const Radio = styled.input`
-  outline: 2px;
-  clip: unset;
-  position: relative;
-  width: 25px;
-  height: 25px;
-  display: inline-block;
-  clip-path: unset;
-`
-
-const FilterIsland = ({originalSelect, selectOptions}) => {
-
-  const onChange = (parentValue: string, event) => {
-    let parent = null
-    for (let i = 0; i < originalSelect.options.length; i++) {
-      if (!selectOptions.find(opt => opt.value === originalSelect.options[i].value).label.startsWith('-')) {
-        parent = originalSelect.options[i].value
-        continue
-      }
-
-      if (parentValue !== parent) continue
-      originalSelect.options[i].selected = event.target.value === originalSelect.options[i].value
-    }
-    originalSelect?.closest('form').querySelector('[data-bef-auto-submit-click]')?.click();
-  };
-
-
-  const optionSets: Array<{
-    label: string,
-    value: string,
-    options: { label: string, value: string }[]
-  }> = []
-  let parentLabel = ''
-
-  selectOptions.map(option => {
-    if (!option.label.startsWith('-')) {
-      parentLabel = option.label
-      optionSets.push({...option, options: []})
-    } else {
-      optionSets.find(item => item.label === parentLabel)?.options.push({
-        value: option.value,
-        label: option.label.substring(1),
-      })
-    }
-  })
-
-
-  let defaultValues: Array<string> = [];
-  for (let option of originalSelect.children) {
-    if (option.getAttribute('selected')) defaultValues.push(option.getAttribute('value'))
+  const onChange = (set: OptionSet, value: string) => {
+    const childValues = set.options.map(option => option.value)
+    Array.from(originalSelect.options).forEach(option => {
+      if (childValues.includes(option.value)) option.selected = option.value === value
+    })
+    submitFilter(originalSelect, set.value)
   }
 
   return (
     <div className="hierarchy-preact-checkbox">
-      {optionSets.map(set =>
-        <Fieldset key={set.value} className="preact-checkbox-item">
-          <legend>
-            {set.label}
-          </legend>
+      {optionSets.map(set => {
+        const checkedValue = set.options.find(option => selectedValues.includes(option.value))?.value ?? ""
+        const name = `${originalSelect.id}-preact-${set.value}`
+        const radios = [{value: "", label: Drupal.t("- All -"), disabled: false}, ...set.options]
 
-          <div className="options">
-            <Label>
-              <Radio
-                type="radio"
-                name={set.value}
-                defaultChecked={!set.options.find(option => defaultValues.includes(option.value))}
-                onChange={onChange.bind(null, set.value)}
-                data-bef-auto-submit-exclude
-              />
-              - All -
-            </Label>
+        return (
+          <fieldset key={set.value} className="preact-checkbox-item">
+            <legend>{set.label}</legend>
 
-            {set.options.map(option =>
-              <Label key={option.value}>
-                <Radio
-                  type="radio"
-                  name={set.value}
-                  value={option.value}
-                  defaultChecked={defaultValues.includes(option.value)}
-                  onChange={onChange.bind(null, set.value)}
-                  data-bef-auto-submit-exclude
-                />
-                {option.label}
-              </Label>
-            )}
-          </div>
-        </Fieldset>
-      )
-      }
+            <div className="options">
+              {radios.map(option =>
+                <label key={option.value} className="preact-radio-label">
+                  <input
+                    className="preact-radio"
+                    type="radio"
+                    name={name}
+                    form={detachedFormId}
+                    value={option.value}
+                    disabled={option.disabled}
+                    defaultChecked={option.value === checkedValue}
+                    onChange={() => onChange(set, option.value)}
+                    data-bef-auto-submit-exclude
+                    {...(option.value === checkedValue ? {[FOCUS_KEY_ATTRIBUTE]: set.value} : {})}
+                  />
+                  {option.label}
+                </label>
+              )}
+            </div>
+          </fieldset>
+        )
+      })}
     </div>
   )
 }
 
-const island = createIsland(FilterIsland)
-
-if (process.env.NODE_ENV === 'development') {
-  island.render({selector: `.hierarchy-checkbox-preact`})
-} else {
-  ((once) => {
-    Drupal.behaviors.stanfordFieldsHierarchyCheckboxesPreact = {
-      attach: function (context, settings) {
-        settings.preactFilters.taxonomy_label_hierarchy_checkbox.map(field => {
-          const originalSelect = once('preact-select', `#${field.id} select`, context)[0]
-          if (!originalSelect) return
-
-          delete settings.views.ajaxViews[`views_dom_id:${field.viewId}`].view_path
-
-          island.render({
-            selector: '#' + field.id,
-            initialProps: {
-              selectOptions: field.options,
-              originalSelect: originalSelect
-            }
-          })
-
-        })
-      }
-    };
-  })(once);
-}
+registerPreactFilter("stanfordFieldsHierarchyCheckboxesPreact", "taxonomy_label_hierarchy_checkbox", FilterIsland, {removeViewPath: true})

@@ -1,26 +1,18 @@
 {
-  "name": "preact-island-examples",
+  "name": "stanford-fields-preact-filters",
   "version": "0.1.0",
   "description": "",
   "license": "MIT",
-  "main": "dist/index.js",
-  "umd:main": "dist/index.umd.js",
-  "module": "dist/index.module.js",
-  "source": "src/index.tsx",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "webpack --env prod",
     "dev": "webpack serve --env dev",
-    "watch": "webpack --env prod --watch"
+    "watch": "webpack --env prod --watch",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
     "@heroicons/react": "^2.2.0",
-    "preact": "^10.29.8",
-    "styled-components": "^6.5.3",
-    "usehooks-ts": "^3.1.1"
+    "preact": "^10.29.8"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
@@ -32,11 +24,15 @@
     "css-loader": "^7.1.5",
     "dotenv-webpack": "^8.1.1",
     "html-webpack-plugin": "^5.6.8",
-    "preact-island": "^1.2.0",
     "terser-webpack-plugin": "^5.6.1",
+    "typescript": "^5.9",
     "webpack": "^5.111.1",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.6"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.9.2",
+  "private": true,
+  "browserslist": [
+    "defaults"
+  ]
 }

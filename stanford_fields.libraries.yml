@@ -3,19 +3,33 @@ bef-styles:
     theme:
       css/preact-combobox.css: { }
   dependencies:
+    - core/drupal
     - core/once
+# Webpack runtime and preact, shared by all the preact filter islands.
+preact-shared:
+  js:
+    js/dist/shared-runtime.island.js: {}
+    js/dist/shared-preact.island.js: {}
+  dependencies:
+    - stanford_fields/bef-styles
+# Base UI select list, shared by the combobox islands.
+select-list-shared:
+  js:
+    js/dist/shared-select-list.island.js: {}
+  dependencies:
+    - stanford_fields/preact-shared
 combobox:
   js:
     js/dist/select-list-filters.island.js: {}
   dependencies:
-    - stanford_fields/bef-styles
+    - stanford_fields/select-list-shared
 hierarchy-combo:
   js:
     js/dist/hierarchy-label-select-lists.island.js: {}
   dependencies:
-    - stanford_fields/bef-styles
+    - stanford_fields/select-list-shared
 hierarchy-checkbox:
   js:
     js/dist/hierarchy-label-checkboxes.island.js: {}
   dependencies:
-    - stanford_fields/bef-styles
+    - stanford_fields/preact-shared

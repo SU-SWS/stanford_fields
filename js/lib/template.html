@@ -39,72 +39,87 @@
       display: none;
     }
   </style>
+  <script>
+    window.Drupal = {behaviors: {}, t: (str) => str}
+    window.once = (id, selector, context = document) => {
+      const elements = typeof selector === 'string' ? Array.from(context.querySelectorAll(selector)) : Array.from(selector.length === undefined ? [selector] : selector)
+      return elements.filter(el => !(el.dataset.once || '').split(' ').includes(id)).map(el => {
+        el.dataset.once = ((el.dataset.once || '') + ' ' + id).trim()
+        return el
+      })
+    }
+    window.once.remove = () => []
+    const optionsFor = (id) => Array.from(document.querySelectorAll(`#${id} option`)).map(o => ({value: o.value, label: o.textContent}))
+    window.drupalSettings = {preactFilters: {}}
+    document.addEventListener('DOMContentLoaded', () => {
+      const filter = (plugin, id) => {
+        drupalSettings.preactFilters[plugin] = {[id]: {id, viewId: 'dev', options: optionsFor(id)}}
+      }
+      filter('taxonomy_label_hierarchy', 'preact-competency-dev')
+      filter('preact_combo_box', 'preact-content-type-dev')
+      filter('taxonomy_label_hierarchy_checkbox', 'preact-topic-dev')
+    }, {once: true})
+  </script>
+  <link rel="stylesheet" href="/preact-combobox.css"/>
 </head>
 <body>
 <div class="preview">
-  <div id="gradgrow-filters-island"></div>
-  <form class="views-exposed-form bef-exposed-form"
-        style="margin-top:20px; border: 4px solid red"
-        data-drupal-selector="views-exposed-form-vpge-grad-grow-filters-block" action="/grad-grow-filters" method="get"
-        id="views-exposed-form-vpge-grad-grow-filters-block" accept-charset="UTF-8" data-once="exposed-form">
-    <div class="select-preact js-form-item form-item js-form-type-select form-item-competency js-form-item-competency">
-      <label for="edit-competency">Filter by competency</label>
-
-      <select data-drupal-selector="edit-competency" multiple="multiple" name="competency[]" id="edit-competency" size="9" class="form-select" data-once="chosen">
-        <option value="1111">Communication</option>
-        <option value="1116" disabled="disabled">-Writing</option>
-        <option value="1181">-Speaking &amp; presenting</option>
-        <option value="1236">-Interpersonal communication</option>
-        <option value="1186">Teaching and Mentoring</option>
-        <option value="1246">-Pedagogy &amp; assessment</option>
-        <option value="1191">-Mentoring</option>
-        <option value="1051">-Course &amp; training design</option>
-        <option value="1081">Professionalism</option>
-        <option value="1121">-Academic &amp; research integrity</option>
-        <option value="1086">-Stress management &amp; work/life balance</option>
-        <option value="1126">-Critical &amp; analytical thinking</option>
-        <option value="1131">-Professional ethics</option>
-        <option value="1256">Diversity Equity &amp; Inclusion</option>
-        <option value="1216">-Inclusive mindset</option>
-        <option value="1221">-Equitable &amp; inclusive environments</option>
-        <option value="1301">-Teamwork &amp; collaboration</option>
-        <option value="1271">Leadership &amp; Management</option>
-        <option value="1071">-Negotiation &amp; conflict resolution</option>
-        <option value="1076">-Innovation &amp; problem-solving</option>
-        <option value="1096">-Management of people &amp; projects</option>
-        <option value="1101">-Leadership &amp; entrepreneurial skills</option>
-        <option value="1196">Career Development</option>
-<!--        <option value="1226" selected="selected">-Networking &amp; relationship building</option>-->
-<!--        <option value="1146">-Job search skills</option>-->
-<!--        <option value="1151" selected="selected">-Career exploration &amp; preparation</option>-->
-      </select>
+  <form class="views-exposed-form bef-exposed-form" data-bef-auto-submit-full-form action="#" method="get"
+        id="views-exposed-form-dev">
+    <div id="preact-competency-dev" class="preact-filter taxonomy-label-hierarchy">
+      <div class="form-item form-type-select">
+        <label for="edit-competency">Filter by competency (hierarchy select)</label>
+        <select id="edit-competency" name="competency[]" multiple="multiple" class="form-select">
+          <option value="1111">Communication</option>
+          <option value="1116" disabled="disabled">-Writing</option>
+          <option value="1181">-Speaking &amp; presenting</option>
+          <option value="1236" selected="selected">-Interpersonal communication</option>
+          <option value="1186">Teaching and Mentoring</option>
+          <option value="1246">-Pedagogy &amp; assessment</option>
+          <option value="1191">-Mentoring</option>
+        </select>
+      </div>
     </div>
 
-    <div class="select-preact js-form-item form-item js-form-type-select form-item-content-type js-form-item-content-type">
-
-      <label for="edit-content-type">Filter by learning opportunity</label>
-
-      <select data-drupal-selector="edit-content-type" id="edit-content-type" name="content_type" class="form-select">
-        <option value="All" selected="selected">- Any -</option>
-        <option value="1">Event</option>
-        <option value="2">Resource</option>
-      </select>
+    <div id="preact-content-type-dev" class="preact-filter preact-combo-box">
+      <div class="form-item form-type-select">
+        <label for="edit-content-type">Filter by learning opportunity (combobox)</label>
+        <select id="edit-content-type" name="content_type" class="form-select">
+          <option value="All" selected="selected">- Any -</option>
+          <option value="1">Event</option>
+          <option value="2" disabled="disabled">Resource</option>
+        </select>
+      </div>
     </div>
-    <div class="select-preact js-form-item form-item js-form-type-select form-item-commitment js-form-item-commitment">
-      <label for="edit-commitment">Filter by time commitment</label>
-      <select data-drupal-selector="edit-commitment" id="edit-commitment" name="commitment" class="form-select">
-        <option value="All">All</option>
-        <option value="756">&lt; 3 hours</option>
-        <option value="751">3 - 8 hours</option>
-        <option value="746" selected="selected">&gt; 8 hours</option>
-        <option value="741">Self-guided</option>
-      </select>
+
+    <div id="preact-topic-dev" class="preact-filter taxonomy-label-hierarchy-checkbox">
+      <div class="form-item form-type-select">
+        <label for="edit-topic">Filter by topic (hierarchy radios)</label>
+        <select id="edit-topic" name="topic[]" multiple="multiple" class="form-select">
+          <option value="1081">Professionalism</option>
+          <option value="1121">-Academic &amp; research integrity</option>
+          <option value="1086" selected="selected">-Stress management</option>
+          <option value="1271">Leadership &amp; Management</option>
+          <option value="1071">-Negotiation</option>
+          <option value="1076">-Innovation</option>
+        </select>
+      </div>
     </div>
-    <div data-drupal-selector="edit-actions" class="form-actions js-form-wrapper form-wrapper" id="edit-actions">
-      <input data-drupal-selector="edit-submit-vpge-grad-grow" type="submit" id="edit-submit-vpge-grad-grow"
-             value="Apply filter" class="button js-form-submit form-submit">
+
+    <div class="form-actions">
+      <input type="submit" value="Apply filter" class="button js-form-submit form-submit" data-bef-auto-submit-click>
     </div>
   </form>
 </div>
+<script>
+  // Mimic the Drupal & BEF bits the islands rely on. Changes are logged
+  // instead of submitting the form.
+  document.querySelector('form').addEventListener('change', (e) => {
+    console.log('change', e.target.name, Array.from(e.target.selectedOptions || []).map(o => o.value))
+  })
+  document.addEventListener('DOMContentLoaded', () => {
+    Object.values(Drupal.behaviors).forEach(behavior => behavior.attach && behavior.attach(document, drupalSettings))
+  })
+</script>
 </body>
 </html>
