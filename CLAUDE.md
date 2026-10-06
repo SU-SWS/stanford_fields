@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `stanford_fields` is a Drupal custom module (field types, widgets, formatters, BEF filter widgets, GraphQL Compose plugins). It is installed inside a Drupal project whose layout varies (e.g. `web/` or `docroot/` as the webroot, `modules/custom/` or `modules/contrib/` for this module), so locate the project root (the directory with `vendor/`) and webroot before running commands. The main branch is `9.x`; releases are tagged automatically from semver PR labels when a PR merges (see README "Releases"), and each release gets a CHANGELOG.md entry plus a version bump in `stanford_fields.info.yml`.
 
+### Preparing a release
+
+- Feature PRs are squash-merged into `9.x`, so the local feature branch and local `9.x` are usually stale. Run `git fetch origin` and branch from `origin/9.x`, not the current branch.
+- Name the branch `release-X.Y.Z`. Don't let it track `origin/9.x` (`git checkout -b` from a remote ref sets that upstream; remove it with `git branch --unset-upstream`).
+- The release commit only bumps `version:` in `stanford_fields.info.yml` (the only info.yml) and adds a CHANGELOG.md entry at the top, in the existing format: version, a line of 80 dashes, `_Release Date: YYYY-MM-DD_`, then bullets summarizing the PRs since the last version commit (`git log --oneline <last-version-commit>..origin/9.x`).
+- Open the PR against the development branch (`9.x`) with a semver label, usually `patch`.
+
 ## Commands
 
 PHP tests run from the Drupal project root using core's phpunit config (kernel tests need `SIMPLETEST_DB` set in `<webroot>/core/phpunit.xml`). Below, `<webroot>` is the Drupal webroot and `<module>` is this module's path relative to the project root:
