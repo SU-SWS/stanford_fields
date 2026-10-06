@@ -2,6 +2,10 @@ html.js .preact-filter .form-type-select {
   display: none;
 }
 
+.preact-select-list .select-positioner {
+  z-index: 100;
+}
+
 /* Select list combobox. */
 .preact-select-list button.select-trigger {
   background: transparent;

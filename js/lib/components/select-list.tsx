@@ -108,7 +108,7 @@ const SelectList = ({
         </Select.Trigger>
 
         <Select.Portal container={ref}>
-          <Select.Positioner align="start" alignItemWithTrigger={false}>
+          <Select.Positioner className="select-positioner" align="start" alignItemWithTrigger={false}>
             <Select.Popup className="select-popup">
               <Select.List className="select-list">
                 {options.map(item => (
