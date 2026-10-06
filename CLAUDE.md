@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Feature PRs are squash-merged into `9.x`, so the local feature branch and local `9.x` are usually stale. Run `git fetch origin` and branch from `origin/9.x`, not the current branch.
 - Name the branch `release-X.Y.Z`. Don't let it track `origin/9.x` (`git checkout -b` from a remote ref sets that upstream; remove it with `git branch --unset-upstream`).
 - The release commit only bumps `version:` in `stanford_fields.info.yml` (the only info.yml) and adds a CHANGELOG.md entry at the top, in the existing format: version, a line of 80 dashes, `_Release Date: YYYY-MM-DD_`, then bullets summarizing the PRs since the last version commit (`git log --oneline <last-version-commit>..origin/9.x`).
-- Open the PR against `9.x` (the README's mention of `master` is outdated) with a semver label, usually `patch`.
+- Open the PR against the development branch (`9.x`) with a semver label, usually `patch`.
 
 ## Commands
 

@@ -42,13 +42,13 @@ Releases
 ---
 
 Steps to build a new release:
-- Checkout the latest commit from the `9.x` branch.
+- Checkout the latest commit from the current development branch, named after the major version (e.g. `9.x`, `10.x`).
 - Create a new branch for the release.
 - Commit any necessary changes to the release branch.
   -  These may include, but are not necessarily limited to:
     - Update the version in any `info.yml` files, including in any submodules.
     - Update the CHANGELOG to reflect the changes made in the new release.
-- Make a PR to merge your release branch into `master`
+- Make a PR to merge your release branch into the development branch (e.g. `9.x`).
 - Give the PR a semver-compliant label, e.g., (`patch`, `minor`, `major`).  This may happen automatically via Github actions (if a labeler action is configured).
-- When the PR is merged to `9.x`, a new tag will be created automatically, bumping the version by the semver label.
+- When the PR is merged into the development branch, a new tag will be created automatically, bumping the version by the semver label.
 - The github action is built from: [semver-release-action](https://github.com/K-Phoen/semver-release-action), and further documentation is available there.
