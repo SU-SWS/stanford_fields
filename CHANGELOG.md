@@ -1,5 +1,11 @@
 # Stanford Fields
 
+9.3.3
+--------------------------------------------------------------------------------
+_Release Date: 2026-10-06_
+
+- Added a z-index to the select list combobox popup so it displays above surrounding content.
+
 9.3.2
 --------------------------------------------------------------------------------
 _Release Date: 2026-10-06_
