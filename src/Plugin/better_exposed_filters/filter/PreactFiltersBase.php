@@ -24,7 +24,12 @@ class PreactFiltersBase extends FilterWidgetBase {
     $form['#attached']['library'][] = 'stanford_fields/bef-styles';
     $field_id = $this->getExposedFilterFieldId();
     $pluginClass = Html::cleanCssIdentifier($this->getPluginId());
-    $id = Html::cleanCssIdentifier("preact-$field_id");
+    $view_dom_id = (string) $form_state->get('view')->dom_id;
+
+    // Include part of the view's dom id so the wrapper is unique when the same
+    // filter is used by multiple views on a page, but stays stable across
+    // views AJAX requests.
+    $id = Html::cleanCssIdentifier("preact-$field_id-" . substr($view_dom_id, 0, 8));
 
     $form[$field_id]['#prefix'] = "<div id='$id' class='preact-filter $pluginClass'>";
     $form[$field_id]['#suffix'] = '</div>';
@@ -34,10 +39,12 @@ class PreactFiltersBase extends FilterWidgetBase {
     foreach ($options as $key => $value) {
       $js_options[] = ['value' => (string) $key, 'label' => $value];
     }
-    $form['#attached']['drupalSettings']['preactFilters'][$this->getPluginId()][] = [
+    // Key by the wrapper id. Drupal deep merges AJAX settings, which would
+    // merge lists by index and mix up filters from different views.
+    $form['#attached']['drupalSettings']['preactFilters'][$this->getPluginId()][$id] = [
       'id' => $id,
       'options' => $js_options,
-      'viewId' => $form_state->get('view')->dom_id,
+      'viewId' => $view_dom_id,
     ];
 
   }

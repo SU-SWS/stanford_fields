@@ -27,6 +27,8 @@ module.exports = ({ dev, prod }) => {
     devServer: {
       port: 6464,
       hot: false,
+      // Serve the module css so the dev template matches Drupal.
+      static: { directory: path.join(__dirname, '../../css') },
     },
     devtool: false,
     entry: {
@@ -37,7 +39,8 @@ module.exports = ({ dev, prod }) => {
     output: {
       path: path.join(__dirname, '/../dist'),
       filename: '[name].island.js',
-      libraryTarget: 'umd',
+      // Avoid clashing with other webpack bundles on the page.
+      uniqueName: 'stanfordFieldsPreact',
     },
     module: {
       rules: [
@@ -52,10 +55,8 @@ module.exports = ({ dev, prod }) => {
                 presets: [
                   '@babel/preset-typescript',
                   ['@babel/preset-react', { runtime: 'automatic' }],
-                  [
-                    '@babel/preset-env',
-                    { targets: { node: 16 }, modules: false },
-                  ],
+                  // Targets come from the browserslist in package.json.
+                  ['@babel/preset-env', { modules: false }],
                 ],
               },
             },
@@ -94,6 +95,30 @@ module.exports = ({ dev, prod }) => {
     optimization: {
       minimize: true,
       minimizer: [new TerserPlugin()],
+      // Share preact and the select list between the islands so pages with
+      // multiple filter types only download them once. The chunk names must
+      // match the libraries in stanford_fields.libraries.yml.
+      runtimeChunk: { name: 'shared-runtime' },
+      splitChunks: {
+        cacheGroups: {
+          default: false,
+          defaultVendors: false,
+          preact: {
+            test: /[\\/]node_modules[\\/]preact[\\/]/,
+            name: 'shared-preact',
+            chunks: 'all',
+            enforce: true,
+            priority: 20,
+          },
+          selectList: {
+            test: /[\\/](node_modules|components)[\\/]/,
+            name: 'shared-select-list',
+            chunks: (chunk) => ['select-list-filters', 'hierarchy-label-select-lists'].includes(chunk.name),
+            enforce: true,
+            priority: 10,
+          },
+        },
+      },
     },
   }
 

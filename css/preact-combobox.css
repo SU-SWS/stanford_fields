@@ -1,3 +1,98 @@
 html.js .preact-filter .form-type-select {
   display: none;
 }
+
+/* Select list combobox. */
+.preact-select-list button.select-trigger {
+  background: transparent;
+  color: black;
+  width: 100%;
+  border: 1px solid black;
+  border-radius: 5px;
+  text-align: left;
+  min-height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.preact-select-list button.select-trigger:hover,
+.preact-select-list button.select-trigger:focus {
+  background: transparent;
+  color: black;
+  text-decoration: underline;
+}
+
+.preact-select-list .empty-label {
+  color: #4c4740;
+  font-size: 18px;
+}
+
+.preact-select-list .selected-values {
+  display: block;
+  margin: 5px 0;
+}
+
+.preact-select-list .selected-value {
+  display: inline-block;
+  padding: 5px;
+  border: 1px solid #b6b1a9;
+  border-radius: 5px;
+  margin: 5px 5px 5px 0;
+}
+
+.preact-select-list .select-popup {
+  background: white;
+  width: var(--anchor-width);
+  border: 1px solid rgb(213, 213, 212);
+  box-shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.1) 0 4px 6px -4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.preact-select-list .select-item {
+  cursor: pointer;
+  padding: 5px;
+}
+
+.preact-select-list .select-item:hover,
+.preact-select-list .select-item:focus,
+.preact-select-list .select-item[data-highlighted] {
+  background: #d9d7d2;
+  text-decoration: underline;
+}
+
+.preact-select-list .select-item[aria-selected="true"] {
+  background: #b6b1a9;
+}
+
+.preact-select-list .select-item[data-disabled] {
+  background: #f1f0ee;
+  color: #b6b1a9;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* Hierarchy radios. */
+.hierarchy-preact-checkbox .preact-checkbox-item .options {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.hierarchy-preact-checkbox .preact-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.hierarchy-preact-checkbox input.preact-radio {
+  outline: 2px;
+  clip: unset;
+  position: relative;
+  width: 25px;
+  height: 25px;
+  display: inline-block;
+  clip-path: unset;
+}

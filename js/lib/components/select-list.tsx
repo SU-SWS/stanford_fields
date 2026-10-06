@@ -1,291 +1,128 @@
-import styled from "styled-components";
-import {useSelect, SelectOptionDefinition, SelectProvider, SelectValue} from '@mui/base/useSelect';
-import {useOption} from '@mui/base/useOption';
-import {ChevronDownIcon} from "@heroicons/react/20/solid";
-import {useEffect, useState, useRef, useId, useLayoutEffect, RefObject, ReactNode} from "preact/compat";
+import {Select} from "@base-ui/react/select"
+import {ChevronDownIcon} from "@heroicons/react/20/solid"
+import {useRef} from "preact/hooks";
+import {FOCUS_KEY_ATTRIBUTE} from "./drupal-filter";
 
-type OptionProps = {
-  id: string
-  rootRef: RefObject<HTMLUListElement>
-  children?: ReactNode;
-  value: string;
-  disabled?: boolean;
-}
-
-const SelectedItem = styled.span`
-  border: 1px solid #b6b1a9;
-  padding: 2px 10px;
-  margin-right: 5px;
-  border-radius: 4px;
-  white-space: nowrap;
-`
-
-const renderSelectedValue = (value: SelectValue<string, boolean>, options: Array<SelectOptionDefinition<string>>) => {
-
-  if (Array.isArray(value)) {
-    return value.map(item =>
-      <SelectedItem
-        key={item}
-      >
-        {renderSelectedValue(item, options)}
-      </SelectedItem>
-    );
-  }
-  const selectedOption = options.find((option) => option.value === value);
-  return selectedOption ? selectedOption.label : null;
-}
-
-const StyledOption = styled.li<{ selected: boolean, highlighted: boolean, disabled: boolean }>`
-  cursor: pointer;
-  overflow: hidden;
-  margin: 0 !important;
-  padding: 5px 10px !important;
-  background: ${props => props.disabled ? "#f1f0ee" : props.selected ? "#b6b1a9" : props.highlighted ? "#d9d7d2" : ""};
-  color: ${props => props.disabled ? "#b6b1a9" : "#000"};
-  text-decoration: ${props => props.highlighted ? "underline" : "none"};;
-
-  &:hover {
-    background: ${props => props.disabled ? "#f1f0ee" : (props.selected || props.highlighted ? "" : "#d9d7d2")};
-    color: ${props => props.disabled ? "#b6b1a9" : props.selected ? "" : "#2e2d29"};
-    text-decoration: ${props => !props.disabled && "underline"};
-  }
-
-  &:before {
-    display: none !important;
-  }
-`
-
-function CustomOption(props: OptionProps) {
-  const {children, value, rootRef, id, disabled = false} = props;
-  const {getRootProps, highlighted, selected} = useOption({
-    rootRef: rootRef,
-    value,
-    disabled,
-    label: children,
-    id
-  });
-
-  const {...otherProps}: { id: string } = getRootProps();
-
-  useEffect(() => {
-    if (highlighted && id && rootRef?.current?.parentElement) {
-      const item = document.getElementById(id)
-      if (item) {
-        const itemTop = item?.offsetTop
-        const itemHeight = item?.offsetHeight
-        const parentScrollTop = rootRef.current.parentElement.scrollTop
-        const parentHeight = rootRef.current.parentElement.offsetHeight
-
-        if (itemTop < parentScrollTop) {
-          rootRef.current.parentElement.scrollTop = itemTop
-        }
-
-        if (itemTop + itemHeight > parentScrollTop + parentHeight) {
-          rootRef.current.parentElement.scrollTop = itemTop - parentHeight + itemHeight
-        }
-      }
-    }
-  }, [rootRef, id, highlighted])
-
-  return (
-    <StyledOption
-      {...otherProps}
-      id={id}
-      selected={selected}
-      highlighted={highlighted}
-      disabled={disabled}
-      className="option"
-    >
-      {children}
-    </StyledOption>
-  );
+export type SelectOption = {
+  value: string
+  label: string
+  disabled?: boolean
 }
 
 type Props = {
-  options: SelectOptionDefinition<string>[];
+  id?: string
+  items?: SelectOption[]
   label?: string
-  ariaLabelledby?: string
-  defaultValue?: SelectValue<string, boolean>
-  onChange?: (event: MouseEvent | KeyboardEvent | FocusEvent | null, value: SelectValue<string, boolean>) => void;
-  multiple?: boolean
-  disabled?: boolean
-  value?: SelectValue<string, boolean>
-  required?: boolean
   emptyValue?: string
   emptyLabel?: string
-  name: string
+  className?: string
+  multiple?: boolean
+  required?: boolean
+  defaultValue?: string[]
+  focusKey?: string
+  /**
+   * Called when the selection should be applied. Single selects commit on
+   * every change, multiple selects commit once the popup is closed so users
+   * can choose several values before the form is submitted.
+   */
+  onCommit?: (values: string[]) => void
+}
+
+const toArray = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value
+  return value === null || value === undefined || value === "" ? [] : [value as string]
 }
 
 const SelectList = ({
-                      options = [],
-                      label,
-                      multiple,
-                      ariaLabelledby,
-                      required,
-                      defaultValue,
-                      name,
-                      emptyValue,
-                      emptyLabel = "- None -",
-                      ...props
-                    }: Props) => {
-  const ref = useRef(null)
-  const labelId = useId();
-  const labeledBy = ariaLabelledby ?? labelId;
+  id,
+  items = [],
+  label,
+  emptyValue = "",
+  emptyLabel,
+  className,
+  multiple = false,
+  required = false,
+  defaultValue = [],
+  focusKey,
+  onCommit,
+}: Props) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const pendingValues = useRef<string[] | null>(null)
 
-  const listboxContainerRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const listboxRef = useRef<HTMLUListElement | null>(null);
-  const [listboxVisible, setListboxVisible] = useState<boolean>(false);
+  const options = !multiple && !required && emptyLabel ? [{value: emptyValue, label: emptyLabel}, ...items] : items
+  const placeholder = emptyLabel || (multiple ? Drupal.t("Choose one or more from dropdown") : Drupal.t("Choose from dropdown"))
 
-  const {getButtonProps, getListboxProps, contextValue, value} = useSelect<string, boolean>({
-    listboxRef,
-    listboxId: `${name}-preact-listbox`,
-    onOpenChange: setListboxVisible,
-    open: listboxVisible,
-    defaultValue: multiple ? defaultValue: defaultValue?.[0],
-    multiple,
-    ...props
-  });
-
-  useEffect(() => {
-    listboxRef.current?.focus()
-    listboxContainerRef.current?.scroll(0, 0)
-  }, [listboxVisible])
-
-  useLayoutEffect(() => {
-    const parentContainer = listboxContainerRef.current?.getBoundingClientRect()
-    if (parentContainer && parentContainer.bottom > window.innerHeight) {
-      listboxRef.current?.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"})
+  const onValueChange = (value: unknown) => {
+    const values = toArray(value)
+    if (multiple) {
+      pendingValues.current = values
+      return
     }
-  }, [listboxVisible, value])
+    onCommit?.(values)
+  }
 
-  const optionChosen = (multiple && value) ? value.length > 0 : !!value;
+  const onOpenChange = (open: boolean) => {
+    if (open || !pendingValues.current) return
+    const values = pendingValues.current
+    pendingValues.current = null
+    onCommit?.(values)
+  }
+
+  // Base UI renders a hidden input for form integration. Keep it from
+  // triggering BEF auto submit; the original select is the source of truth.
+  const inputRef = (input: HTMLInputElement | null) => {
+    input?.setAttribute("data-bef-auto-submit-exclude", "")
+  }
 
   return (
-    <div
-      ref={ref}
-      style={{
-        position: "relative",
-        width: "100%",
-        maxWidth: "400px",
-        minWidth: "250px"
-      }}
-      className="select-wrapper"
-    >
-      {label &&
-        <div
-          id={labelId}
-          className="select-label"
-          style={{
-            marginBottom: "1.2rem",
-            fontSize: "1.8rem",
-            fontWeight: "600"
-          }}
-        >
-          {label}
-        </div>
-      }
-
-      <button
-        {...getButtonProps()}
-        aria-labelledby={labeledBy}
-        style={{
-          background: "#fff",
-          color: "#000",
-          width: "100%",
-          border: props.disabled ? "1px solid #ABABA9" : "1px solid #000",
-          borderRadius: "5px",
-          textAlign: "left",
-          minHeight: "40px"
-        }}
-        data-bef-auto-submit-exclude
+    <div className={["preact-select-list", className].filter(Boolean).join(" ")} ref={ref}>
+      <Select.Root
+        id={id}
+        items={options}
+        required={required}
+        multiple={multiple}
+        defaultValue={multiple ? defaultValue : (defaultValue[0] ?? null)}
+        onValueChange={onValueChange}
+        onOpenChange={onOpenChange}
+        inputRef={inputRef}
+        modal={false}
       >
-        <span
-          className="select-option-display"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-          }}
-        >
-          {optionChosen &&
-            <span
-              className="select-chosen-options"
-              style={{overflow: "hidden", maxWidth: "calc(100% - 30px)", padding: "8px 5px 8px 0"}}
-            >
-              {renderSelectedValue(value, options)}
-            </span>
-          }
-          {(!optionChosen && !multiple) &&
-            <span id={labelId} className="empty-label" style={{padding: "8px 5px 8px 0", color: "#4c4740"}}>
-              {emptyLabel}
-            </span>
-          }
-          {(!optionChosen && multiple) &&
-            <span id={labelId} className="empty-label" style={{padding: "8px 5px 8px 0", color: "#4c4740"}}>
-              Choose one or more from dropdown
-            </span>
-          }
+        <Select.Label className="select-label">{label}</Select.Label>
+        <Select.Trigger className="select-trigger" {...{[FOCUS_KEY_ATTRIBUTE]: focusKey}}>
+          <Select.Value>
+            {(value: unknown) => {
+              const values = toArray(value).filter(val => val !== emptyValue)
+              return (
+                <span className="selected-values">
+                  {!values.length && <span className="empty-label">{placeholder}</span>}
+                  {values.map(val =>
+                    <span className="selected-value" key={val}>{options.find(o => o.value === val)?.label}</span>
+                  )}
+                </span>
+              )
+            }}
+          </Select.Value>
+          <Select.Icon className="select-icon">
+            <ChevronDownIcon width={20}/>
+          </Select.Icon>
+        </Select.Trigger>
 
-          <ChevronDownIcon
-            width={20}
-            style={{flexShrink: "0", marginLeft: "auto", color: props.disabled ? "#ababa9" : "#000"}}
-          />
-        </span>
-      </button>
-
-      <div
-        ref={listboxContainerRef}
-        className="list-box-wrapper"
-        style={{
-          position: "absolute",
-          zIndex: "10",
-          background: "#fff",
-          maxHeight: "300px",
-          overflowY: "scroll",
-          width: "100%",
-          border: "1px solid #D5D5D4",
-          boxShadow: "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
-          display: listboxVisible ? "block" : "none"
-        }}
-      >
-        <ul
-          {...getListboxProps()}
-          aria-hidden={!listboxVisible}
-          aria-labelledby={labeledBy}
-          className="list-box"
-          style={{
-            listStyle: "none",
-            margin: 0,
-            padding: 0
-          }}
-        >
-          <SelectProvider value={contextValue}>
-            {(!required && !multiple) &&
-              <CustomOption value={emptyValue ?? ""} rootRef={listboxRef} id={`${name}-empty`}>
-                {emptyLabel}
-              </CustomOption>
-            }
-
-            {options.map(option =>
-              <CustomOption
-                key={option.value}
-                value={option.value}
-                disabled={option.disabled}
-                rootRef={listboxRef}
-                id={`${name}-${option.value.replace(/\W+/g, '-')}`}
-              >
-                {option.label}
-              </CustomOption>
-            )}
-          </SelectProvider>
-        </ul>
-      </div>
-
-      <input ref={inputRef} type="hidden" value={value ?? ""} data-bef-auto-submit-exclude/>
+        <Select.Portal container={ref}>
+          <Select.Positioner align="start" alignItemWithTrigger={false}>
+            <Select.Popup className="select-popup">
+              <Select.List className="select-list">
+                {options.map(item => (
+                  <Select.Item key={item.value} value={item.value} disabled={item.disabled} className="select-item">
+                    <Select.ItemText>{item.label}</Select.ItemText>
+                  </Select.Item>
+                ))}
+              </Select.List>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
     </div>
-  );
+  )
 }
 
-
-export default SelectList;
+export default SelectList

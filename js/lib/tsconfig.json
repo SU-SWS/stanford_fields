@@ -9,32 +9,40 @@
     "strict": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "target": "es2016",
+    "moduleResolution": "bundler",
+    "target": "es2020",
     "module": "esnext",
-    "types": ["node"],
-    "lib": ["es2017", "dom", "DOM.Iterable"],
+    "types": [],
+    "lib": [
+      "es2020",
+      "dom",
+      "DOM.Iterable"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "noPropertyAccessFromIndexSignature": false,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "noEmit": true,
+    "paths": {
+      "react": [
+        "./node_modules/preact/compat/"
+      ],
+      "react/jsx-runtime": [
+        "./node_modules/preact/jsx-runtime"
+      ],
+      "react-dom": [
+        "./node_modules/preact/compat/"
+      ]
+    }
   },
   "exclude": [
-    "config/setupTests.ts",
-    "jest.config.ts",
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "**/*.spec.tsx",
-    "**/*.test.tsx",
-    "**/*.spec.js",
-    "**/*.test.js",
-    "**/*.spec.jsx",
-    "**/*.test.jsx"
+    "node_modules"
   ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
+  "include": [
+    "globals.d.ts",
+    "components/**/*",
+    "select-lists/**/*",
+    "hierarchy-label-select-lists/**/*",
+    "hierarchy-label-checkboxes/**/*"
+  ]
 }
