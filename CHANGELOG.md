@@ -1,5 +1,12 @@
 # Stanford Fields
 
+9.3.2
+--------------------------------------------------------------------------------
+_Release Date: 2026-10-06_
+
+- Rebuilt the BEF Preact filter widgets (combobox, hierarchy select list, hierarchy checkboxes) on Base UI with proper Drupal attach/detach lifecycle and better views AJAX integration (#89)
+- Fixed a 404 when resetting filters on views using the combobox.
+
 9.3.1
 --------------------------------------------------------------------------------
 _Release Date: 2026-09-28_
