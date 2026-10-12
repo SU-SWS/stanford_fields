@@ -326,7 +326,7 @@ class StanfordFieldsBookManager extends BookManager {
    * @param int $node
    *   Node entity id.
    *
-   * @return \Drupal\Core\Access\AccessResultReasonInterface
+   * @return \Drupal\Core\Access\AccessResultInterface
    *   Resulting access.
    */
   public function checkBookOutlineAccess(AccountInterface $account, int $node): AccessResultInterface {
