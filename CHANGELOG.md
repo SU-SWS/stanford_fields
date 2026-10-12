@@ -1,5 +1,11 @@
 # Stanford Fields
 
+9.3.4
+--------------------------------------------------------------------------------
+_Release Date: 2026-10-12_
+
+- Refactored the book manager service to extend the book module's manager instead of decorating it, preventing fatal errors when the book module adds or changes methods (#92)
+
 9.3.3
 --------------------------------------------------------------------------------
 _Release Date: 2026-10-06_
