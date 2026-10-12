@@ -4,6 +4,7 @@ namespace Drupal\stanford_fields;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\ServiceProviderBase;
+use Drupal\stanford_fields\Service\StanfordFieldsBookManager;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
@@ -14,16 +15,15 @@ class StanfordFieldsServiceProvider extends ServiceProviderBase {
   /**
    * {@inheritDoc}
    */
-  public function register(ContainerBuilder $container) {
-    // Decorate the book manager service if it's available.
-    if ($container->has('book.manager')) {
-      $container->register('stanford_fields.book_manager', 'Drupal\stanford_fields\Service\StanfordFieldsBookManager')
-        ->setDecoratedService('book.manager')
-        ->addArgument(new Reference('stanford_fields.book_manager.inner'))
-        ->addArgument(new Reference('config.factory'))
-        ->addArgument(new Reference('event_dispatcher'))
-        ->addArgument(new Reference('entity_type.manager'))
-        ->setPublic(FALSE);
+  public function alter(ContainerBuilder $container) {
+    // Override the book manager service class if it's available.
+    if ($container->hasDefinition('book.manager')) {
+      $container->getDefinition('book.manager')
+        ->setClass(StanfordFieldsBookManager::class)
+        // The book module's generated proxy class only contains the methods on
+        // the original class, so it can't be used with the overridden class.
+        ->setLazy(FALSE)
+        ->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
     }
   }
 

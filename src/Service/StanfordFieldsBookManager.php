@@ -2,130 +2,48 @@
 
 namespace Drupal\stanford_fields\Service;
 
-use Drupal\book\BookInterface;
 use Drupal\book\BookHelperTrait;
-use Drupal\book\BookManagerInterface;
+use Drupal\book\BookInterface;
+use Drupal\book\BookManager;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\SortArray;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\AccessResultInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\NodeInterface;
 use Drupal\stanford_fields\Event\BookOutlineUpdatedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Book manager service decorator.
+ * Book manager service override.
+ *
+ * Extends the book module's manager so that new or changed methods in the
+ * book module are inherited instead of needing a pass-through here. Additional
+ * dependencies are set via setter injection so the parent constructor is never
+ * overridden.
+ *
+ * @see \Drupal\stanford_fields\StanfordFieldsServiceProvider::alter()
  */
-class StanfordFieldsBookManager implements BookManagerInterface {
+class StanfordFieldsBookManager extends BookManager {
 
   use BookHelperTrait;
-  use StringTranslationTrait;
 
   /**
-   * Decorated service constructor.
+   * Event dispatcher service.
    *
-   * @param \Drupal\book\BookManagerInterface $bookManager
-   *   Original book manager service.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
-   *   Config factory service.
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
+   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   */
+  protected EventDispatcherInterface $eventDispatcher;
+
+  /**
+   * Set the event dispatcher service.
+   *
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   Event dispatcher service.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
-   *   Entity type manager service.
    */
-  public function __construct(protected BookManagerInterface $bookManager, protected ConfigFactoryInterface $configFactory, protected EventDispatcherInterface $eventDispatcher, protected EntityTypeManagerInterface $entityTypeManager) {}
-
-  /**
-   * {@inheritdoc}
-   */
-  public function bookTreeAllData(int $bid, ?array $link = NULL, ?int $max_depth = NULL, ?int $min_depth = NULL, bool $expanded = FALSE): array {
-    return $this->bookManager->bookTreeAllData($bid, $link, $max_depth, $min_depth, $expanded);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function getActiveTrailIds(string $bid, array $link): array {
-    return $this->bookManager->getActiveTrailIds($bid, $link);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function loadBookLink(int $nid, bool $translate = TRUE): array {
-    return $this->bookManager->loadBookLink($nid, $translate);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function loadBookLinks(array $nids, bool $translate = TRUE): array {
-    return $this->bookManager->loadBookLinks($nids, $translate);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function getTableOfContents(int|string $bid, int $depth_limit, array $exclude = [], bool $truncate = TRUE): array {
-    return $this->bookManager->getTableOfContents($bid, $depth_limit, $exclude, $truncate);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function getParentDepthLimit(array $book_link): int {
-    return $this->bookManager->getParentDepthLimit($book_link);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function bookTreeCollectNodeLinks(array &$tree, array &$node_links): void {
-    $this->bookManager->bookTreeCollectNodeLinks($tree, $node_links);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function bookLinkTranslate(array &$link): array {
-    return $this->bookManager->bookLinkTranslate($link);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function bookTreeGetFlat(array $book_link): array {
-    return $this->bookManager->bookTreeGetFlat($book_link);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function getAllBooks(): array {
-    return $this->bookManager->getAllBooks();
+  public function setEventDispatcher(EventDispatcherInterface $event_dispatcher): void {
+    $this->eventDispatcher = $event_dispatcher;
   }
 
   /**
@@ -168,36 +86,9 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       // throw errors.
       $node->setBookKey('weight', $book['weight'] ?: 0);
     }
-    $return = $this->bookManager->updateOutline($node);
+    $return = parent::updateOutline($node);
     $this->eventDispatcher->dispatch(new BookOutlineUpdatedEvent($node), BookOutlineUpdatedEvent::OUTLINE_UPDATED);
     return $return;
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function saveBookLink(array $link, bool $new): array {
-    return $this->bookManager->saveBookLink($link, $new);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function getLinkDefaults(int|string $nid): array {
-    return $this->bookManager->getLinkDefaults($nid);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function getBookParents(array $item, array $parent = []): array {
-    return $this->bookManager->getBookParents($item, $parent);
   }
 
   /**
@@ -227,12 +118,12 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       return $form;
     }
 
-    // Prepare the form state before passing to the original service to add form
+    // Prepare the form state before passing to the parent method to add form
     // elements.
     if ($form_state->hasValue(['book', 'weight'])) {
       // During the AJAX call, the weight value is keyed array of other book
       // links. Extract the weight of the current node on this form so that the
-      // original service can still use it normally.
+      // parent method can still use it normally.
       $weight_value = $form_state->getValue(['book', 'weight']);
       if (is_array($weight_value)) {
         $key = array_key_exists('new', $weight_value) ? 'new' : $node->id();
@@ -247,8 +138,8 @@ class StanfordFieldsBookManager implements BookManagerInterface {
       }
     }
 
-    // Call the original service to add the form parts.
-    $form = $this->bookManager->addFormElements($form, $form_state, $node, $account, $collapsed);
+    // Call the parent method to add the form parts.
+    $form = parent::addFormElements($form, $form_state, $node, $account, $collapsed);
 
     // Force the book details to be open, because after the ajax returns, the
     // field set closes.
@@ -425,51 +316,6 @@ class StanfordFieldsBookManager implements BookManagerInterface {
    */
   public static function parentChosen(array &$form, FormStateInterface $form_state): array {
     return $form['book']['weight'];
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function deleteFromBook(int $nid): void {
-    $this->bookManager->deleteFromBook($nid);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function bookTreeOutput(array $tree): array {
-    return $this->bookManager->bookTreeOutput($tree);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function bookTreeCheckAccess(array &$tree, array $node_links = []): void {
-    $this->bookManager->bookTreeCheckAccess($tree, $node_links);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function bookSubtreeData(array $link): array {
-    return $this->bookManager->bookSubtreeData($link);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
-   */
-  public function checkNodeIsRemovable(NodeInterface $node): bool {
-    return $this->bookManager->checkNodeIsRemovable($node);
   }
 
   /**

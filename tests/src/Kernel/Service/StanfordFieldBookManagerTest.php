@@ -166,7 +166,12 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
       ->access($account);
     $this->assertFalse($access);
 
-    user_role_grant_permissions(RoleInterface::AUTHENTICATED_ID, ['administer book outlines']);
+    user_role_grant_permissions(RoleInterface::AUTHENTICATED_ID, [
+      'administer book outlines',
+      'edit any page content',
+    ]);
+    // Clear the node access static cache from the previous access checks.
+    \Drupal::entityTypeManager()->getAccessControlHandler('node')->resetCache();
     $access = Url::fromRoute('entity.node.book_outline_form', ['node' => $this->book->id()])
       ->access($account);
     $this->assertTrue($access);
