@@ -53,7 +53,7 @@ class Book extends DataProducerPluginBase implements ContainerFactoryPluginInter
   /**
    * {@inheritDoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, protected BookManagerInterface $bookManager) {
+  final public function __construct(array $configuration, $plugin_id, $plugin_definition, protected BookManagerInterface $bookManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
 

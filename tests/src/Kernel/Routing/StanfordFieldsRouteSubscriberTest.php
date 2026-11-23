@@ -24,8 +24,7 @@ class StanfordFieldsRouteSubscriberTest extends StanfordFieldKernelTestBase {
     $route = \Drupal::service('router.route_provider')
       ->getRouteByName('book.admin_edit');
 
-
-    $this->assertStringContainsString(StanfordFieldBookAdminEditForm::class,$route->getDefault('_form'));
+    $this->assertStringContainsString(StanfordFieldBookAdminEditForm::class, $route->getDefault('_form'));
   }
 
 }

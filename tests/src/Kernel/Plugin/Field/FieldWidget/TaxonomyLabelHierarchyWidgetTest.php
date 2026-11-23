@@ -12,8 +12,9 @@ use Drupal\Tests\stanford_fields\Kernel\StanfordFieldKernelTestBase;
 use Drupal\user\Entity\User;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 /**
- * Class TaxonomyLabelHierarchyWidgetTest.
+ * Tests the taxonomy label hierarchy widget.
  */
 #[Group('stanford_fields')]
 #[RunTestsInSeparateProcesses]

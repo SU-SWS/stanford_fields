@@ -62,6 +62,9 @@ class StanfordFieldBookAdminEditFormTest extends StanfordFieldKernelTestBase {
     $node->save();
   }
 
+  /**
+   * Book admin edit form renders titles as markup and keeps submitted titles.
+   */
   public function testFormBuild() {
     /** @var \Drupal\Core\Form\FormBuilderInterface $form_builder */
     $form_builder = \Drupal::service('form_builder');

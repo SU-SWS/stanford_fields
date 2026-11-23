@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Class DateYearOnlyWidgetTest
+ * Tests the year only date widget.
  */
 #[Group('stanford_fields')]
 #[RunTestsInSeparateProcesses]

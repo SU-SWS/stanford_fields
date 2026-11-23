@@ -110,6 +110,9 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $this->assertNotEmpty(Element::children($altered_form['book']['weight']));
   }
 
+  /**
+   * Saving a book outline with sibling weights stores the node weight.
+   */
   public function testUpdateOutline() {
     $sibling = Node::create(['type' => 'page', 'title' => 'Book Foo']);
     $sibling->book = [
@@ -148,6 +151,9 @@ class StanfordFieldBookManagerTest extends StanfordFieldKernelTestBase {
     $this->assertEquals(24, $node->getBook()['weight']);
   }
 
+  /**
+   * Book outline route access depends on the node and user permissions.
+   */
   public function testOutlineAccess() {
     // Create user 1 first.
     User::create(['name' => $this->randomMachineName()])->save();

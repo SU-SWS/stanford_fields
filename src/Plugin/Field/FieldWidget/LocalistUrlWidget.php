@@ -77,7 +77,7 @@ class LocalistUrlWidget extends LinkWidget {
   /**
    * {@inheritDoc}
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, ClientInterface $client, CacheBackendInterface $cache) {
+  final public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, ClientInterface $client, CacheBackendInterface $cache) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
     $this->client = $client;
     $this->cache = $cache;
@@ -253,7 +253,7 @@ class LocalistUrlWidget extends LinkWidget {
    */
   protected static function flattenValues(array $array): array {
     $return = [];
-    array_walk_recursive($array, function($a) use (&$return) {
+    array_walk_recursive($array, function ($a) use (&$return) {
       $return[] = $a;
     });
     return $return;

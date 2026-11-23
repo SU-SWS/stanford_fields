@@ -20,7 +20,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Class LocalistUrlWidgetTest.
+ * Tests the Localist URL widget.
  */
 #[Group('stanford_fields')]
 #[RunTestsInSeparateProcesses]
@@ -83,7 +83,6 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
       'type' => 'page',
     ]);
 
-
     $node->set('su_localist_url', [
       [
         'uri' => 'https://events.stanford.edu/api/2/events?group_id=37955145294460&days=365',
@@ -117,8 +116,7 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
     $this->assertIsArray($widget_value[0]['filters']['venue_id']);
     $this->assertFalse($widget_value[0]['filters']['venue_id']['#multiple']);
 
-
-    $this->throwGuzzleError = true;
+    $this->throwGuzzleError = TRUE;
 
     \Drupal::cache()->delete('localist_api:https://events.stanford.edu');
     $form = [];
@@ -217,9 +215,12 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
     ];
   }
 
+  /**
+   * Guzzle mock callback that returns fake Localist API responses.
+   */
   public function requestAsyncCallback($method, $uri, $options) {
     if ($this->throwGuzzleError) {
-      throw new ClientException('Failed', $this->createMock(RequestInterface::class));
+      throw new ClientException('Failed', $this->createMock(RequestInterface::class), $this->createMock(ResponseInterface::class));
     }
 
     $data = [];
@@ -230,6 +231,7 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
           'page' => ['total' => 1],
         ];
         break;
+
       case '/api/2/departments':
         $data = [
           'departments' => [
@@ -243,12 +245,14 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
           'page' => ['total' => 1],
         ];
         break;
+
       case '/api/2/places':
         $data = [
           'places' => [['place' => ['id' => 555555, 'name' => 'Baz']]],
           'page' => ['total' => 1],
         ];
         break;
+
       case'/api/2/events/filters':
         $data = [
           'event_audience' => [
@@ -263,6 +267,7 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
           ],
         ];
         break;
+
       case'/api/2/events/labels':
         $data = [
           'filters' => [
@@ -274,7 +279,7 @@ class LocalistUrlWidgetTest extends StanfordFieldKernelTestBase {
         break;
     }
 
-    $resource = fopen('php://memory','r+');
+    $resource = fopen('php://memory', 'r+');
     fwrite($resource, json_encode($data));
     rewind($resource);
     $body = new Stream($resource);

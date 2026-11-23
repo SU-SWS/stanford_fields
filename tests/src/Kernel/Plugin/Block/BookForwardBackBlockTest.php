@@ -45,12 +45,14 @@ class BookForwardBackBlockTest extends StanfordFieldKernelTestBase {
     $this->book->save();
   }
 
-  public function testBlock(){
+  /**
+   * Forward/back block renders book navigation only for a loadable book.
+   */
+  public function testBlock() {
     $block = \Drupal::service('plugin.manager.block')->createInstance('book_forward_back');
     $this->assertInstanceOf(BookForwardBackBlock::class, $block);
 
     $this->assertEmpty($block->build());
-
 
     $block->setContextValue('node', $this->book);
     $this->assertEquals('book_navigation', $block->build()['#theme']);

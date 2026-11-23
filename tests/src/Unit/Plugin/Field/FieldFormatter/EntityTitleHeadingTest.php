@@ -12,7 +12,7 @@ use Drupal\stanford_fields\Plugin\Field\FieldFormatter\EntityTitleHeading;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Class EntityTitleHeadingTest
+ * Tests the entity title heading formatter.
  */
 #[Group('stanford_fields')]
 class EntityTitleHeadingTest extends FieldFormatterTestBase {
@@ -59,6 +59,9 @@ class EntityTitleHeadingTest extends FieldFormatterTestBase {
     $this->plugin = EntityTitleHeading::create($this->container, $configuration, '', []);
   }
 
+  /**
+   * Default settings, settings form and summary of the formatter.
+   */
   public function testPluginSettings() {
 
     $this->assertEquals([
@@ -82,6 +85,9 @@ class EntityTitleHeadingTest extends FieldFormatterTestBase {
     $this->assertEquals('Header level: h2', reset($summary)->render());
   }
 
+  /**
+   * Formatter renders the title in the chosen heading tag.
+   */
   public function testViewElements() {
 
     $this->plugin->setSetting('tag', 'h2');
@@ -101,6 +107,9 @@ class EntityTitleHeadingTest extends FieldFormatterTestBase {
     $this->assertEmpty($output);
   }
 
+  /**
+   * Formatter renders the title as a link when linked is enabled.
+   */
   public function testLinkedViewElements() {
     $this->plugin->setSetting('tag', 'h2');
     $this->plugin->setSetting('linked', TRUE);

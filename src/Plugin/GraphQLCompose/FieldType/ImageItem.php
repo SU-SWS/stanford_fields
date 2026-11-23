@@ -26,11 +26,17 @@ class ImageItem extends OrigImageItem {
   }
 
   /**
+   * Get the relative focal point of an image.
+   *
    * @param \Drupal\file\FileInterface $file
+   *   Image file entity.
    * @param int $width
+   *   Image width in pixels.
    * @param int $height
+   *   Image height in pixels.
    *
    * @return array
+   *   Keyed array with the focal point values.
    */
   protected static function getFocalPoint(FileInterface $file, int $width, int $height) {
     /** @var \Drupal\focal_point\FocalPointManagerInterface $focal_point_manager */

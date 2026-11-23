@@ -12,16 +12,29 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use PHPUnit\Framework\Attributes\Group;
 
+/**
+ * Tests the response code condition plugin.
+ */
 #[Group('stanford_fields')]
 class ResponseCodeConditionTest extends UnitTestCase {
 
   /**
+   * The condition plugin being tested.
+   *
    * @var \Drupal\stanford_fields\Plugin\Condition\ResponseCodeCondition
    */
   protected $plugin;
 
+  /**
+   * Attributes set on the mocked current request.
+   *
+   * @var array
+   */
   protected $requestAttributes = [];
 
+  /**
+   * {@inheritDoc}
+   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -38,6 +51,9 @@ class ResponseCodeConditionTest extends UnitTestCase {
     $this->plugin = ResponseCodeCondition::create($container, $config, '', []);
   }
 
+  /**
+   * Condition evaluates TRUE only for the configured response codes.
+   */
   public function testCondition() {
     $form = [];
     $form_state = new FormState();
@@ -57,6 +73,9 @@ class ResponseCodeConditionTest extends UnitTestCase {
     $this->assertTrue($this->plugin->evaluate());
   }
 
+  /**
+   * Request stack mock callback that returns a request with test attributes.
+   */
   public function getCurrentRequest() {
     $current_request = $this->createMock(Request::class);
     $current_request->attributes = new ParameterBag($this->requestAttributes);

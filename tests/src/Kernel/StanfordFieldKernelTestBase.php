@@ -7,7 +7,10 @@ use Drupal\node\Entity\NodeType;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 
-class StanfordFieldKernelTestBase extends KernelTestBase {
+/**
+ * Base class for stanford_fields kernel tests.
+ */
+abstract class StanfordFieldKernelTestBase extends KernelTestBase {
 
   /**
    * {@inheritDoc}

@@ -82,6 +82,9 @@ class StanfordFieldsHooksTest extends StanfordFieldKernelTestBase {
     }
   }
 
+  /**
+   * Font Awesome icon widgets can hide selected additional settings.
+   */
   #[TestWith(['fontawesome_icon'])]
   #[TestWith(['text'])]
   public function testWidgetThirdPartySettings(string $field_type) {
@@ -168,6 +171,9 @@ class StanfordFieldsHooksTest extends StanfordFieldKernelTestBase {
     }
   }
 
+  /**
+   * Field storage add form limits the machine name length.
+   */
   public function testFieldUiStorageFormAlter() {
     $this->config('field_ui.settings')->set('field_prefix', '')->save();
     $form_state = new FormState();
