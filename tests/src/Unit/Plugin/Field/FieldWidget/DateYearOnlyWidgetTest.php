@@ -7,11 +7,14 @@ use Drupal\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Class DateYearOnlyWidgetTest
+ * Tests the year only date widget.
  */
 #[Group('stanford_fields')]
 class DateYearOnlyWidgetTest extends UnitTestCase {
 
+  /**
+   * Default settings span ten years before and after the current year.
+   */
   public function testDefaultSettings() {
     $default_settings = DateYearOnlyWidget::defaultSettings();
     $ten_years = (60 * 60 * 24 * 365 * 10);

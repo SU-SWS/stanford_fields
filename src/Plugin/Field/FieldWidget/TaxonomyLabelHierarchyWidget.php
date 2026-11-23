@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\stanford_fields\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\Attribute\FieldWidget;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -14,6 +15,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\cshs\Component\CshsOption;
 use Drupal\cshs\Element\CshsElement;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines the 'taxonomy_label_hierarchy' field widget.
@@ -25,6 +27,40 @@ use Drupal\cshs\Element\CshsElement;
   multiple_values: TRUE,
 )]
 final class TaxonomyLabelHierarchyWidget extends OptionsWidgetBase {
+
+  /**
+   * {@inheritDoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['third_party_settings'],
+      $container->get('entity_type.manager'),
+    );
+  }
+
+  /**
+   * Constructs a TaxonomyLabelHierarchyWidget object.
+   *
+   * @param string $plugin_id
+   *   The plugin ID for the widget.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The definition of the field to which the widget is associated.
+   * @param array $settings
+   *   The widget settings.
+   * @param array $third_party_settings
+   *   Any third party settings.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager service.
+   */
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, protected EntityTypeManagerInterface $entityTypeManager) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
+  }
 
   /**
    * {@inheritDoc}
@@ -61,7 +97,7 @@ final class TaxonomyLabelHierarchyWidget extends OptionsWidgetBase {
       $key = preg_replace('@[^a-z0-9_.]+@', '_', mb_strtolower($group_label));
       foreach ($group_options as $tid => &$option) {
         /** @var \Drupal\taxonomy\TermInterface $term */
-        $term = \Drupal::entityTypeManager()
+        $term = $this->entityTypeManager
           ->getStorage('taxonomy_term')
           ->load($tid);
         $option = new CshsOption(ltrim($option, "-"), $term->get('parent')

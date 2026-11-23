@@ -49,7 +49,7 @@ class EntityTitleHeading extends FormatterBase implements ContainerFactoryPlugin
   /**
    * {@inheritdoc}
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, PathMatcherInterface $path_matcher) {
+  final public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, PathMatcherInterface $path_matcher) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->pathMatcher = $path_matcher;
   }

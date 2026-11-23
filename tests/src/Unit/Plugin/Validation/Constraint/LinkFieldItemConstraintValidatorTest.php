@@ -40,7 +40,7 @@ class LinkFieldItemConstraintValidatorTest extends UnitTestCase {
     $request->method('getSchemeAndHttpHost')->willReturn($currentDomain);
     $request_stack->method('getCurrentRequest')->willReturn($request);
 
-    // Configure the field item list mock to return a field item with a specific URI.
+    // Configure the field item list mock to return an item with a given URI.
     $field_item->method('get')->willReturnSelf();
     $field_item->method('getString')->willReturn($linkUrl);
     $field_item_list->method('get')->with(0)->willReturn($field_item);
@@ -72,8 +72,14 @@ class LinkFieldItemConstraintValidatorTest extends UnitTestCase {
 
 }
 
+/**
+ * Relative link validator that exposes whether violations were added.
+ */
 class TestRelativeLinkValidator extends RelativeLinkFieldItemConstraintValidator {
 
+  /**
+   * Checks if the validator added any violations.
+   */
   public function hasViolation() {
     return count($this->context->getViolations()) > 0;
   }

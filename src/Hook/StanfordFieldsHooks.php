@@ -88,8 +88,10 @@ class StanfordFieldsHooks {
   }
 
   /**
-   * Hides the font awesome additional settings options
-   * and replace the default help text with field-specific help text.
+   * Hides font awesome settings and uses the field's help text.
+   *
+   * Hides the configured additional settings options and replaces the default
+   * help text with field-specific help text.
    */
   #[Hook('field_widget_complete_fontawesome_icon_widget_form_alter')]
   public function fontawesomeIconWidgetFormAlter(&$field_widget_complete_form, FormStateInterface $form_state, $context) {

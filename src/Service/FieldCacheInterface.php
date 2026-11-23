@@ -3,7 +3,7 @@
 namespace Drupal\stanford_fields\Service;
 
 /**
- * Interface FieldCacheInterface.
+ * Invalidates cache tags of entities whose date field values have passed.
  *
  * @package Drupal\stanford_fields\Service
  */

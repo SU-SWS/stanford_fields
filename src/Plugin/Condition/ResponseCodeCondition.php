@@ -35,7 +35,7 @@ class ResponseCodeCondition extends ConditionPluginBase implements ContainerFact
    * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
    *   The request stack.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, protected RequestStack $requestStack) {
+  final public function __construct(array $configuration, $plugin_id, $plugin_definition, protected RequestStack $requestStack) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
 

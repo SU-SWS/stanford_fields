@@ -16,7 +16,7 @@ class StanfordFieldsServiceProviderTest extends StanfordFieldKernelTestBase {
   /**
    * Book manager service gets overridden.
    */
-  public function testService(){
+  public function testService() {
     $this->assertFalse(\Drupal::hasService('book.manager'));
     \Drupal::service('module_installer')->install(['book']);
 

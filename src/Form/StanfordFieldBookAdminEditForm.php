@@ -9,6 +9,8 @@ use Drupal\node\NodeInterface;
 
 /**
  * Override and modify the core book admin edit form.
+ *
+ * @phpstan-ignore classExtendsInternalClass.classExtendsInternalClass
  */
 class StanfordFieldBookAdminEditForm extends BookAdminEditForm {
 

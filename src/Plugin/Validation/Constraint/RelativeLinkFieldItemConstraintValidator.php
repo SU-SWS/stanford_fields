@@ -33,7 +33,7 @@ class RelativeLinkFieldItemConstraintValidator extends ConstraintValidator imple
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   Current request stack.
    */
-  public function __construct(RequestStack $request_stack) {
+  final public function __construct(RequestStack $request_stack) {
     $this->request = $request_stack->getCurrentRequest();
   }
 

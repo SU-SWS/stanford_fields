@@ -24,9 +24,12 @@
         "drupal/ds": "^3.3"
     },
     "require-dev": {
+        "drupal/better_exposed_filters": "^7.0",
         "drupal/cshs": "^4.0",
         "drupal/book": "^3.0",
         "drupal/fontawesome": ">=3.0",
+        "drupal/graphql": "^5.0",
+        "drupal/graphql_compose": "^3.0",
         "drupal/search_api": "^1.39"
     },
     "autoload": {

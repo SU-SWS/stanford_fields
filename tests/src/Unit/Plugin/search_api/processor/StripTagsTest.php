@@ -18,11 +18,14 @@ use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Test link field validation.
+ * Tests the strip tags search API processor.
  */
 #[Group('stanford_fields')]
 class StripTagsTest extends UnitTestCase {
 
+  /**
+   * Strip tags processor removes HTML tags except the allowed ones.
+   */
   #[TestWith([
     'original' => '<div>Foobar<div>',
     'expected' => 'Foobar',
@@ -43,7 +46,7 @@ class StripTagsTest extends UnitTestCase {
     $url_assembler = $this->getMockBuilder(UnroutedUrlAssemblerInterface::class)
       ->disableOriginalConstructor()
       ->getMock();
-    $url_assembler->method('assemble')->willReturnCallback(function($uri) {
+    $url_assembler->method('assemble')->willReturnCallback(function ($uri) {
       return (new GeneratedUrl())->setGeneratedUrl($uri);
     });
 
@@ -78,7 +81,7 @@ class StripTagsTest extends UnitTestCase {
     $fieldValues = [$original];
     $field->method('getValues')->willReturnReference($fieldValues);
     $field->method('setValues')
-      ->willReturnCallback(function(array $values) use (&$result) {
+      ->willReturnCallback(function (array $values) use (&$result) {
         $result = $values;
       });
 
